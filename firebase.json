@@ -4,6 +4,10 @@
     "indexes": "firestore.indexes.json"
   },
   "hosting": {
+
+    "cleanUrls": true,
+    "trailingSlash": false,
+    
     "public": "build/web",
     "ignore": [
       "firebase.json",
