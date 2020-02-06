@@ -2,63 +2,92 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'dart:math';
-
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:english_words/english_words.dart';
 
-void main() => runApp(MyApp());
 
-class MyApp extends StatelessWidget {
+void main() => runApp(StartPage());
+
+class StartPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Startup Name Generator',
-      home: RandomWords(),
+    return new MaterialApp(
+      title: "Tabletime",
+      debugShowCheckedModeBanner: false,
+      home: Home(),
     );
-  } 
+  }
 }
 
-class RandomWordsState extends State<RandomWords> {
+int getDay() {
+  DateTime date = DateTime.now();
+  int dayNum = date.weekday;
+  return dayNum - 1;
+}
+
+class Home extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return PageView(
+      scrollDirection: Axis.vertical,
+      physics: PageScrollPhysics(),
+      pageSnapping: true,
+      dragStartBehavior: DragStartBehavior.start,
+      children: <Widget>[
+        new Week(),
+        new Week()
+      ],
+    );
+  }
+}
+
+class Week extends StatefulWidget {
   
-  final _suggestions = <WordPair>[];
-  final _biggerFont = const TextStyle(fontSize: 18.0);
+  // Week(int weekNum) {
+  //   this.weekNum = weekNum;
+  // }
+  
   @override
-
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Startup Name Generator'),
-      ),
-      body: _buildSuggestions(),
-    );
-  }
-
-  Widget _buildSuggestions() {
-  return ListView.builder(
-      padding: const EdgeInsets.all(16.0),
-      itemBuilder: /*1*/ (context, i) {
-        if (i.isOdd) return Divider(); /*2*/
-
-        final index = i ~/ 2; /*3*/
-        if (index >= _suggestions.length) {
-          _suggestions.addAll(generateWordPairs().take(10)); /*4*/
-        }
-        return _buildRow(_suggestions[index]);
-      });
-  }
-
-  Widget _buildRow(WordPair pair) {
-  return ListTile(
-    title: Text(
-      pair.asPascalCase,
-      style: _biggerFont,
-    ),
-  );
-  }
+  _WeekState createState() => _WeekState();
 }
 
-class RandomWords extends StatefulWidget {
+class _WeekState extends State<Week> {
+
+  // _WeekState(weekNum) {
+  //   this.weekNum = weekNum
+  // }
+
   @override
-  RandomWordsState createState() => RandomWordsState();
+  Widget build(BuildContext context) {
+    return DefaultTabController (
+      length: 5,
+      initialIndex: getDay(),
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text("Week"),
+          bottom: TabBar(
+            dragStartBehavior: DragStartBehavior.down,
+            isScrollable: true,
+            tabs: [
+              Tab(text: "Monday"),
+              Tab(text: "Tuesday"),
+              Tab(text: "Wednesday"),
+              Tab(text: "Thursday"),
+              Tab(text: "Friday")
+            ],
+          ),
+        ),
+        body: TabBarView(
+          physics: PageScrollPhysics(),
+          children: <Widget>[
+            Tab(icon: Icon(Icons.access_alarm),),
+            Tab(icon: Icon(Icons.access_alarm),),
+            Tab(icon: Icon(Icons.access_alarm),),
+            Tab(icon: Icon(Icons.access_alarm),),
+            Tab(icon: Icon(Icons.access_alarm),)
+          ],
+        ),
+      ),
+    );
+  }
 }
