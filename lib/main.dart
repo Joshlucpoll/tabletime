@@ -1,9 +1,9 @@
-// Copyright 2018 The Flutter team. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
+import 'dart:html';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 
 
 void main() => runApp(StartPage());
@@ -11,21 +11,38 @@ void main() => runApp(StartPage());
 class StartPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return new MaterialApp(
+    return MaterialApp(
+      theme: ThemeData(
+        primaryColor: Colors.white,
+        accentColor: Colors.red,
+        fontFamily: "Poppins",
+      ),
+      darkTheme: ThemeData(
+        primaryColor: Colors.black87,
+        accentColor: Colors.red,
+        fontFamily: "Poppins",
+      ),
       title: "Tabletime",
-      debugShowCheckedModeBanner: false,
       home: Home(),
     );
   }
 }
 
+
 int getDay() {
   DateTime date = DateTime.now();
   int dayNum = date.weekday;
+
+  // If Saturday or Sunday, day will default to Monday
+  if(dayNum > 5) {
+    dayNum = 1;
+  }
+
   return dayNum - 1;
 }
 
 class Home extends StatelessWidget {
+  
   @override
   Widget build(BuildContext context) {
     return PageView(
@@ -41,22 +58,7 @@ class Home extends StatelessWidget {
   }
 }
 
-class Week extends StatefulWidget {
-  
-  // Week(int weekNum) {
-  //   this.weekNum = weekNum;
-  // }
-  
-  @override
-  _WeekState createState() => _WeekState();
-}
-
-class _WeekState extends State<Week> {
-
-  // _WeekState(weekNum) {
-  //   this.weekNum = weekNum
-  // }
-
+class Week extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController (
@@ -69,11 +71,11 @@ class _WeekState extends State<Week> {
             dragStartBehavior: DragStartBehavior.down,
             isScrollable: true,
             tabs: [
-              Tab(text: "Monday"),
-              Tab(text: "Tuesday"),
-              Tab(text: "Wednesday"),
-              Tab(text: "Thursday"),
-              Tab(text: "Friday")
+              Tab(text: "MONDAY"),
+              Tab(text: "TUESDAY"),
+              Tab(text: "WEDNESDAY"),
+              Tab(text: "THURSDAY"),
+              Tab(text: "FRIDAY")
             ],
           ),
         ),
@@ -85,6 +87,30 @@ class _WeekState extends State<Week> {
             Tab(icon: Icon(Icons.access_alarm),),
             Tab(icon: Icon(Icons.access_alarm),),
             Tab(icon: Icon(Icons.access_alarm),)
+          ],
+        ),
+        bottomNavigationBar: BottomAppBar(
+        
+        ),
+        floatingActionButton: SpeedDial(
+          animatedIcon: AnimatedIcons.menu_close,
+          closeManually: false,
+          children: [
+            SpeedDialChild(
+              child: Icon(Icons.today),
+              backgroundColor: Colors.blue, 
+              label: "Tasks"
+            ),
+            SpeedDialChild(
+              child: Icon(Icons.edit),
+              backgroundColor: Colors.green, 
+              label: "Edit"
+            ),
+            SpeedDialChild(
+              child: Icon(Icons.settings),
+              backgroundColor: Colors.grey, 
+              label: "Settings"
+            )
           ],
         ),
       ),
