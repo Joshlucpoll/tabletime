@@ -1,4 +1,4 @@
-import 'dart:html';
+// import 'dart:html';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -18,7 +18,10 @@ class StartPage extends StatelessWidget {
         fontFamily: "Poppins",
       ),
       darkTheme: ThemeData(
-        primaryColor: Colors.black87,
+        appBarTheme: AppBarTheme(
+          color: Colors.grey[850],
+        ),
+        primaryColor: Colors.grey[900],
         accentColor: Colors.red,
         fontFamily: "Poppins",
       ),
@@ -29,17 +32,6 @@ class StartPage extends StatelessWidget {
 }
 
 
-int getDay() {
-  DateTime date = DateTime.now();
-  int dayNum = date.weekday;
-
-  // If Saturday or Sunday, day will default to Monday
-  if(dayNum > 5) {
-    dayNum = 1;
-  }
-
-  return dayNum - 1;
-}
 
 class Home extends StatelessWidget {
   
@@ -50,6 +42,7 @@ class Home extends StatelessWidget {
       physics: PageScrollPhysics(),
       pageSnapping: true,
       dragStartBehavior: DragStartBehavior.start,
+      
       children: <Widget>[
         new Week(),
         new Week()
@@ -65,17 +58,54 @@ class Week extends StatelessWidget {
       length: 5,
       initialIndex: getDay(),
       child: Scaffold(
+        backgroundColor: Theme.of(context).primaryColor,
         appBar: AppBar(
           title: Text("Week"),
+          centerTitle: true,
           bottom: TabBar(
             dragStartBehavior: DragStartBehavior.down,
             isScrollable: true,
             tabs: [
-              Tab(text: "MONDAY"),
-              Tab(text: "TUESDAY"),
-              Tab(text: "WEDNESDAY"),
-              Tab(text: "THURSDAY"),
-              Tab(text: "FRIDAY")
+              Tab(
+                child: Text(
+                  "MONDAY",
+                  style: TextStyle(
+                    fontSize: 11,
+                  ),
+                ),
+              ),
+              Tab(
+                child: Text(
+                  "TUESDAY",
+                  style: TextStyle(
+                    fontSize: 11,
+                  ),
+                ),
+              ),
+              Tab(
+                child: Text(
+                  "WEDNESDAY",
+                  style: TextStyle(
+                    fontSize: 11,
+                  ),
+                ),
+              ),
+              Tab(
+                child: Text(
+                  "THURSDAY",
+                  style: TextStyle(
+                    fontSize: 11,
+                  ),
+                ),
+              ),
+              Tab(
+                child: Text(
+                  "FRIDAY",
+                  style: TextStyle(
+                    fontSize: 11,
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -93,6 +123,7 @@ class Week extends StatelessWidget {
         
         ),
         floatingActionButton: SpeedDial(
+          backgroundColor: Colors.black,
           animatedIcon: AnimatedIcons.menu_close,
           closeManually: false,
           children: [
@@ -117,3 +148,14 @@ class Week extends StatelessWidget {
     );
   }
 }
+  int getDay() {
+    DateTime date = DateTime.now();
+    int dayNum = date.weekday;
+
+    // If Saturday or Sunday, day will default to Monday
+    if(dayNum > 5) {
+      dayNum = 1;
+    }
+
+    return dayNum - 1;
+  }

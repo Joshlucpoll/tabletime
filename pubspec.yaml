@@ -32,6 +32,7 @@ dependencies:
   cloud_firestore: ^0.12.9+5
 
   flutter_speed_dial: ^1.2.5
+  shared_preferences: ^0.4.3
 
 dev_dependencies:
   flutter_test:
