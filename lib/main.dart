@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 
-
 void main() => runApp(StartPage());
 
 class StartPage extends StatelessWidget {
@@ -31,39 +30,68 @@ class StartPage extends StatelessWidget {
   }
 }
 
-
-
 class Home extends StatelessWidget {
-  
   @override
   Widget build(BuildContext context) {
-    return PageView(
-      scrollDirection: Axis.vertical,
-      physics: PageScrollPhysics(),
-      pageSnapping: true,
-      dragStartBehavior: DragStartBehavior.start,
-      
-      children: <Widget>[
-        new Week(),
-        new Week()
-      ],
+    return Scaffold(
+      body: PageView(
+        scrollDirection: Axis.vertical,
+        physics: ScrollPhysics(),
+        pageSnapping: true,
+        dragStartBehavior: DragStartBehavior.start,
+        children: <Widget>[new Week(), new Week()],
+      ),
+      floatingActionButton: SpeedDial(
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        overlayColor: Colors.grey,
+        curve: Cubic(0.0, 0.0, 0.58, 1.0),
+        animatedIcon: AnimatedIcons.menu_close,
+        closeManually: false,
+        children: [
+          SpeedDialChild(
+              child: Icon(Icons.today),
+              backgroundColor: Colors.blue,
+              label: "Tasks"),
+          SpeedDialChild(
+              child: Icon(Icons.edit),
+              backgroundColor: Colors.green,
+              label: "Edit"),
+          SpeedDialChild(
+              child: Icon(Icons.settings),
+              backgroundColor: Colors.grey,
+              label: "Settings")
+        ],
+      ),
     );
   }
 }
 
 class Week extends StatelessWidget {
+  int getDay() {
+    DateTime date = DateTime.now();
+    int dayNum = date.weekday;
+
+    // If Saturday or Sunday, day will default to Monday
+    if (dayNum > 5) {
+      dayNum = 1;
+    }
+    return dayNum - 1;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController (
+    return DefaultTabController(
       length: 5,
       initialIndex: getDay(),
       child: Scaffold(
         backgroundColor: Theme.of(context).primaryColor,
         appBar: AppBar(
-          title: Text("Week"),
-          centerTitle: true,
+          title: Text(
+            "Week",
+            style: TextStyle(fontWeight: FontWeight.w900),
+          ),
           bottom: TabBar(
-            dragStartBehavior: DragStartBehavior.down,
             isScrollable: true,
             tabs: [
               Tab(
@@ -112,35 +140,20 @@ class Week extends StatelessWidget {
         body: TabBarView(
           physics: PageScrollPhysics(),
           children: <Widget>[
-            Tab(icon: Icon(Icons.access_alarm),),
-            Tab(icon: Icon(Icons.access_alarm),),
-            Tab(icon: Icon(Icons.access_alarm),),
-            Tab(icon: Icon(Icons.access_alarm),),
-            Tab(icon: Icon(Icons.access_alarm),)
-          ],
-        ),
-        bottomNavigationBar: BottomAppBar(
-        
-        ),
-        floatingActionButton: SpeedDial(
-          backgroundColor: Colors.black,
-          animatedIcon: AnimatedIcons.menu_close,
-          closeManually: false,
-          children: [
-            SpeedDialChild(
-              child: Icon(Icons.today),
-              backgroundColor: Colors.blue, 
-              label: "Tasks"
+            Tab(
+              icon: Icon(Icons.access_alarm),
             ),
-            SpeedDialChild(
-              child: Icon(Icons.edit),
-              backgroundColor: Colors.green, 
-              label: "Edit"
+            Tab(
+              icon: Icon(Icons.access_alarm),
             ),
-            SpeedDialChild(
-              child: Icon(Icons.settings),
-              backgroundColor: Colors.grey, 
-              label: "Settings"
+            Tab(
+              icon: Icon(Icons.access_alarm),
+            ),
+            Tab(
+              icon: Icon(Icons.access_alarm),
+            ),
+            Tab(
+              icon: Icon(Icons.access_alarm),
             )
           ],
         ),
@@ -148,14 +161,3 @@ class Week extends StatelessWidget {
     );
   }
 }
-  int getDay() {
-    DateTime date = DateTime.now();
-    int dayNum = date.weekday;
-
-    // If Saturday or Sunday, day will default to Monday
-    if(dayNum > 5) {
-      dayNum = 1;
-    }
-
-    return dayNum - 1;
-  }
