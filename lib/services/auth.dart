@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import './database.dart';
 
 class Auth {
   final FirebaseAuth auth;
@@ -13,6 +14,7 @@ class Auth {
         email: email.trim(),
         password: password.trim(),
       );
+
       return "Success";
     } on FirebaseAuthException catch (e) {
       return e.message;
@@ -27,6 +29,7 @@ class Auth {
         email: email.trim(),
         password: password.trim(),
       );
+      print("!!!!!!!!THIS IS THE USER UID " + this.auth.currentUser.uid);
       return "Success";
     } on FirebaseAuthException catch (e) {
       return e.message;

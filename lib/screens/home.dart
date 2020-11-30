@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:flutter/gestures.dart';
 
+// Services
+import '../services/auth.dart';
+
 // Widgets
 import '../widgets/week.dart';
 
@@ -39,7 +42,10 @@ class _HomeState extends State<Home> {
           SpeedDialChild(
               child: Icon(Icons.today),
               backgroundColor: Colors.blue,
-              label: "Tasks"),
+              label: "Tasks",
+              onTap: () {
+                Auth(auth: widget.auth).signOut();
+              }),
           SpeedDialChild(
               child: Icon(Icons.edit),
               backgroundColor: Colors.green,
