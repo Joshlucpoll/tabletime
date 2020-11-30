@@ -3,7 +3,12 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+// Screens
 import './screens/home.dart';
+import './screens/login.dart';
+
+// Services
+import './services/auth.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -66,8 +71,31 @@ class Root extends StatefulWidget {
 class _RootState extends State<Root> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return StreamBuilder(
+      stream: Auth(auth: _auth).user,
+      builder: (BuildContext context, AsyncSnapshot<User> snapshot) {
+        if (snapshot.connectionState == ConnectionState.active) {
+          if (snapshot.data?.uid == null) {
+            return Login(
+              auth: _auth,
+            );
+          } else {
+            return Home(
+              auth: _auth,
+              firestore: _firestore,
+            );
+          }
+        } else {
+          return const Scaffold(
+            body: Center(
+              child: Text("Loading..."),
+            ),
+          );
+        }
+      }, //Auth stream
+    );
   }
 }
