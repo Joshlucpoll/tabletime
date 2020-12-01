@@ -5,5 +5,23 @@ class Database {
 
   Database({this.firestore});
 
-  Future<void> addUser({String uid}) {}
+  void addUser({String uid}) {
+    try {
+      DocumentReference dataRef = firestore.collection("users").doc(uid);
+
+      dataRef.get().then((DocumentSnapshot docSnapshot) => {
+            if (!docSnapshot.exists)
+              {
+                dataRef.set({
+                  'lessons': {},
+                  'numberOfWeeks': 1,
+                  'periodStructure': {},
+                  'weeks': {}
+                })
+              }
+          });
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

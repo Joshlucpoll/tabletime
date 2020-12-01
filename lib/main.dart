@@ -75,13 +75,14 @@ class _RootState extends State<Root> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-      stream: Auth(auth: _auth).user,
+      stream: Auth(
+        auth: _auth,
+        firestore: _firestore,
+      ).user,
       builder: (BuildContext context, AsyncSnapshot<User> snapshot) {
         if (snapshot.connectionState == ConnectionState.active) {
           if (snapshot.data?.uid == null) {
-            return Login(
-              auth: _auth,
-            );
+            return Login(auth: _auth, firestore: _firestore);
           } else {
             return Home(
               auth: _auth,

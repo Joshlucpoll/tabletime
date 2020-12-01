@@ -1,10 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import './database.dart';
 
 class Auth {
   final FirebaseAuth auth;
+  final FirebaseFirestore firestore;
 
-  Auth({this.auth});
+  Auth({this.auth, this.firestore});
 
   Stream<User> get user => auth.authStateChanges();
 
@@ -29,7 +31,7 @@ class Auth {
         email: email.trim(),
         password: password.trim(),
       );
-      print("!!!!!!!!THIS IS THE USER UID " + this.auth.currentUser.uid);
+      Database(firestore: firestore).addUser(uid: auth.currentUser.uid);
       return "Success";
     } on FirebaseAuthException catch (e) {
       return e.message;
