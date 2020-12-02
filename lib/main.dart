@@ -5,10 +5,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 // Screens
 import './screens/home.dart';
+import './screens/setup.dart';
 import './screens/login.dart';
 
 // Services
 import './services/auth.dart';
+import './services/database.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -79,15 +81,37 @@ class _RootState extends State<Root> {
         auth: _auth,
         firestore: _firestore,
       ).user,
+
       builder: (BuildContext context, AsyncSnapshot<User> snapshot) {
         if (snapshot.connectionState == ConnectionState.active) {
           if (snapshot.data?.uid == null) {
             return Login(auth: _auth, firestore: _firestore);
           } else {
-            return Home(
-              auth: _auth,
-              firestore: _firestore,
-            );
+            return Home(auth: _auth, firestore: _firestore);
+            // return FutureBuilder<Set<bool>>(
+            //   future: Database(firestore: _firestore)
+            //       .newUser(uid: _auth.currentUser.uid),
+            //   builder:
+            //       (BuildContext context, AsyncSnapshot<Set<bool>> snapshot) {
+            //     if (snapshot.connectionState == ConnectionState.done) {
+            //       print(snapshot.data);
+            //       if (snapshot.data.first) {
+            //         return Setup(auth: _auth, firestore: _firestore);
+            //       } else {
+            //         return Home(
+            //           auth: _auth,
+            //           firestore: _firestore,
+            //         );
+            //       }
+            //     } else {
+            //       return const Scaffold(
+            //         body: Center(
+            //           child: Text("Loading..."),
+            //         ),
+            //       );
+            //     }
+            //   },
+            // );
           }
         } else {
           return const Scaffold(

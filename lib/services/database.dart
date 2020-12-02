@@ -5,21 +5,23 @@ class Database {
 
   Database({this.firestore});
 
-  void addUser({String uid}) {
+  Future<void> addUser({String uid, data}) async {
     try {
       DocumentReference dataRef = firestore.collection("users").doc(uid);
 
-      dataRef.get().then((DocumentSnapshot docSnapshot) => {
-            if (!docSnapshot.exists)
-              {
-                dataRef.set({
-                  'lessons': {},
-                  'numberOfWeeks': 1,
-                  'periodStructure': {},
-                  'weeks': {}
-                })
-              }
-          });
+      await dataRef.get().then(
+          (DocumentSnapshot docSnapshot) => {if (!docSnapshot.exists) {}});
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Set<bool>> newUser({String uid}) async {
+    try {
+      DocumentReference dataRef = firestore.collection("users").doc(uid);
+      return await dataRef
+          .get()
+          .then((DocumentSnapshot docSnapshot) => {docSnapshot.exists});
     } catch (e) {
       rethrow;
     }
