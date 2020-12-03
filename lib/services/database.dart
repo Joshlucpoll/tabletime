@@ -21,7 +21,7 @@ class Database {
       DocumentReference dataRef = firestore.collection("users").doc(uid);
       return await dataRef
           .get()
-          .then((DocumentSnapshot docSnapshot) => {docSnapshot.exists});
+          .then((DocumentSnapshot docSnapshot) => {!docSnapshot.exists});
     } catch (e) {
       rethrow;
     }

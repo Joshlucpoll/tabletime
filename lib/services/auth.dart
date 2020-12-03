@@ -31,7 +31,7 @@ class Auth {
         email: email.trim(),
         password: password.trim(),
       );
-      // await Database(firestore: firestore).addUser(uid: auth.currentUser.uid);
+      await Database(firestore: firestore).addUser(uid: auth.currentUser.uid);
       return "Success";
     } on FirebaseAuthException catch (e) {
       return e.message;
