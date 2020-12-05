@@ -7,6 +7,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import './screens/home.dart';
 import './screens/setup.dart';
 import './screens/login.dart';
+import './screens/loading.dart';
 
 // Services
 import './services/auth.dart';
@@ -23,22 +24,23 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(
-        primaryColor: Colors.white,
-        accentColor: Colors.red,
-        fontFamily: "Poppins",
-      ),
+          primaryColor: Colors.white,
+          scaffoldBackgroundColor: Colors.white,
+          accentColor: Colors.black,
+          primaryTextTheme: TextTheme(
+              bodyText1:
+                  TextStyle(color: Colors.black, fontFamily: "Poppins"))),
       darkTheme: ThemeData(
-        appBarTheme: AppBarTheme(
-          color: Colors.grey[850],
-        ),
-        primaryColor: Colors.grey[900],
-        accentColor: Colors.red,
-        fontFamily: "Poppins",
-      ),
+          primaryColor: Colors.grey[900],
+          scaffoldBackgroundColor: Colors.grey[900],
+          buttonTheme: ButtonThemeData(buttonColor: Colors.white),
+          accentColor: Colors.white,
+          primaryTextTheme: TextTheme(
+              bodyText1:
+                  TextStyle(color: Colors.white, fontFamily: "Poppins"))),
       title: "Tabletime",
       // Firebase builder
       home: FutureBuilder(
-        // Initialize FlutterFire:
         future: _initialization,
         builder: (context, snapshot) {
           // Check for errors
@@ -102,21 +104,13 @@ class _RootState extends State<Root> {
                     );
                   }
                 } else {
-                  return const Scaffold(
-                    body: Center(
-                      child: Text("Loading..."),
-                    ),
-                  );
+                  return Loading();
                 }
               },
             );
           }
         } else {
-          return const Scaffold(
-            body: Center(
-              child: Text("Loading..."),
-            ),
-          );
+          return Loading();
         }
       }, //Auth stream
     );

@@ -22,7 +22,9 @@ class _SetupState extends State<Setup> {
     "number_of_weeks": 1,
     "data_created": Timestamp.now(),
     "updated": Timestamp.now(),
-    "period_structure": [],
+    "period_structure": [
+      {"start": "9:10", "end": "10:10"}
+    ],
     "lessons": [],
     "weeks": [],
   };
@@ -36,9 +38,9 @@ class _SetupState extends State<Setup> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: PeriodStructure(
-      periodStructure: _data["period_structure"],
-      updatePeriod: _handlePeriodStructureChange,
-    ));
+        body: Container(
+            child: PeriodStructure(
+                periodStructure: _data["period_structure"],
+                updatePeriod: (data) => _handlePeriodStructureChange(data))));
   }
 }

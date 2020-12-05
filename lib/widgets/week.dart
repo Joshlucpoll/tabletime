@@ -18,12 +18,8 @@ class Week extends StatelessWidget {
       length: 5,
       initialIndex: getDay(),
       child: Scaffold(
-        backgroundColor: Theme.of(context).primaryColor,
         appBar: AppBar(
-          title: Text(
-            "Week",
-            style: TextStyle(fontWeight: FontWeight.w900),
-          ),
+          title: Text("Week", style: TextStyle(fontWeight: FontWeight.bold)),
           bottom: TabBar(
             isScrollable: true,
             tabs: [
