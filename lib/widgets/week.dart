@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class Week extends StatelessWidget {
-  int getDay() {
+  int get day {
     DateTime date = DateTime.now();
     int dayNum = date.weekday;
 
@@ -16,10 +16,19 @@ class Week extends StatelessWidget {
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: 5,
-      initialIndex: getDay(),
+      initialIndex: day,
       child: Scaffold(
         appBar: AppBar(
-          title: Text("Week", style: TextStyle(fontWeight: FontWeight.bold)),
+          title: Row(children: <Widget>[
+            Image(
+                image: AssetImage("assets/images/tabletime_logo.png"),
+                height: 25.0),
+            Container(
+                margin: EdgeInsets.only(left: 10.0),
+                child: Text("Week",
+                    style:
+                        TextStyle(fontWeight: FontWeight.bold, fontSize: 25)))
+          ]),
           bottom: TabBar(
             isScrollable: true,
             tabs: [

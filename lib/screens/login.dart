@@ -87,7 +87,7 @@ class _LoginState extends State<Login> {
                       );
                     }
                   },
-                  child: const Text("Create Account"),
+                  child: Text("Create Account"),
                 )
               ],
             );

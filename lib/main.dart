@@ -27,18 +27,29 @@ class App extends StatelessWidget {
           primaryColor: Colors.white,
           scaffoldBackgroundColor: Colors.white,
           accentColor: Colors.black,
-          primaryTextTheme: TextTheme(
-              bodyText1:
-                  TextStyle(color: Colors.black, fontFamily: "Poppins"))),
+          cardTheme: CardTheme(
+            color: Colors.grey[200],
+            shadowColor: Colors.black,
+          ),
+          textTheme: Theme.of(context).textTheme.apply(
+              fontFamily: "Poppins",
+              bodyColor: Colors.black,
+              displayColor: Colors.black)),
       darkTheme: ThemeData(
           primaryColor: Colors.grey[900],
           scaffoldBackgroundColor: Colors.grey[900],
           buttonTheme: ButtonThemeData(buttonColor: Colors.white),
           accentColor: Colors.white,
-          primaryTextTheme: TextTheme(
-              bodyText1:
-                  TextStyle(color: Colors.white, fontFamily: "Poppins"))),
+          cardTheme: CardTheme(
+            color: Colors.grey[850],
+            shadowColor: Colors.black,
+          ),
+          textTheme: Theme.of(context).textTheme.apply(
+              fontFamily: "Poppins",
+              bodyColor: Colors.white,
+              displayColor: Colors.white)),
       title: "Tabletime",
+
       // Firebase builder
       home: FutureBuilder(
         future: _initialization,

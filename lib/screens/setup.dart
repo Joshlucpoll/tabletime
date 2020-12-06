@@ -23,13 +23,18 @@ class _SetupState extends State<Setup> {
     "data_created": Timestamp.now(),
     "updated": Timestamp.now(),
     "period_structure": [
-      {"start": "9:10", "end": "10:10"}
+      {"start": Timestamp.now(), "end": Timestamp.now()}
     ],
     "lessons": [],
     "weeks": [],
   };
 
   void _handlePeriodStructureChange(List data) {
+    data.sort((a, b) {
+      return (a["start"].toDate().hour * 60 + a["start"].toDate().minute)
+          .compareTo(
+              b["start"].toDate().hour * 60 + b["start"].toDate().minute);
+    });
     setState(() {
       _data["period_structure"] = data;
     });
@@ -41,6 +46,6 @@ class _SetupState extends State<Setup> {
         body: Container(
             child: PeriodStructure(
                 periodStructure: _data["period_structure"],
-                updatePeriod: (data) => _handlePeriodStructureChange(data))));
+                updatePeriod: _handlePeriodStructureChange)));
   }
 }

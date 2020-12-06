@@ -42,6 +42,8 @@ class _HomeState extends State<Home> {
                 child: Icon(Icons.today),
                 backgroundColor: Colors.blue,
                 foregroundColor: Colors.white,
+                labelBackgroundColor: Colors.black,
+                elevation: 0,
                 label: "Tasks",
                 onTap: () {
                   Auth(auth: widget.auth).signOut();
