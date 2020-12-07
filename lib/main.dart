@@ -31,6 +31,9 @@ class App extends StatelessWidget {
             color: Colors.grey[200],
             shadowColor: Colors.black,
           ),
+          dialogTheme: DialogTheme().copyWith(
+              contentTextStyle: TextStyle(color: Colors.black),
+              titleTextStyle: TextStyle(color: Colors.black)),
           textTheme: Theme.of(context).textTheme.apply(
               fontFamily: "Poppins",
               bodyColor: Colors.black,
@@ -44,6 +47,9 @@ class App extends StatelessWidget {
             color: Colors.grey[850],
             shadowColor: Colors.black,
           ),
+          dialogTheme: DialogTheme().copyWith(
+              contentTextStyle: TextStyle(color: Colors.white),
+              titleTextStyle: TextStyle(color: Colors.white)),
           textTheme: Theme.of(context).textTheme.apply(
               fontFamily: "Poppins",
               bodyColor: Colors.white,
