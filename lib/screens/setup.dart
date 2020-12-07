@@ -17,14 +17,12 @@ class Setup extends StatefulWidget {
 }
 
 class _SetupState extends State<Setup> {
-  var _data = {
+  final _data = {
     "timetable_name": "Timetable 1",
     "number_of_weeks": 1,
     "data_created": Timestamp.now(),
     "updated": Timestamp.now(),
-    "period_structure": [
-      {"start": Timestamp.now(), "end": Timestamp.now()}
-    ],
+    "period_structure": [],
     "lessons": [],
     "weeks": [],
   };

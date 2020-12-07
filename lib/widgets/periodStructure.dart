@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
+import '../widgets/newPeriodDialog.dart';
+
 class Period extends StatelessWidget {
   Period(
       {Key key, this.period, this.index, this.changePeriod, this.deletePeriod})
@@ -36,7 +38,7 @@ class Period extends StatelessWidget {
                         color: Theme.of(context).accentColor)),
                 title: Center(
                     child: Text("Period ${index + 1}",
-                        style: TextStyle(fontWeight: FontWeight.bold))),
+                        style: TextStyle(fontWeight: FontWeight.normal))),
                 subtitle: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: <Widget>[
@@ -69,9 +71,15 @@ class PeriodStructure extends StatelessWidget {
   PeriodStructure({Key key, this.periodStructure, this.updatePeriod})
       : super(key: key);
 
-  void _addPeriod() {
+  void _addPeriod(TimeOfDay startTime, TimeOfDay endTime) {
+    DateTime now = DateTime.now();
+    Timestamp start = new Timestamp.fromDate(new DateTime(
+        now.year, now.month, now.day, startTime.hour, startTime.minute));
+    Timestamp end = new Timestamp.fromDate(new DateTime(
+        now.year, now.month, now.day, endTime.hour, endTime.minute));
+
     List newList = List.from(periodStructure)
-      ..add({"start": Timestamp.now(), "end": Timestamp.now()});
+      ..add({"start": start, "end": end});
     updatePeriod(newList);
   }
 
@@ -82,7 +90,9 @@ class PeriodStructure extends StatelessWidget {
 
   void _changePeriod(int index, bool start, BuildContext context) async {
     TimeOfDay t = await showTimePicker(
-      initialTime: TimeOfDay.now(),
+      initialTime: start
+          ? TimeOfDay.fromDateTime(periodStructure[index]["start"].toDate())
+          : TimeOfDay.fromDateTime(periodStructure[index]["end"].toDate()),
       context: context,
     );
 
@@ -109,7 +119,7 @@ class PeriodStructure extends StatelessWidget {
         child: SafeArea(
             child: Column(children: <Widget>[
           Container(
-              padding: EdgeInsets.all(40.0),
+              padding: EdgeInsets.only(top: 40.0, bottom: 40.0),
               child: Text("Setup Periods",
                   style:
                       TextStyle(fontSize: 40.0, fontWeight: FontWeight.bold))),
@@ -129,7 +139,16 @@ class PeriodStructure extends StatelessWidget {
               padding: EdgeInsets.all(10.0),
               width: double.infinity,
               child: RaisedButton(
-                  child: Text("New Period"), onPressed: () => _addPeriod()))
+                  child: Text("New Period"),
+                  onPressed: () => showDialog(
+                      context: context,
+                      builder: (_) {
+                        return NewPeriodDialog(
+                            addPeriod: _addPeriod,
+                            previousEnd: periodStructure.isEmpty
+                                ? Timestamp.now()
+                                : periodStructure.last["end"]);
+                      })))
         ])));
   }
 }
