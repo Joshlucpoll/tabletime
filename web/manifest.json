@@ -1,0 +1,10 @@
+{
+  "name": "Tabletime",
+  "short_name": "Tabletime",
+  "theme_color": "#000000",
+  "background_color": "#ffffff",
+  "display": "fullscreen",
+  "orientation": "portrait",
+  "scope": "/",
+  "start_url": "/"
+}
