@@ -13,7 +13,7 @@ class Loading extends StatelessWidget {
               children: <Widget>[
                 Image.asset(
                   "assets/images/tabletime_logo.png",
-                  width: MediaQuery.of(context).size.width * 0.6,
+                  width: MediaQuery.of(context).size.shortestSide * 0.6,
                 ),
                 Text(
                   "Loading",
