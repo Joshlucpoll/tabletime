@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 // input widgets
+import '../widgets/newTimetable.dart';
 import '../widgets/periodStructure.dart';
 
 class Setup extends StatefulWidget {
@@ -38,12 +39,23 @@ class _SetupState extends State<Setup> {
     });
   }
 
+  void _handleNameChange(String name) {
+    setState(() {
+      _data["timetable_name"] = name;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Container(
-            child: PeriodStructure(
-                periodStructure: _data["period_structure"],
-                updatePeriod: _handlePeriodStructureChange)));
+        body: PageView(children: [
+      NewTimetable(
+        name: _data["name"],
+        updateName: _handleNameChange,
+      ),
+      PeriodStructure(
+          periodStructure: _data["period_structure"],
+          updatePeriod: _handlePeriodStructureChange)
+    ]));
   }
 }
