@@ -18,6 +18,7 @@ class Login extends StatefulWidget {
 class _LoginState extends State<Login> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  bool _passwordVisible = true;
 
   @override
   void dispose() {
@@ -46,7 +47,21 @@ class _LoginState extends State<Login> {
                     ),
                     TextFormField(
                       key: const ValueKey("password"),
-                      decoration: InputDecoration(labelText: "Password"),
+                      decoration: InputDecoration(
+                          labelText: "Password",
+                          suffixIcon: Container(
+                              padding: EdgeInsets.all(5.0),
+                              child: IconButton(
+                                onPressed: () => setState(() {
+                                  _passwordVisible = !_passwordVisible;
+                                }),
+                                icon: Icon(
+                                    _passwordVisible
+                                        ? Icons.visibility_rounded
+                                        : Icons.visibility_off,
+                                    color: Theme.of(context).accentColor),
+                              ))),
+                      obscureText: _passwordVisible,
                       controller: _passwordController,
                     ),
                     const SizedBox(
