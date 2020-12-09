@@ -7,21 +7,28 @@ class Database {
 
   Future<void> addUser({String uid, data}) async {
     try {
-      DocumentReference dataRef = firestore.collection("users").doc(uid);
+      DocumentReference userRef = firestore.collection("users").doc(uid);
+      CollectionReference usersRef = firestore.collection("users");
 
-      await dataRef.get().then(
-          (DocumentSnapshot docSnapshot) => {if (!docSnapshot.exists) {}});
+      await userRef.get().then((DocumentSnapshot docSnapshot) {
+        if (!docSnapshot.exists) {
+          usersRef.add({
+            "finished_setup": false,
+          });
+
+          return "Success";
+        }
+      });
     } catch (e) {
       rethrow;
     }
   }
 
-  Future<Set<bool>> newUser({String uid}) async {
+  Future<bool> finishedSetup({String uid}) async {
     try {
       DocumentReference dataRef = firestore.collection("users").doc(uid);
-      return await dataRef
-          .get()
-          .then((DocumentSnapshot docSnapshot) => {!docSnapshot.exists});
+      return await dataRef.get().then((DocumentSnapshot docSnapshot) =>
+          docSnapshot.data()["finished_setup"] ?? false);
     } catch (e) {
       rethrow;
     }

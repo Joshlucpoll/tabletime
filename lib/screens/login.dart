@@ -52,15 +52,12 @@ class _LoginState extends State<Login> {
                           suffixIcon: Container(
                               padding: EdgeInsets.all(5.0),
                               child: IconButton(
-                                onPressed: () => setState(() {
-                                  _passwordVisible = !_passwordVisible;
-                                }),
-                                icon: Icon(
-                                    _passwordVisible
-                                        ? Icons.visibility_rounded
-                                        : Icons.visibility_off,
-                                    color: Theme.of(context).accentColor),
-                              ))),
+                                  onPressed: () => setState(() {
+                                        _passwordVisible = !_passwordVisible;
+                                      }),
+                                  icon: Icon(_passwordVisible
+                                      ? Icons.visibility_rounded
+                                      : Icons.visibility_off)))),
                       obscureText: _passwordVisible,
                       controller: _passwordController,
                     ),

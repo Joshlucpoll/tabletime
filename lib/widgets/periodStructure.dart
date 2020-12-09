@@ -136,7 +136,7 @@ class PeriodStructure extends StatelessWidget {
                           deletePeriod: _deletePeriod))
                       .toList())),
           Container(
-              padding: EdgeInsets.all(10.0),
+              padding: EdgeInsets.all(20.0),
               width: double.infinity,
               child: RaisedButton(
                   child: Text("New Period"),

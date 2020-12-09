@@ -20,6 +20,7 @@ class Setup extends StatefulWidget {
 class _SetupState extends State<Setup> {
   final _data = {
     "timetable_name": "Timetable 1",
+    "finished_setup": false,
     "number_of_weeks": 1,
     "data_created": Timestamp.now(),
     "updated": Timestamp.now(),
@@ -27,6 +28,39 @@ class _SetupState extends State<Setup> {
     "lessons": [],
     "weeks": [],
   };
+
+  PageController _pageController;
+  double pageIndex = 0;
+
+  @override
+  void initState() {
+    _pageController = PageController();
+
+    _pageController.addListener(() {
+      if (_pageController.hasClients) {
+        setState(() {
+          pageIndex = _pageController.page;
+        });
+      }
+    });
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  void _changePage({bool next}) {
+    if (next) {
+      _pageController.animateToPage(pageIndex.toInt() + 1,
+          duration: Duration(milliseconds: 500), curve: Curves.ease);
+    } else {
+      _pageController.animateToPage(pageIndex.toInt() - 1,
+          duration: Duration(milliseconds: 500), curve: Curves.ease);
+    }
+  }
 
   void _handlePeriodStructureChange(List data) {
     data.sort((a, b) {
@@ -48,14 +82,34 @@ class _SetupState extends State<Setup> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: PageView(children: [
-      NewTimetable(
-        name: _data["name"],
-        updateName: _handleNameChange,
-      ),
-      PeriodStructure(
-          periodStructure: _data["period_structure"],
-          updatePeriod: _handlePeriodStructureChange)
+        body: Column(children: <Widget>[
+      Expanded(
+          child: PageView(controller: _pageController, children: [
+        NewTimetable(
+          name: _data["timetable_name"],
+          updateName: _handleNameChange,
+        ),
+        PeriodStructure(
+            periodStructure: _data["period_structure"],
+            updatePeriod: _handlePeriodStructureChange)
+      ])),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          Visibility(
+              visible: pageIndex != 0,
+              child: FlatButton(
+                onPressed: () => _changePage(next: false),
+                child: Text("Back",
+                    style: TextStyle(color: Theme.of(context).accentColor)),
+              )),
+          FlatButton(
+            onPressed: () => _changePage(next: true),
+            child: Text("Next",
+                style: TextStyle(color: Theme.of(context).accentColor)),
+          )
+        ],
+      )
     ]));
   }
 }

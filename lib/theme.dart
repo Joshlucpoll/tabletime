@@ -31,7 +31,8 @@ class AppTheme {
       primaryColor: Colors.grey[900],
       scaffoldBackgroundColor: Colors.grey[900],
       buttonTheme: ButtonThemeData(buttonColor: Colors.white),
-      accentColor: Colors.white,
+      accentColor: Colors.grey,
+      iconTheme: IconThemeData(color: Colors.grey),
       inputDecorationTheme: InputDecorationTheme(
           labelStyle: TextStyle(color: Colors.white),
           focusedBorder:

@@ -80,19 +80,18 @@ class _RootState extends State<Root> {
           if (snapshot.data?.uid == null) {
             return Login(auth: _auth, firestore: _firestore);
           } else {
-            return FutureBuilder<Set<bool>>(
+            return FutureBuilder<bool>(
               future: Database(firestore: _firestore)
-                  .newUser(uid: _auth.currentUser.uid),
-              builder:
-                  (BuildContext context, AsyncSnapshot<Set<bool>> snapshot) {
+                  .finishedSetup(uid: _auth.currentUser.uid),
+              builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
                 if (snapshot.connectionState == ConnectionState.done) {
-                  if (snapshot.data.first) {
-                    return Setup(auth: _auth, firestore: _firestore);
-                  } else {
+                  if (snapshot.data) {
                     return Home(
                       auth: _auth,
                       firestore: _firestore,
                     );
+                  } else {
+                    return Setup(auth: _auth, firestore: _firestore);
                   }
                 } else {
                   return Loading();

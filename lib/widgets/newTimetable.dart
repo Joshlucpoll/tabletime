@@ -11,12 +11,14 @@ class NewTimetable extends StatefulWidget {
 }
 
 class _NewTimetableState extends State<NewTimetable> {
-  final TextEditingController _tabletimeNameController =
-      TextEditingController();
+  TextEditingController _tabletimeNameController;
 
   @override
   void initState() {
-    _tabletimeNameController.text = widget.name;
+    _tabletimeNameController = TextEditingController(text: widget.name);
+    _tabletimeNameController.addListener(() {
+      widget.updateName(_tabletimeNameController.text);
+    });
     super.initState();
   }
 
@@ -35,14 +37,30 @@ class _NewTimetableState extends State<NewTimetable> {
           Container(
               padding: EdgeInsets.only(top: 40.0, bottom: 40.0),
               child: Text("Create a Timetable",
+                  textAlign: TextAlign.center,
+                  overflow: TextOverflow.visible,
                   style:
                       TextStyle(fontSize: 40.0, fontWeight: FontWeight.bold))),
-          Container(
-            child: TextFormField(
-              key: const ValueKey("password"),
-              controller: _tabletimeNameController,
+          Expanded(
+              child: Container(
+            padding: EdgeInsets.all(20.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Text("Name your Timetable", textAlign: TextAlign.left),
+                TextField(
+                  controller: _tabletimeNameController,
+                  decoration: InputDecoration(
+                      suffixIcon: IconButton(
+                    onPressed: () {},
+                    icon: Icon(
+                      Icons.edit,
+                    ),
+                  )),
+                ),
+              ],
             ),
-          )
+          )),
         ])));
   }
 }
