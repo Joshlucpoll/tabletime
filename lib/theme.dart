@@ -6,50 +6,15 @@ class AppTheme {
   AppTheme({this.context});
 
   ThemeData get lightTheme => ThemeData(
-      primaryColor: Colors.white,
-      scaffoldBackgroundColor: Colors.white,
-      accentColor: Colors.black,
-      inputDecorationTheme: InputDecorationTheme(
-          labelStyle: TextStyle(color: Colors.black),
-          focusedBorder:
-              OutlineInputBorder(borderSide: BorderSide(color: Colors.black)),
-          border:
-              OutlineInputBorder(borderSide: BorderSide(color: Colors.grey))),
-      cardTheme: CardTheme(
-        color: Colors.grey[200],
-        shadowColor: Colors.black,
-      ),
-      dialogTheme: DialogTheme().copyWith(
-          contentTextStyle: TextStyle(color: Colors.black),
-          titleTextStyle: TextStyle(color: Colors.black)),
-      textTheme: Theme.of(context).textTheme.apply(
-          fontFamily: "Poppins",
-          bodyColor: Colors.black,
-          displayColor: Colors.black));
-
+        brightness: Brightness.light,
+        fontFamily: "Poppins",
+        primaryColor: Colors.grey[300],
+        accentColor: Colors.red,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      );
   ThemeData get darkTheme => ThemeData(
-      primaryColor: Colors.grey[900],
-      scaffoldBackgroundColor: Colors.grey[900],
-      buttonTheme: ButtonThemeData(buttonColor: Colors.white),
-      accentColor: Colors.grey,
-      iconTheme: IconThemeData(color: Colors.grey),
-      inputDecorationTheme: InputDecorationTheme(
-          labelStyle: TextStyle(color: Colors.white),
-          focusedBorder:
-              OutlineInputBorder(borderSide: BorderSide(color: Colors.white)),
-          enabledBorder:
-              OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
-          border:
-              OutlineInputBorder(borderSide: BorderSide(color: Colors.grey))),
-      cardTheme: CardTheme(
-        color: Colors.grey[850],
-        shadowColor: Colors.black,
-      ),
-      dialogTheme: DialogTheme().copyWith(
-          contentTextStyle: TextStyle(color: Colors.white),
-          titleTextStyle: TextStyle(color: Colors.white)),
-      textTheme: Theme.of(context).textTheme.apply(
-          fontFamily: "Poppins",
-          bodyColor: Colors.white,
-          displayColor: Colors.white));
+        brightness: Brightness.dark,
+        fontFamily: "Poppins",
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      );
 }

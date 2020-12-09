@@ -98,16 +98,19 @@ class _SetupState extends State<Setup> {
         children: <Widget>[
           Visibility(
               visible: pageIndex != 0,
+              child: Container(
+                  margin: EdgeInsets.all(20.0),
+                  child: FlatButton(
+                    onPressed: () => _changePage(next: false),
+                    child: Text("Back"),
+                  ))),
+          Container(
+              margin: EdgeInsets.all(20.0),
               child: FlatButton(
-                onPressed: () => _changePage(next: false),
-                child: Text("Back",
-                    style: TextStyle(color: Theme.of(context).accentColor)),
-              )),
-          FlatButton(
-            onPressed: () => _changePage(next: true),
-            child: Text("Next",
-                style: TextStyle(color: Theme.of(context).accentColor)),
-          )
+                // shape: ShapeBorder.,
+                onPressed: () => _changePage(next: true),
+                child: Text("Next"),
+              ))
         ],
       )
     ]));

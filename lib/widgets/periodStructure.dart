@@ -30,37 +30,32 @@ class Period extends StatelessWidget {
         margin: EdgeInsets.only(top: 10, right: 20, bottom: 0, left: 20),
         shape:
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
-        child: Container(
-            child: ListTile(
-                trailing: InkWell(
-                    onTap: () => deletePeriod(index),
-                    child: Icon(Icons.delete,
-                        color: Theme.of(context).accentColor)),
-                title: Center(
-                    child: Text("Period ${index + 1}",
-                        style: TextStyle(fontWeight: FontWeight.normal))),
-                subtitle: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: <Widget>[
-                      Expanded(
-                          child: InkWell(
-                              splashColor: Theme.of(context).primaryColor,
-                              borderRadius: BorderRadius.circular(10),
-                              onTap: () => changePeriod(index, true, context),
-                              child: Container(
-                                  margin: EdgeInsets.all(10),
-                                  alignment: Alignment(0.0, 0.0),
-                                  child: Text(getStart(context))))),
-                      Expanded(
-                          child: InkWell(
-                              splashColor: Theme.of(context).primaryColor,
-                              borderRadius: BorderRadius.circular(10),
-                              onTap: () => changePeriod(index, false, context),
-                              child: Container(
-                                  margin: EdgeInsets.all(10),
-                                  alignment: Alignment(0.0, 0.0),
-                                  child: Text(getEnd(context)))))
-                    ]))));
+        child: ListTile(
+            trailing: InkWell(
+                onTap: () => deletePeriod(index), child: Icon(Icons.delete)),
+            title: Center(
+                child: Text("Period ${index + 1}",
+                    style: TextStyle(fontWeight: FontWeight.normal))),
+            subtitle: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: <Widget>[
+                  Expanded(
+                      child: InkWell(
+                          borderRadius: BorderRadius.circular(10),
+                          onTap: () => changePeriod(index, true, context),
+                          child: Container(
+                              margin: EdgeInsets.all(10),
+                              alignment: Alignment(0.0, 0.0),
+                              child: Text(getStart(context))))),
+                  Expanded(
+                      child: InkWell(
+                          borderRadius: BorderRadius.circular(10),
+                          onTap: () => changePeriod(index, false, context),
+                          child: Container(
+                              margin: EdgeInsets.all(10),
+                              alignment: Alignment(0.0, 0.0),
+                              child: Text(getEnd(context)))))
+                ])));
   }
 }
 
@@ -119,25 +114,29 @@ class PeriodStructure extends StatelessWidget {
         child: SafeArea(
             child: Column(children: <Widget>[
           Container(
-              padding: EdgeInsets.only(top: 40.0, bottom: 40.0),
+              padding: EdgeInsets.only(
+                  top: 40.0, bottom: 40.0, left: 20.0, right: 20.0),
               child: Text("Setup Periods",
                   style:
                       TextStyle(fontSize: 40.0, fontWeight: FontWeight.bold))),
           Expanded(
-              child: ListView(
-                  scrollDirection: Axis.vertical,
-                  children: periodStructure
-                      .asMap()
-                      .entries
-                      .map((period) => Period(
-                          period: period.value,
-                          index: period.key,
-                          changePeriod: _changePeriod,
-                          deletePeriod: _deletePeriod))
-                      .toList())),
+              child: Container(
+                  constraints: BoxConstraints(maxWidth: 500),
+                  child: ListView(
+                      scrollDirection: Axis.vertical,
+                      children: periodStructure
+                          .asMap()
+                          .entries
+                          .map((period) => Period(
+                              period: period.value,
+                              index: period.key,
+                              changePeriod: _changePeriod,
+                              deletePeriod: _deletePeriod))
+                          .toList()))),
           Container(
               padding: EdgeInsets.all(20.0),
               width: double.infinity,
+              constraints: BoxConstraints(maxWidth: 500),
               child: RaisedButton(
                   child: Text("New Period"),
                   onPressed: () => showDialog(

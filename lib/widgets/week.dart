@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class Week extends StatelessWidget {
+  final List days = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"];
+
   int get day {
     DateTime date = DateTime.now();
     int dayNum = date.weekday;
@@ -12,6 +14,17 @@ class Week extends StatelessWidget {
     return dayNum - 1;
   }
 
+  Widget tab(String text) {
+    return Tab(
+      child: Text(
+        text,
+        style: TextStyle(
+          fontSize: 11,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -19,6 +32,7 @@ class Week extends StatelessWidget {
       initialIndex: day,
       child: Scaffold(
         appBar: AppBar(
+          elevation: 0,
           title: Row(children: <Widget>[
             Image(
                 image: AssetImage("assets/images/tabletime_logo.png"),
@@ -30,50 +44,13 @@ class Week extends StatelessWidget {
                         TextStyle(fontWeight: FontWeight.bold, fontSize: 25)))
           ]),
           bottom: TabBar(
-            isScrollable: true,
-            tabs: [
-              Tab(
-                child: Text(
-                  "MONDAY",
-                  style: TextStyle(
-                    fontSize: 11,
-                  ),
-                ),
-              ),
-              Tab(
-                child: Text(
-                  "TUESDAY",
-                  style: TextStyle(
-                    fontSize: 11,
-                  ),
-                ),
-              ),
-              Tab(
-                child: Text(
-                  "WEDNESDAY",
-                  style: TextStyle(
-                    fontSize: 11,
-                  ),
-                ),
-              ),
-              Tab(
-                child: Text(
-                  "THURSDAY",
-                  style: TextStyle(
-                    fontSize: 11,
-                  ),
-                ),
-              ),
-              Tab(
-                child: Text(
-                  "FRIDAY",
-                  style: TextStyle(
-                    fontSize: 11,
-                  ),
-                ),
-              ),
-            ],
-          ),
+              indicator: BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(5),
+                      topRight: Radius.circular(5)),
+                  color: Theme.of(context).scaffoldBackgroundColor),
+              isScrollable: true,
+              tabs: days.map((name) => tab(name)).toList()),
         ),
         body: TabBarView(
           physics: PageScrollPhysics(),

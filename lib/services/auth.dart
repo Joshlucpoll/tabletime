@@ -15,7 +15,6 @@ class Auth {
         email: email.trim(),
         password: password.trim(),
       );
-
       return "Success";
     } on FirebaseAuthException catch (e) {
       return e.message;

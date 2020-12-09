@@ -37,7 +37,6 @@ class App extends StatelessWidget {
           // Check for errors
           if (snapshot.hasError) {
             return Scaffold(
-              backgroundColor: Theme.of(context).primaryColor,
               body: Center(child: Text("Error")),
             );
           }
@@ -49,7 +48,6 @@ class App extends StatelessWidget {
 
           // Otherwise, show something whilst waiting for initialization to complete
           return Scaffold(
-            backgroundColor: Theme.of(context).primaryColor,
             body: Center(child: Text("Loading...")),
           );
         },

@@ -17,8 +17,7 @@ class Loading extends StatelessWidget {
                 ),
                 Text(
                   "Loading",
-                  style: TextStyle(
-                      color: Theme.of(context).accentColor, fontSize: 20),
+                  style: TextStyle(fontSize: 20),
                 )
               ])),
     );

@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
-import 'package:flutter/gestures.dart';
 
 // Services
 import '../services/auth.dart';
@@ -20,6 +19,8 @@ class Home extends StatefulWidget {
   _HomeState createState() => _HomeState();
 }
 
+// https://api.flutter.dev/flutter/widgets/Draggable-class.html
+
 class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
@@ -27,12 +28,8 @@ class _HomeState extends State<Home> {
       body: PageView(
           scrollDirection: Axis.vertical,
           physics: ScrollPhysics(),
-          pageSnapping: true,
-          dragStartBehavior: DragStartBehavior.start,
           children: <Widget>[new Week(), new Week()]),
       floatingActionButton: SpeedDial(
-          backgroundColor: Colors.white,
-          foregroundColor: Colors.black,
           overlayColor: Colors.black,
           curve: Cubic(0.0, 0.0, 0.58, 1.0),
           animatedIcon: AnimatedIcons.menu_close,
@@ -41,8 +38,6 @@ class _HomeState extends State<Home> {
             SpeedDialChild(
                 child: Icon(Icons.today),
                 backgroundColor: Colors.blue,
-                foregroundColor: Colors.white,
-                labelBackgroundColor: Colors.black,
                 elevation: 0,
                 label: "Tasks",
                 onTap: () {
@@ -51,12 +46,10 @@ class _HomeState extends State<Home> {
             SpeedDialChild(
                 child: Icon(Icons.edit),
                 backgroundColor: Colors.green,
-                foregroundColor: Colors.white,
                 label: "Edit"),
             SpeedDialChild(
                 child: Icon(Icons.settings),
                 backgroundColor: Colors.grey,
-                foregroundColor: Colors.white,
                 label: "Settings")
           ]),
     );
