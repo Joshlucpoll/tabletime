@@ -3,7 +3,7 @@
   "short_name": "Tabletime",
   "theme_color": "#000000",
   "background_color": "#ffffff",
-  "display": "fullscreen",
+  "display": "standalone",
   "orientation": "portrait",
   "scope": "/",
   "start_url": "/"
