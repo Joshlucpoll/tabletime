@@ -75,6 +75,7 @@ class _LoginState extends State<Login> {
               ),
               Column(
                 children: <Widget>[
+                  SizedBox(height: 20.0),
                   RaisedButton(
                     key: const ValueKey("signIn"),
                     onPressed: () async {
@@ -97,7 +98,7 @@ class _LoginState extends State<Login> {
                     },
                     child: const Text("Sign In"),
                   ),
-                  SizedBox(height: 20.0),
+                  SizedBox(height: 5.0),
                   FlatButton(
                     key: const ValueKey("createAccount"),
                     onPressed: () async {

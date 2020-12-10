@@ -81,8 +81,13 @@ class Period extends StatelessWidget {
 class PeriodStructure extends StatelessWidget {
   final List periodStructure;
   final Function updatePeriod;
+  final Widget pageNavigationButtons;
 
-  PeriodStructure({Key key, this.periodStructure, this.updatePeriod})
+  PeriodStructure(
+      {Key key,
+      this.periodStructure,
+      this.updatePeriod,
+      this.pageNavigationButtons})
       : super(key: key);
 
   void _addPeriod(TimeOfDay startTime, TimeOfDay endTime) {
@@ -178,7 +183,8 @@ class PeriodStructure extends StatelessWidget {
                   },
                 ),
               ),
-            )
+            ),
+            pageNavigationButtons,
           ],
         ),
       ),

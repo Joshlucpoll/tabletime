@@ -3,8 +3,11 @@ import 'package:flutter/material.dart';
 class NewTimetable extends StatefulWidget {
   final String name;
   final Function updateName;
+  final Widget pageNavigationButtons;
 
-  NewTimetable({Key key, this.name, this.updateName}) : super(key: key);
+  NewTimetable(
+      {Key key, this.name, this.updateName, this.pageNavigationButtons})
+      : super(key: key);
 
   @override
   _NewTimetableState createState() => _NewTimetableState();
@@ -77,6 +80,7 @@ class _NewTimetableState extends State<NewTimetable> {
                 ),
               ),
             ),
+            widget.pageNavigationButtons
           ],
         ),
       ),

@@ -3,9 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-// input widgets
+// widgets
 import '../widgets/newTimetable.dart';
 import '../widgets/periodStructure.dart';
+import '../widgets/setupNavigationButtons.dart';
+
+// services
+import '../services/database.dart';
 
 class Setup extends StatefulWidget {
   final FirebaseFirestore firestore;
@@ -19,7 +23,7 @@ class Setup extends StatefulWidget {
 
 class _SetupState extends State<Setup> {
   final _data = {
-    "timetable_name": "Timetable 1",
+    "timetable_name": "My Timetable",
     "finished_setup": false,
     "number_of_weeks": 1,
     "data_created": Timestamp.now(),
@@ -43,6 +47,14 @@ class _SetupState extends State<Setup> {
         });
       }
     });
+
+    void testFunc() async {
+      print(await Database(firestore: widget.firestore)
+          .finishedCurrentTimetable(uid: widget.auth.currentUser.uid));
+    }
+
+    testFunc();
+
     super.initState();
   }
 
@@ -91,35 +103,18 @@ class _SetupState extends State<Setup> {
                 NewTimetable(
                   name: _data["timetable_name"],
                   updateName: _handleNameChange,
+                  pageNavigationButtons: SetupNavigationButtons(
+                      changePage: _changePage, pageIndex: pageIndex),
                 ),
                 PeriodStructure(
-                    periodStructure: _data["period_structure"],
-                    updatePeriod: _handlePeriodStructureChange)
+                  periodStructure: _data["period_structure"],
+                  updatePeriod: _handlePeriodStructureChange,
+                  pageNavigationButtons: SetupNavigationButtons(
+                      changePage: _changePage, pageIndex: pageIndex),
+                ),
               ],
             ),
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Visibility(
-                visible: pageIndex != 0,
-                child: Container(
-                  margin: EdgeInsets.all(20.0),
-                  child: FlatButton(
-                    onPressed: () => _changePage(next: false),
-                    child: Text("Back"),
-                  ),
-                ),
-              ),
-              Container(
-                  margin: EdgeInsets.all(20.0),
-                  child: FlatButton(
-                    // shape: ShapeBorder.,
-                    onPressed: () => _changePage(next: true),
-                    child: Text("Next"),
-                  ))
-            ],
-          )
         ],
       ),
     );
