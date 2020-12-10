@@ -30,28 +30,29 @@ class _HomeState extends State<Home> {
           physics: ScrollPhysics(),
           children: <Widget>[new Week(), new Week()]),
       floatingActionButton: SpeedDial(
-          overlayColor: Colors.black,
-          curve: Cubic(0.0, 0.0, 0.58, 1.0),
-          animatedIcon: AnimatedIcons.menu_close,
-          closeManually: false,
-          children: [
-            SpeedDialChild(
-                child: Icon(Icons.today),
-                backgroundColor: Colors.blue,
-                elevation: 0,
-                label: "Tasks",
-                onTap: () {
-                  Auth(auth: widget.auth).signOut();
-                }),
-            SpeedDialChild(
-                child: Icon(Icons.edit),
-                backgroundColor: Colors.green,
-                label: "Edit"),
-            SpeedDialChild(
-                child: Icon(Icons.settings),
-                backgroundColor: Colors.grey,
-                label: "Settings")
-          ]),
+        overlayColor: Colors.black,
+        curve: Cubic(0.0, 0.0, 0.58, 1.0),
+        animatedIcon: AnimatedIcons.menu_close,
+        closeManually: false,
+        children: [
+          SpeedDialChild(
+              child: Icon(Icons.today),
+              backgroundColor: Colors.blue,
+              elevation: 0,
+              label: "Tasks",
+              onTap: () {
+                Auth(auth: widget.auth).signOut();
+              }),
+          SpeedDialChild(
+              child: Icon(Icons.edit),
+              backgroundColor: Colors.green,
+              label: "Edit"),
+          SpeedDialChild(
+              child: Icon(Icons.settings),
+              backgroundColor: Colors.grey,
+              label: "Settings")
+        ],
+      ),
     );
   }
 }

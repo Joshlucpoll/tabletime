@@ -59,17 +59,25 @@ class _NewPeriodDialogState extends State<NewPeriodDialog> {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: <Widget>[
             FlatButton(
-                onPressed: () =>
-                    _changeCurrentPeriod(start: true, context: context),
-                child: Container(
-                    // padding: EdgeInsets.all(5),
-                    child: Text("Start: " + currentStartTime.format(context)))),
+              onPressed: () =>
+                  _changeCurrentPeriod(start: true, context: context),
+              child: Container(
+                // padding: EdgeInsets.all(5),
+                child: Text(
+                  "Start: " + currentStartTime.format(context),
+                ),
+              ),
+            ),
             FlatButton(
-                onPressed: () =>
-                    _changeCurrentPeriod(start: false, context: context),
-                child: Container(
-                    // padding: EdgeInsets.all(5),
-                    child: Text("End: " + currentEndTime.format(context))))
+              onPressed: () =>
+                  _changeCurrentPeriod(start: false, context: context),
+              child: Container(
+                // padding: EdgeInsets.all(5),
+                child: Text(
+                  "End: " + currentEndTime.format(context),
+                ),
+              ),
+            )
           ])),
       actions: <Widget>[
         TextButton(
@@ -84,7 +92,7 @@ class _NewPeriodDialogState extends State<NewPeriodDialog> {
             widget.addPeriod(currentStartTime, currentEndTime);
             Navigator.of(context).pop();
           },
-        )
+        ),
       ],
     );
   }

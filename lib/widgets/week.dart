@@ -33,24 +33,30 @@ class Week extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           elevation: 0,
-          title: Row(children: <Widget>[
-            Image(
-                image: AssetImage("assets/images/tabletime_logo.png"),
-                height: 25.0),
-            Container(
+          title: Row(
+            children: <Widget>[
+              Image(
+                  image: AssetImage("assets/images/tabletime_logo.png"),
+                  height: 25.0),
+              Container(
                 margin: EdgeInsets.only(left: 10.0),
-                child: Text("Week",
-                    style:
-                        TextStyle(fontWeight: FontWeight.bold, fontSize: 25)))
-          ]),
+                child: Text(
+                  "Week",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
+                ),
+              )
+            ],
+          ),
           bottom: TabBar(
-              indicator: BoxDecoration(
-                  borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(5),
-                      topRight: Radius.circular(5)),
-                  color: Theme.of(context).scaffoldBackgroundColor),
-              isScrollable: true,
-              tabs: days.map((name) => tab(name)).toList()),
+            indicator: BoxDecoration(
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(5),
+                  topRight: Radius.circular(5),
+                ),
+                color: Theme.of(context).scaffoldBackgroundColor),
+            isScrollable: true,
+            tabs: days.map((name) => tab(name)).toList(),
+          ),
         ),
         body: TabBarView(
           physics: PageScrollPhysics(),

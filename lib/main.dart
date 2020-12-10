@@ -37,7 +37,9 @@ class App extends StatelessWidget {
           // Check for errors
           if (snapshot.hasError) {
             return Scaffold(
-              body: Center(child: Text("Error")),
+              body: Center(
+                child: Text("Error"),
+              ),
             );
           }
 

@@ -82,37 +82,46 @@ class _SetupState extends State<Setup> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Column(children: <Widget>[
-      Expanded(
-          child: PageView(controller: _pageController, children: [
-        NewTimetable(
-          name: _data["timetable_name"],
-          updateName: _handleNameChange,
-        ),
-        PeriodStructure(
-            periodStructure: _data["period_structure"],
-            updatePeriod: _handlePeriodStructureChange)
-      ])),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      body: Column(
         children: <Widget>[
-          Visibility(
-              visible: pageIndex != 0,
-              child: Container(
+          Expanded(
+            child: PageView(
+              controller: _pageController,
+              children: [
+                NewTimetable(
+                  name: _data["timetable_name"],
+                  updateName: _handleNameChange,
+                ),
+                PeriodStructure(
+                    periodStructure: _data["period_structure"],
+                    updatePeriod: _handlePeriodStructureChange)
+              ],
+            ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Visibility(
+                visible: pageIndex != 0,
+                child: Container(
                   margin: EdgeInsets.all(20.0),
                   child: FlatButton(
                     onPressed: () => _changePage(next: false),
                     child: Text("Back"),
-                  ))),
-          Container(
-              margin: EdgeInsets.all(20.0),
-              child: FlatButton(
-                // shape: ShapeBorder.,
-                onPressed: () => _changePage(next: true),
-                child: Text("Next"),
-              ))
+                  ),
+                ),
+              ),
+              Container(
+                  margin: EdgeInsets.all(20.0),
+                  child: FlatButton(
+                    // shape: ShapeBorder.,
+                    onPressed: () => _changePage(next: true),
+                    child: Text("Next"),
+                  ))
+            ],
+          )
         ],
-      )
-    ]));
+      ),
+    );
   }
 }
