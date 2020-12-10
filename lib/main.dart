@@ -82,10 +82,10 @@ class _RootState extends State<Root> {
           } else {
             return FutureBuilder<bool>(
               future: Database(firestore: _firestore)
-                  .finishedSetup(uid: _auth.currentUser.uid),
+                  .finishedCurrentTimetable(uid: _auth.currentUser.uid),
               builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
                 if (snapshot.connectionState == ConnectionState.done) {
-                  if (snapshot.data) {
+                  if (snapshot.data == true) {
                     return Home(
                       auth: _auth,
                       firestore: _firestore,

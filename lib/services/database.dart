@@ -5,30 +5,46 @@ class Database {
 
   Database({this.firestore});
 
+  DocumentReference getUserRef({String uid}) {
+    return firestore.collection("users").doc(uid);
+  }
+
   Future<void> addUser({String uid, data}) async {
+    addTimetable(uid: uid);
+  }
+
+  Future<void> addTimetable({String uid, Map data}) async {
     try {
-      DocumentReference userRef = firestore.collection("users").doc(uid);
-      CollectionReference usersRef = firestore.collection("users");
+      DocumentReference userRef = getUserRef(uid: uid);
+      CollectionReference timetablesRef = userRef.collection("timetables");
+      DocumentReference timetableRef = timetablesRef.doc();
 
-      await userRef.get().then((DocumentSnapshot docSnapshot) {
-        if (!docSnapshot.exists) {
-          usersRef.add({
-            "finished_setup": false,
-          });
+      await timetableRef.update({"finished_setup": false});
 
-          return "Success";
-        }
-      });
+      userRef.update({"current_timetable": timetableRef});
+
+      return "Success";
     } catch (e) {
       rethrow;
     }
   }
 
-  Future<bool> finishedSetup({String uid}) async {
+  Future<DocumentReference> getCurrentTimetable({String uid}) async {
     try {
-      DocumentReference dataRef = firestore.collection("users").doc(uid);
-      return await dataRef.get().then((DocumentSnapshot docSnapshot) =>
-          docSnapshot.data()["finished_setup"] ?? false);
+      DocumentReference userRef = getUserRef(uid: uid);
+      return await userRef.get().then((DocumentSnapshot docSnapshot) =>
+          docSnapshot.data()["current_timetable"]);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<bool> finishedCurrentTimetable({String uid}) async {
+    try {
+      return await getCurrentTimetable(uid: uid).then(
+          (DocumentReference timetableRef) => timetableRef.get().then(
+              (DocumentSnapshot timetableSnapshot) =>
+                  timetableSnapshot.data()["finished_setup"] ?? false));
     } catch (e) {
       rethrow;
     }
