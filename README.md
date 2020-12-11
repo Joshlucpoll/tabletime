@@ -8,4 +8,6 @@ The simple time-tabling app, built to keep you on track.
 
 For any feature requests or queries with the app, please use [this form](https://tabletime.app/contact) to contact me.
 
-Built with Flutter, still in development.
+---
+
+*Built with Flutter, still in development.*
