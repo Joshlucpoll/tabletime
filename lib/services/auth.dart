@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:timetable/services/database.dart';
 
 class Auth {
   final FirebaseAuth auth;
@@ -15,6 +16,7 @@ class Auth {
         email: email.trim(),
         password: password.trim(),
       );
+      await Database(firestore: firestore).addUser(uid: auth.currentUser.uid);
       return "Success";
     } on FirebaseAuthException catch (e) {
       return e.message;

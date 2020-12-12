@@ -22,7 +22,7 @@ class Setup extends StatefulWidget {
 }
 
 class _SetupState extends State<Setup> {
-  final _data = {
+  Map<String, dynamic> _data = {
     "timetable_name": "My Timetable",
     "finished_setup": false,
     "number_of_weeks": 1,
@@ -36,6 +36,23 @@ class _SetupState extends State<Setup> {
   PageController _pageController;
   double pageIndex = 0;
 
+  void getTimetable() async {
+    Database database = Database(firestore: widget.firestore);
+    String uid = widget.auth.currentUser.uid;
+
+    if (await database.finishedCurrentTimetable(uid: uid) == false) {
+      Map<String, dynamic> data = await database.getTimetableData(uid: uid);
+      setState(() {
+        _data = data;
+      });
+    }
+  }
+
+  void updateTimetable() {
+    Database(firestore: widget.firestore)
+        .updateTimetableData(uid: widget.auth.currentUser.uid, data: _data);
+  }
+
   @override
   void initState() {
     _pageController = PageController();
@@ -48,18 +65,13 @@ class _SetupState extends State<Setup> {
       }
     });
 
-    void testFunc() async {
-      print(await Database(firestore: widget.firestore)
-          .finishedCurrentTimetable(uid: widget.auth.currentUser.uid));
-    }
-
-    testFunc();
-
+    getTimetable();
     super.initState();
   }
 
   @override
   void dispose() {
+    updateTimetable();
     _pageController.dispose();
     super.dispose();
   }
@@ -72,6 +84,7 @@ class _SetupState extends State<Setup> {
       _pageController.animateToPage(pageIndex.toInt() - 1,
           duration: Duration(milliseconds: 500), curve: Curves.ease);
     }
+    updateTimetable();
   }
 
   void _handlePeriodStructureChange(List data) {

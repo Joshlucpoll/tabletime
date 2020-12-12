@@ -82,7 +82,7 @@ class _RootState extends State<Root> {
           } else {
             return FutureBuilder<bool>(
               future: Database(firestore: _firestore)
-                  .finishedCurrentTimetable(uid: _auth.currentUser.uid),
+                  .finishedInitialSetup(uid: _auth.currentUser.uid),
               builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
                 if (snapshot.connectionState == ConnectionState.done) {
                   if (snapshot.data == true) {
@@ -91,6 +91,10 @@ class _RootState extends State<Root> {
                       firestore: _firestore,
                     );
                   } else {
+                    // return Home(
+                    //   auth: _auth,
+                    //   firestore: _firestore,
+                    // );
                     return Setup(auth: _auth, firestore: _firestore);
                   }
                 } else {

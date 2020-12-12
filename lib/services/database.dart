@@ -9,17 +9,28 @@ class Database {
     return firestore.collection("users").doc(uid);
   }
 
-  Future<void> addUser({String uid, data}) async {
-    addTimetable(uid: uid);
+  Future<void> addUser({String uid}) async {
+    DocumentReference userRef = getUserRef(uid: uid);
+    await userRef.set({"initial_setup_complete": false});
+    await addTimetable(uid: uid);
   }
 
-  Future<void> addTimetable({String uid, Map data}) async {
+  Future<void> addTimetable({String uid}) async {
     try {
       DocumentReference userRef = getUserRef(uid: uid);
       CollectionReference timetablesRef = userRef.collection("timetables");
       DocumentReference timetableRef = timetablesRef.doc();
 
-      await timetableRef.update({"finished_setup": false});
+      await timetableRef.set({
+        "timetable_name": "My Timetable",
+        "finished_setup": false,
+        "number_of_weeks": 1,
+        "data_created": Timestamp.now(),
+        "updated": Timestamp.now(),
+        "period_structure": [],
+        "lessons": [],
+        "weeks": [],
+      });
 
       userRef.update({"current_timetable": timetableRef});
 
@@ -34,6 +45,38 @@ class Database {
       DocumentReference userRef = getUserRef(uid: uid);
       return await userRef.get().then((DocumentSnapshot docSnapshot) =>
           docSnapshot.data()["current_timetable"]);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Map<dynamic, dynamic>> getTimetableData({String uid}) async {
+    try {
+      return await getCurrentTimetable(uid: uid).then(
+          (DocumentReference docRef) => docRef
+              .get()
+              .then((DocumentSnapshot docSnapshot) => docSnapshot.data()));
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> updateTimetableData(
+      {String uid, Map<String, dynamic> data}) async {
+    try {
+      DocumentReference timetableRef = await getCurrentTimetable(uid: uid);
+
+      timetableRef.set(data);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<bool> finishedInitialSetup({String uid}) async {
+    try {
+      DocumentReference userRef = getUserRef(uid: uid);
+      return await userRef.get().then((DocumentSnapshot docSnapshot) =>
+          docSnapshot.data()["initial_setup_complete"]);
     } catch (e) {
       rethrow;
     }

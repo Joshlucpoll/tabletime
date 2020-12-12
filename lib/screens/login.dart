@@ -85,10 +85,7 @@ class _LoginState extends State<Login> {
                         email: _emailController.text,
                         password: _passwordController.text,
                       );
-                      if (retVal == "Success") {
-                        _emailController.clear();
-                        _passwordController.clear();
-                      } else {
+                      if (retVal != "Success") {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(retVal),
