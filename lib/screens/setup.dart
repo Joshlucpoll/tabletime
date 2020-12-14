@@ -26,8 +26,8 @@ class _SetupState extends State<Setup> {
     "timetable_name": "My Timetable",
     "finished_setup": false,
     "number_of_weeks": 1,
-    "data_created": Timestamp.now(),
-    "updated": Timestamp.now(),
+    "data_created": DateTime.now().toIso8601String(),
+    "updated": DateTime.now().toIso8601String(),
     "period_structure": [],
     "lessons": [],
     "weeks": [],
@@ -89,13 +89,15 @@ class _SetupState extends State<Setup> {
 
   void _handlePeriodStructureChange(List data) {
     data.sort((a, b) {
-      return (a["start"].toDate().hour * 60 + a["start"].toDate().minute)
-          .compareTo(
-              b["start"].toDate().hour * 60 + b["start"].toDate().minute);
+      return (DateTime.parse(a["start"]).hour * 60 +
+              DateTime.parse(a["start"]).minute)
+          .compareTo(DateTime.parse(b["start"]).hour * 60 +
+              DateTime.parse(b["start"]).minute);
     });
     setState(() {
       _data["period_structure"] = data;
     });
+    print(data);
   }
 
   void _handleNameChange(String name) {

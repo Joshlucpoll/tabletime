@@ -1,9 +1,8 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class NewPeriodDialog extends StatefulWidget {
   final Function addPeriod;
-  final Timestamp previousEnd;
+  final String previousEnd;
 
   NewPeriodDialog({Key key, this.addPeriod, this.previousEnd});
 
@@ -21,9 +20,9 @@ class _NewPeriodDialogState extends State<NewPeriodDialog> {
 
     setState(() {
       currentStartTime =
-          new TimeOfDay.fromDateTime(widget.previousEnd.toDate());
+          new TimeOfDay.fromDateTime(DateTime.parse(widget.previousEnd));
       currentEndTime = new TimeOfDay.fromDateTime(
-          widget.previousEnd.toDate().add(new Duration(hours: 1)));
+          DateTime.parse(widget.previousEnd).add(new Duration(hours: 1)));
     });
   }
 

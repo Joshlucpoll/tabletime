@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import '../widgets/newPeriodDialog.dart';
@@ -14,13 +13,14 @@ class Period extends StatelessWidget {
   final Function deletePeriod;
 
   String getStart(BuildContext context) {
-    TimeOfDay startTime = TimeOfDay.fromDateTime(period["start"].toDate());
+    TimeOfDay startTime =
+        TimeOfDay.fromDateTime(DateTime.parse(period["start"]));
     return "Start: " + startTime.format(context);
   }
 
   String getEnd(BuildContext context) {
-    TimeOfDay startTime = TimeOfDay.fromDateTime(period["end"].toDate());
-    return "End: " + startTime.format(context);
+    TimeOfDay endTime = TimeOfDay.fromDateTime(DateTime.parse(period["end"]));
+    return "End: " + endTime.format(context);
   }
 
   @override
@@ -92,10 +92,12 @@ class PeriodStructure extends StatelessWidget {
 
   void _addPeriod(TimeOfDay startTime, TimeOfDay endTime) {
     DateTime now = DateTime.now();
-    Timestamp start = new Timestamp.fromDate(new DateTime(
-        now.year, now.month, now.day, startTime.hour, startTime.minute));
-    Timestamp end = new Timestamp.fromDate(new DateTime(
-        now.year, now.month, now.day, endTime.hour, endTime.minute));
+    String start = new DateTime(
+            now.year, now.month, now.day, startTime.hour, startTime.minute)
+        .toIso8601String();
+    String end =
+        new DateTime(now.year, now.month, now.day, endTime.hour, endTime.minute)
+            .toIso8601String();
 
     List newList = List.from(periodStructure)
       ..add({"start": start, "end": end});
@@ -110,15 +112,18 @@ class PeriodStructure extends StatelessWidget {
   void _changePeriod(int index, bool start, BuildContext context) async {
     TimeOfDay t = await showTimePicker(
       initialTime: start
-          ? TimeOfDay.fromDateTime(periodStructure[index]["start"].toDate())
-          : TimeOfDay.fromDateTime(periodStructure[index]["end"].toDate()),
+          ? TimeOfDay.fromDateTime(
+              DateTime.parse(periodStructure[index]["start"]))
+          : TimeOfDay.fromDateTime(
+              DateTime.parse(periodStructure[index]["end"])),
       context: context,
     );
 
     if (t != null) {
       final now = new DateTime.now();
-      Timestamp selectedTime = Timestamp.fromDate(
-          new DateTime(now.year, now.month, now.day, t.hour, t.minute));
+      String selectedTime =
+          new DateTime(now.year, now.month, now.day, t.hour, t.minute)
+              .toIso8601String();
 
       List newList = List.from(periodStructure);
       newList[index] = {
@@ -177,7 +182,7 @@ class PeriodStructure extends StatelessWidget {
                     return NewPeriodDialog(
                       addPeriod: _addPeriod,
                       previousEnd: periodStructure.isEmpty
-                          ? Timestamp.now()
+                          ? DateTime.now().toIso8601String()
                           : periodStructure.last["end"],
                     );
                   },
