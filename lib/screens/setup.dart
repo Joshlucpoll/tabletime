@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:timetable/services/auth.dart';
+
+// screens
+import './loading.dart';
 
 // widgets
 import '../widgets/newTimetable.dart';
@@ -35,6 +39,7 @@ class _SetupState extends State<Setup> {
 
   PageController _pageController;
   double pageIndex = 0;
+  bool gotTimetable = false;
 
   void getTimetable() async {
     Database database = Database(firestore: widget.firestore);
@@ -44,13 +49,16 @@ class _SetupState extends State<Setup> {
       Map<String, dynamic> data = await database.getTimetableData(uid: uid);
       setState(() {
         _data = data;
+        gotTimetable = true;
       });
     }
   }
 
   void updateTimetable() {
-    Database(firestore: widget.firestore)
-        .updateTimetableData(uid: widget.auth.currentUser.uid, data: _data);
+    if (widget.auth.currentUser != null) {
+      Database(firestore: widget.firestore)
+          .updateTimetableData(uid: widget.auth.currentUser.uid, data: _data);
+    }
   }
 
   @override
@@ -108,30 +116,40 @@ class _SetupState extends State<Setup> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Column(
-        children: <Widget>[
-          Expanded(
-            child: PageView(
-              controller: _pageController,
-              children: [
-                NewTimetable(
-                  name: _data["timetable_name"],
-                  updateName: _handleNameChange,
-                  pageNavigationButtons: SetupNavigationButtons(
-                      changePage: _changePage, pageIndex: pageIndex),
-                ),
-                PeriodStructure(
-                  periodStructure: _data["period_structure"],
-                  updatePeriod: _handlePeriodStructureChange,
-                  pageNavigationButtons: SetupNavigationButtons(
-                      changePage: _changePage, pageIndex: pageIndex),
-                ),
-              ],
+    if (gotTimetable) {
+      return Scaffold(
+        body: Column(
+          children: <Widget>[
+            Expanded(
+              child: PageView(
+                controller: _pageController,
+                children: [
+                  NewTimetable(
+                    name: _data["timetable_name"],
+                    updateName: _handleNameChange,
+                    pageNavigationButtons: SetupNavigationButtons(
+                        changePage: _changePage, pageIndex: pageIndex),
+                  ),
+                  PeriodStructure(
+                    periodStructure: _data["period_structure"],
+                    updatePeriod: _handlePeriodStructureChange,
+                    pageNavigationButtons: SetupNavigationButtons(
+                        changePage: _changePage, pageIndex: pageIndex),
+                  ),
+                  IconButton(
+                    onPressed: () =>
+                        Auth(auth: widget.auth, firestore: widget.firestore)
+                            .signOut(),
+                    icon: Icon(Icons.exit_to_app),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
-      ),
-    );
+          ],
+        ),
+      );
+    } else {
+      return Loading();
+    }
   }
 }
