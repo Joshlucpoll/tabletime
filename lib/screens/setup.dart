@@ -11,6 +11,7 @@ import './loading.dart';
 import '../widgets/newTimetable.dart';
 import '../widgets/periodStructure.dart';
 import '../widgets/setupNavigationButtons.dart';
+import '../widgets/lessonGenerator.dart';
 
 // services
 import '../services/database.dart';
@@ -26,16 +27,7 @@ class Setup extends StatefulWidget {
 }
 
 class _SetupState extends State<Setup> {
-  Map<String, dynamic> _data = {
-    "timetable_name": "My Timetable",
-    "finished_setup": false,
-    "number_of_weeks": 1,
-    "data_created": DateTime.now().toIso8601String(),
-    "updated": DateTime.now().toIso8601String(),
-    "period_structure": [],
-    "lessons": [],
-    "weeks": [],
-  };
+  Map<String, dynamic> _data;
 
   PageController _pageController;
   double pageIndex = 0;
@@ -133,6 +125,11 @@ class _SetupState extends State<Setup> {
                   PeriodStructure(
                     periodStructure: _data["period_structure"],
                     updatePeriod: _handlePeriodStructureChange,
+                    pageNavigationButtons: SetupNavigationButtons(
+                        changePage: _changePage, pageIndex: pageIndex),
+                  ),
+                  LessonGenerator(
+                    lessons: _data["lessons"],
                     pageNavigationButtons: SetupNavigationButtons(
                         changePage: _changePage, pageIndex: pageIndex),
                   ),

@@ -40,9 +40,9 @@ class _NewTimetableState extends State<NewTimetable> {
           children: <Widget>[
             Container(
               padding: EdgeInsets.only(
-                  top: 40.0, bottom: 40.0, left: 20.0, right: 20.0),
+                  top: 20.0, bottom: 20.0, left: 20.0, right: 20.0),
               child: Text(
-                "Create a Timetable",
+                "Name Your Timetable",
                 textAlign: TextAlign.center,
                 overflow: TextOverflow.visible,
                 style: TextStyle(fontSize: 40.0, fontWeight: FontWeight.bold),
@@ -61,13 +61,12 @@ class _NewTimetableState extends State<NewTimetable> {
                         fontWeight: FontWeight.w300,
                       ),
                     ),
-                    SizedBox(height: 20.0),
                     Container(
                       constraints: BoxConstraints(maxWidth: 500),
                       child: TextField(
                         controller: _tabletimeNameController,
                         decoration: InputDecoration(
-                          suffixIcon: IconButton(
+                          prefixIcon: IconButton(
                             onPressed: () {},
                             icon: Icon(
                               Icons.edit,

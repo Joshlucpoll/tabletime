@@ -15,63 +15,93 @@ class Period extends StatelessWidget {
   String getStart(BuildContext context) {
     TimeOfDay startTime =
         TimeOfDay.fromDateTime(DateTime.parse(period["start"]));
-    return "Start: " + startTime.format(context);
+    return startTime.format(context);
   }
 
   String getEnd(BuildContext context) {
     TimeOfDay endTime = TimeOfDay.fromDateTime(DateTime.parse(period["end"]));
-    return "End: " + endTime.format(context);
+    return endTime.format(context);
   }
 
   @override
   Widget build(BuildContext context) {
     return Card(
       elevation: 4,
-      margin: EdgeInsets.only(top: 10, right: 20, bottom: 0, left: 20),
+      margin: EdgeInsets.only(top: 5, right: 20, bottom: 5, left: 20),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10.0),
       ),
-      child: ListTile(
-        trailing: InkWell(
-          onTap: () => deletePeriod(index),
-          child: Icon(Icons.delete),
-        ),
-        title: Center(
-          child: Text(
-            "Period ${index + 1}",
-            style: TextStyle(fontWeight: FontWeight.normal),
+      child: Container(
+        padding: EdgeInsets.all(10),
+        child: ListTile(
+          trailing: InkWell(
+            onTap: () => deletePeriod(index),
+            child: Icon(Icons.delete),
           ),
-        ),
-        subtitle: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: <Widget>[
-            Expanded(
-              child: InkWell(
+          title: Container(
+            padding: EdgeInsets.only(bottom: 10),
+            child: Text(
+              "Period ${index + 1}",
+              style: TextStyle(fontWeight: FontWeight.normal),
+            ),
+          ),
+          subtitle: Row(
+            children: <Widget>[
+              InkWell(
                 borderRadius: BorderRadius.circular(10),
                 onTap: () => changePeriod(index, true, context),
                 child: Container(
-                  margin: EdgeInsets.all(10),
-                  alignment: Alignment(0.0, 0.0),
-                  child: Text(
-                    getStart(context),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(5),
+                    color: Theme.of(context)
+                        .scaffoldBackgroundColor
+                        .withOpacity(0.7),
+                  ),
+                  padding: EdgeInsets.all(7),
+                  child: Row(
+                    children: [
+                      Text(
+                        getStart(context),
+                      ),
+                      SizedBox(width: 10),
+                      Icon(
+                        Icons.edit,
+                        size: 20,
+                      ),
+                    ],
                   ),
                 ),
               ),
-            ),
-            Expanded(
-              child: InkWell(
-                borderRadius: BorderRadius.circular(10),
+              Container(
+                  margin: EdgeInsets.only(left: 10, right: 10),
+                  child: Text("to")),
+              InkWell(
+                borderRadius: BorderRadius.circular(5),
                 onTap: () => changePeriod(index, false, context),
                 child: Container(
-                  margin: EdgeInsets.all(10),
-                  alignment: Alignment(0.0, 0.0),
-                  child: Text(
-                    getEnd(context),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(5),
+                    color: Theme.of(context)
+                        .scaffoldBackgroundColor
+                        .withOpacity(0.7),
+                  ),
+                  padding: EdgeInsets.all(7),
+                  child: Row(
+                    children: [
+                      Text(
+                        getEnd(context),
+                      ),
+                      SizedBox(width: 10),
+                      Icon(
+                        Icons.edit,
+                        size: 20,
+                      ),
+                    ],
                   ),
                 ),
               ),
-            )
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -145,7 +175,7 @@ class PeriodStructure extends StatelessWidget {
           children: <Widget>[
             Container(
               padding: EdgeInsets.only(
-                  top: 40.0, bottom: 40.0, left: 20.0, right: 20.0),
+                  top: 20.0, bottom: 20.0, left: 20.0, right: 20.0),
               child: Text(
                 "Setup Periods",
                 style: TextStyle(fontSize: 40.0, fontWeight: FontWeight.bold),
@@ -171,7 +201,7 @@ class PeriodStructure extends StatelessWidget {
               ),
             ),
             Container(
-              padding: EdgeInsets.all(20.0),
+              padding: EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0),
               width: double.infinity,
               constraints: BoxConstraints(maxWidth: 500),
               child: RaisedButton(

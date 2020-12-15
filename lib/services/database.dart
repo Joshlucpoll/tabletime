@@ -28,7 +28,7 @@ class Database {
         "data_created": DateTime.now().toIso8601String(),
         "updated": DateTime.now().toIso8601String(),
         "period_structure": [],
-        "lessons": [],
+        "lessons": {},
         "weeks": [],
       });
 
