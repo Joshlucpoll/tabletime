@@ -32,7 +32,7 @@ class _LoginState extends State<Login> {
     return Scaffold(
       body: Center(
         child: Padding(
-          padding: const EdgeInsets.all(60.0),
+          padding: EdgeInsets.all(20.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: <Widget>[
@@ -44,7 +44,8 @@ class _LoginState extends State<Login> {
                 children: <Widget>[
                   TextFormField(
                     key: const ValueKey("username"),
-                    decoration: InputDecoration(labelText: "Email"),
+                    decoration: InputDecoration(
+                        prefixIcon: Icon(Icons.email), labelText: "Email"),
                     controller: _emailController,
                   ),
                   const SizedBox(
@@ -53,6 +54,7 @@ class _LoginState extends State<Login> {
                   TextFormField(
                     key: const ValueKey("password"),
                     decoration: InputDecoration(
+                      prefixIcon: Icon(Icons.lock),
                       labelText: "Password",
                       suffixIcon: Container(
                         padding: EdgeInsets.all(5.0),
