@@ -40,40 +40,43 @@ class _LoginState extends State<Login> {
                 image: AssetImage("assets/images/tabletime_logo.png"),
                 width: MediaQuery.of(context).size.shortestSide * 0.3,
               ),
-              Column(
-                children: <Widget>[
-                  TextFormField(
-                    key: const ValueKey("username"),
-                    decoration: InputDecoration(
-                        prefixIcon: Icon(Icons.email), labelText: "Email"),
-                    controller: _emailController,
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  TextFormField(
-                    key: const ValueKey("password"),
-                    decoration: InputDecoration(
-                      prefixIcon: Icon(Icons.lock),
-                      labelText: "Password",
-                      suffixIcon: Container(
-                        padding: EdgeInsets.all(5.0),
-                        child: IconButton(
-                          onPressed: () => setState(() {
-                            _passwordVisible = !_passwordVisible;
-                          }),
-                          icon: Icon(
-                            _passwordVisible
-                                ? Icons.visibility_rounded
-                                : Icons.visibility_off,
+              Container(
+                constraints: BoxConstraints(maxWidth: 500),
+                child: Column(
+                  children: <Widget>[
+                    TextFormField(
+                      key: const ValueKey("username"),
+                      decoration: InputDecoration(
+                          prefixIcon: Icon(Icons.email), labelText: "Email"),
+                      controller: _emailController,
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    TextFormField(
+                      key: const ValueKey("password"),
+                      decoration: InputDecoration(
+                        prefixIcon: Icon(Icons.lock),
+                        labelText: "Password",
+                        suffixIcon: Container(
+                          padding: EdgeInsets.all(5.0),
+                          child: IconButton(
+                            onPressed: () => setState(() {
+                              _passwordVisible = !_passwordVisible;
+                            }),
+                            icon: Icon(
+                              _passwordVisible
+                                  ? Icons.visibility_rounded
+                                  : Icons.visibility_off,
+                            ),
                           ),
                         ),
                       ),
+                      obscureText: _passwordVisible,
+                      controller: _passwordController,
                     ),
-                    obscureText: _passwordVisible,
-                    controller: _passwordController,
-                  ),
-                ],
+                  ],
+                ),
               ),
               Column(
                 children: <Widget>[
