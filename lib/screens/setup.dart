@@ -110,39 +110,43 @@ class _SetupState extends State<Setup> {
   Widget build(BuildContext context) {
     if (gotTimetable) {
       return Scaffold(
-        body: Column(
-          children: <Widget>[
-            Expanded(
-              child: PageView(
-                controller: _pageController,
-                children: [
-                  NewTimetable(
-                    name: _data["timetable_name"],
-                    updateName: _handleNameChange,
-                    pageNavigationButtons: SetupNavigationButtons(
-                        changePage: _changePage, pageIndex: pageIndex),
-                  ),
-                  PeriodStructure(
-                    periodStructure: _data["period_structure"],
-                    updatePeriod: _handlePeriodStructureChange,
-                    pageNavigationButtons: SetupNavigationButtons(
-                        changePage: _changePage, pageIndex: pageIndex),
-                  ),
-                  LessonGenerator(
-                    lessons: _data["lessons"],
-                    pageNavigationButtons: SetupNavigationButtons(
-                        changePage: _changePage, pageIndex: pageIndex),
-                  ),
-                  IconButton(
-                    onPressed: () =>
-                        Auth(auth: widget.auth, firestore: widget.firestore)
-                            .signOut(),
-                    icon: Icon(Icons.exit_to_app),
-                  ),
-                ],
+        body: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () => FocusScope.of(context).unfocus(),
+          child: Column(
+            children: <Widget>[
+              Expanded(
+                child: PageView(
+                  controller: _pageController,
+                  children: [
+                    NewTimetable(
+                      name: _data["timetable_name"],
+                      updateName: _handleNameChange,
+                      pageNavigationButtons: SetupNavigationButtons(
+                          changePage: _changePage, pageIndex: pageIndex),
+                    ),
+                    PeriodStructure(
+                      periodStructure: _data["period_structure"],
+                      updatePeriod: _handlePeriodStructureChange,
+                      pageNavigationButtons: SetupNavigationButtons(
+                          changePage: _changePage, pageIndex: pageIndex),
+                    ),
+                    LessonGenerator(
+                      lessons: _data["lessons"],
+                      pageNavigationButtons: SetupNavigationButtons(
+                          changePage: _changePage, pageIndex: pageIndex),
+                    ),
+                    IconButton(
+                      onPressed: () =>
+                          Auth(auth: widget.auth, firestore: widget.firestore)
+                              .signOut(),
+                      icon: Icon(Icons.exit_to_app),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       );
     } else {
