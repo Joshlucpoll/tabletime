@@ -81,9 +81,9 @@ class _LessonGeneratorState extends State<LessonGenerator> {
 
   @override
   void dispose() {
-    _nameController.dispose();
-    _teacherController.dispose();
-    _roomController.dispose();
+    // _nameController.dispose();
+    // _teacherController.dispose();
+    // _roomController.dispose();
     super.dispose();
   }
 
@@ -213,26 +213,31 @@ class _LessonGeneratorState extends State<LessonGenerator> {
             return GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: () => FocusScope.of(context).unfocus(),
-              child: Container(
-                padding: EdgeInsets.only(
-                    top: 10,
-                    right: 20,
-                    left: 20,
-                    bottom: MediaQuery.of(context).viewInsets.bottom + 20),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: 30,
-                      height: 5,
-                      decoration: BoxDecoration(
-                          shape: BoxShape.rectangle,
-                          borderRadius: BorderRadius.circular(5),
-                          color: Theme.of(context).splashColor),
-                    ),
-                    Form(
-                      key: _formKey,
-                      child: SingleChildScrollView(
+              child: Stack(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        margin: EdgeInsets.only(top: 10),
+                        width: 30,
+                        height: 5,
+                        decoration: BoxDecoration(
+                            shape: BoxShape.rectangle,
+                            borderRadius: BorderRadius.circular(5),
+                            color: Theme.of(context).splashColor),
+                      ),
+                    ],
+                  ),
+                  Container(
+                    padding: EdgeInsets.only(
+                        top: 25,
+                        right: 20,
+                        left: 20,
+                        bottom: MediaQuery.of(context).viewInsets.bottom + 20),
+                    child: SingleChildScrollView(
+                      child: Form(
+                        key: _formKey,
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
@@ -338,37 +343,38 @@ class _LessonGeneratorState extends State<LessonGenerator> {
                               ),
                             ),
                             RaisedButton(
-                                child: Text(editId == null ? "Add" : "Save"),
-                                onPressed: () {
-                                  if (_formKey.currentState.validate()) {
-                                    if (editId == null) {
-                                      _addLesson(
-                                        name: _nameController.text,
-                                        colour: currentColour,
-                                        teacher: _teacherController.text,
-                                        room: _roomController.text,
-                                      );
-                                    } else {
-                                      _editLesson(
-                                        id: editId,
-                                        name: _nameController.text,
-                                        colour: currentColour,
-                                        teacher: _teacherController.text,
-                                        room: _roomController.text,
-                                      );
-                                    }
-                                    Navigator.pop(context);
-                                    _nameController.text = "";
-                                    _teacherController.text = "";
-                                    _roomController.text = "";
+                              child: Text(editId == null ? "Add" : "Save"),
+                              onPressed: () {
+                                if (_formKey.currentState.validate()) {
+                                  if (editId == null) {
+                                    _addLesson(
+                                      name: _nameController.text,
+                                      colour: currentColour,
+                                      teacher: _teacherController.text,
+                                      room: _roomController.text,
+                                    );
+                                  } else {
+                                    _editLesson(
+                                      id: editId,
+                                      name: _nameController.text,
+                                      colour: currentColour,
+                                      teacher: _teacherController.text,
+                                      room: _roomController.text,
+                                    );
                                   }
-                                })
+                                  Navigator.pop(context);
+                                  _nameController.text = "";
+                                  _teacherController.text = "";
+                                  _roomController.text = "";
+                                }
+                              },
+                            )
                           ],
                         ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             );
           },
