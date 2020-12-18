@@ -87,6 +87,12 @@ class _SetupState extends State<Setup> {
     updateTimetable();
   }
 
+  void _handleNameChange(String name) {
+    setState(() {
+      _data["timetable_name"] = name;
+    });
+  }
+
   void _handlePeriodStructureChange(List data) {
     data.sort((a, b) {
       return (DateTime.parse(a["start"]).hour * 60 +
@@ -97,12 +103,11 @@ class _SetupState extends State<Setup> {
     setState(() {
       _data["period_structure"] = data;
     });
-    print(data);
   }
 
-  void _handleNameChange(String name) {
+  void _handleLessonsChange(Map data) {
     setState(() {
-      _data["timetable_name"] = name;
+      _data["lessons"] = data;
     });
   }
 
@@ -123,23 +128,31 @@ class _SetupState extends State<Setup> {
                       name: _data["timetable_name"],
                       updateName: _handleNameChange,
                       pageNavigationButtons: SetupNavigationButtons(
-                          changePage: _changePage, pageIndex: pageIndex),
+                        changePage: _changePage,
+                        pageIndex: pageIndex,
+                      ),
                     ),
                     PeriodStructure(
                       periodStructure: _data["period_structure"],
                       updatePeriod: _handlePeriodStructureChange,
                       pageNavigationButtons: SetupNavigationButtons(
-                          changePage: _changePage, pageIndex: pageIndex),
+                        changePage: _changePage,
+                        pageIndex: pageIndex,
+                      ),
                     ),
                     LessonGenerator(
                       lessons: _data["lessons"],
+                      updateLessons: _handleLessonsChange,
                       pageNavigationButtons: SetupNavigationButtons(
-                          changePage: _changePage, pageIndex: pageIndex),
+                        changePage: _changePage,
+                        pageIndex: pageIndex,
+                      ),
                     ),
                     IconButton(
-                      onPressed: () =>
-                          Auth(auth: widget.auth, firestore: widget.firestore)
-                              .signOut(),
+                      onPressed: () => Auth(
+                        auth: widget.auth,
+                        firestore: widget.firestore,
+                      ).signOut(),
                       icon: Icon(Icons.exit_to_app),
                     ),
                   ],

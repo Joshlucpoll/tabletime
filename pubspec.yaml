@@ -35,6 +35,7 @@ dependencies:
   flutter_speed_dial: ^1.2.5
   shared_preferences: ^0.4.3
   flutter_colorpicker: ^0.3.4
+  uuid: ^2.2.2
 
 flutter_icons:
   image_path: "assets/images/tabletime_logo.png"
