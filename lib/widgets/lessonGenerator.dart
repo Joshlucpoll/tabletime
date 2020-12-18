@@ -153,13 +153,34 @@ class _LessonGeneratorState extends State<LessonGenerator> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                data["name"],
-                style: TextStyle(
-                  fontWeight: FontWeight.w500,
-                  fontSize: 20,
-                  color: textColor,
-                ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    data["name"],
+                    style: TextStyle(
+                      fontWeight: FontWeight.w500,
+                      fontSize: 20,
+                      color: textColor,
+                    ),
+                  ),
+                  Text(
+                    "Teacher: " + data["teacher"],
+                    style: TextStyle(
+                      fontWeight: FontWeight.normal,
+                      fontSize: 12,
+                      color: textColor.withAlpha(155),
+                    ),
+                  ),
+                  Text(
+                    "Room: " + data["room"],
+                    style: TextStyle(
+                      fontWeight: FontWeight.normal,
+                      fontSize: 12,
+                      color: textColor.withAlpha(155),
+                    ),
+                  ),
+                ],
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
