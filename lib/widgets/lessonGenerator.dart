@@ -158,22 +158,24 @@ class _LessonGeneratorState extends State<LessonGenerator> {
                       color: textColor,
                     ),
                   ),
-                  Text(
-                    "Teacher: " + data["teacher"],
-                    style: TextStyle(
-                      fontWeight: FontWeight.normal,
-                      fontSize: 12,
-                      color: textColor.withAlpha(155),
+                  if (data["teacher"] != "")
+                    Text(
+                      "Teacher: " + data["teacher"],
+                      style: TextStyle(
+                        fontWeight: FontWeight.normal,
+                        fontSize: 12,
+                        color: textColor.withAlpha(155),
+                      ),
                     ),
-                  ),
-                  Text(
-                    "Room: " + data["room"],
-                    style: TextStyle(
-                      fontWeight: FontWeight.normal,
-                      fontSize: 12,
-                      color: textColor.withAlpha(155),
+                  if (data["room"] != "")
+                    Text(
+                      "Room: " + data["room"],
+                      style: TextStyle(
+                        fontWeight: FontWeight.normal,
+                        fontSize: 12,
+                        color: textColor.withAlpha(155),
+                      ),
                     ),
-                  ),
                 ],
               ),
               Row(
