@@ -140,7 +140,8 @@ class PeriodStructureState extends State<PeriodStructure> {
     widget.updatePeriod(newList);
   }
 
-  void _changeNewPeriod({bool start, BuildContext context}) async {
+  void _changeNewPeriod(
+      {bool start, BuildContext context, Function newState}) async {
     TimeOfDay t = await showTimePicker(
       initialTime: start ? currentStartTime : currentEndTime,
       context: context,
@@ -149,14 +150,14 @@ class PeriodStructureState extends State<PeriodStructure> {
       if (start) {
         DateTime now = new DateTime.now();
 
-        setState(() {
+        newState(() {
           currentStartTime = t;
           currentEndTime = new TimeOfDay.fromDateTime(
               new DateTime(now.year, now.month, now.day, t.hour, t.minute)
                   .add(new Duration(minutes: 60)));
         });
       } else {
-        setState(() {
+        newState(() {
           currentEndTime = t;
         });
       }
@@ -314,7 +315,10 @@ class PeriodStructureState extends State<PeriodStructure> {
                                 InkWell(
                                   borderRadius: BorderRadius.circular(5),
                                   onTap: () => _changeNewPeriod(
-                                      start: true, context: context),
+                                    start: true,
+                                    context: context,
+                                    newState: setState,
+                                  ),
                                   child: Container(
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(5),
@@ -341,7 +345,10 @@ class PeriodStructureState extends State<PeriodStructure> {
                                 InkWell(
                                   borderRadius: BorderRadius.circular(5),
                                   onTap: () => _changeNewPeriod(
-                                      start: false, context: context),
+                                    start: false,
+                                    context: context,
+                                    newState: setState,
+                                  ),
                                   child: Container(
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(5),
