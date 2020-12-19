@@ -84,13 +84,20 @@ class _SetupState extends State<Setup> {
       _pageController.animateToPage(pageIndex.toInt() - 1,
           duration: Duration(milliseconds: 500), curve: Curves.ease);
     }
-    updateTimetable();
   }
 
   void _handleNameChange(String name) {
     setState(() {
       _data["timetable_name"] = name;
     });
+    updateTimetable();
+  }
+
+  void _handleNumOfWeeksChange(int weeks) {
+    setState(() {
+      _data["number_of_weeks"] = weeks;
+    });
+    updateTimetable();
   }
 
   void _handlePeriodStructureChange(List data) {
@@ -103,12 +110,14 @@ class _SetupState extends State<Setup> {
     setState(() {
       _data["period_structure"] = data;
     });
+    updateTimetable();
   }
 
   void _handleLessonsChange(Map data) {
     setState(() {
       _data["lessons"] = data;
     });
+    updateTimetable();
   }
 
   @override
@@ -126,7 +135,9 @@ class _SetupState extends State<Setup> {
                   children: [
                     NewTimetable(
                       name: _data["timetable_name"],
+                      numOfWeeks: _data["number_of_weeks"],
                       updateName: _handleNameChange,
+                      updateNumOfWeeks: _handleNumOfWeeksChange,
                       pageNavigationButtons: SetupNavigationButtons(
                         changePage: _changePage,
                         pageIndex: pageIndex,
@@ -148,13 +159,34 @@ class _SetupState extends State<Setup> {
                         pageIndex: pageIndex,
                       ),
                     ),
-                    IconButton(
-                      onPressed: () => Auth(
-                        auth: widget.auth,
-                        firestore: widget.firestore,
-                      ).signOut(),
-                      icon: Icon(Icons.exit_to_app),
+                    Container(
+                      height: double.infinity,
+                      child: SafeArea(
+                        child: Column(
+                          children: <Widget>[
+                            Container(
+                              padding: EdgeInsets.only(
+                                  top: 20.0,
+                                  bottom: 20.0,
+                                  left: 20.0,
+                                  right: 20.0),
+                              child: Text(
+                                "Add Lessons",
+                                style: TextStyle(
+                                    fontSize: 40.0,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
+                    IconButton(
+                      icon: Icon(Icons.ac_unit),
+                      onPressed: () =>
+                          Auth(auth: widget.auth, firestore: widget.firestore)
+                              .signOut(),
+                    )
                   ],
                 ),
               ),
