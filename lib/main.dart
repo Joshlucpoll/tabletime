@@ -91,10 +91,6 @@ class _RootState extends State<Root> {
                       firestore: _firestore,
                     );
                   } else {
-                    // return Home(
-                    //   auth: _auth,
-                    //   firestore: _firestore,
-                    // );
                     return Setup(auth: _auth, firestore: _firestore);
                   }
                 } else {
