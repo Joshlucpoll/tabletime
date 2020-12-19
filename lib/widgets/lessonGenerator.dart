@@ -3,9 +3,6 @@ import 'dart:math';
 import 'package:uuid/uuid.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
-// widgets
-import './newLessonDialog.dart';
-
 class LessonGenerator extends StatefulWidget {
   final Map<String, dynamic> lessons;
   final Function updateLessons;
@@ -81,9 +78,6 @@ class _LessonGeneratorState extends State<LessonGenerator> {
 
   @override
   void dispose() {
-    // _nameController.dispose();
-    // _teacherController.dispose();
-    // _roomController.dispose();
     super.dispose();
   }
 
