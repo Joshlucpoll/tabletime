@@ -80,21 +80,25 @@ class _RootState extends State<Root> {
           if (snapshot.data?.uid == null) {
             return Login(auth: _auth, firestore: _firestore);
           } else {
-            return FutureBuilder<bool>(
-              future: Database(firestore: _firestore)
+            return StreamBuilder<DocumentSnapshot>(
+              stream: Database(firestore: _firestore)
                   .finishedInitialSetup(uid: _auth.currentUser.uid),
-              builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
-                if (snapshot.connectionState == ConnectionState.done) {
-                  if (snapshot.data == true) {
-                    return Home(
+              builder: (BuildContext context,
+                  AsyncSnapshot<DocumentSnapshot> snapshot) {
+                if (!snapshot.hasData) {
+                  return Loading();
+                } else {
+                  if (snapshot.data["setup"] == true) {
+                    return Setup(
                       auth: _auth,
                       firestore: _firestore,
                     );
                   } else {
-                    return Setup(auth: _auth, firestore: _firestore);
+                    return Home(
+                      auth: _auth,
+                      firestore: _firestore,
+                    );
                   }
-                } else {
-                  return Loading();
                 }
               },
             );

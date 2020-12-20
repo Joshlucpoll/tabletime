@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:timetable/services/auth.dart';
 
 // screens
 import './loading.dart';
 
 // widgets
-import '../widgets/newTimetable.dart';
-import '../widgets/periodStructure.dart';
+import '../widgets/setupWidgets/newTimetable.dart';
+import '../widgets/setupWidgets/periodStructure.dart';
 import '../widgets/setupNavigationButtons.dart';
-import '../widgets/lessonGenerator.dart';
+import '../widgets/setupWidgets/lessonGenerator.dart';
+import '../widgets/setupWidgets/addingLessons.dart';
 
 // services
 import '../services/database.dart';
@@ -51,6 +51,11 @@ class _SetupState extends State<Setup> {
       Database(firestore: widget.firestore)
           .updateTimetableData(uid: widget.auth.currentUser.uid, data: _data);
     }
+  }
+
+  void _endSetup() {
+    Database(firestore: widget.firestore)
+        .setup(uid: widget.auth.currentUser.uid, enable: false);
   }
 
   @override
@@ -159,34 +164,13 @@ class _SetupState extends State<Setup> {
                         pageIndex: pageIndex,
                       ),
                     ),
-                    Container(
-                      height: double.infinity,
-                      child: SafeArea(
-                        child: Column(
-                          children: <Widget>[
-                            Container(
-                              padding: EdgeInsets.only(
-                                  top: 20.0,
-                                  bottom: 20.0,
-                                  left: 20.0,
-                                  right: 20.0),
-                              child: Text(
-                                "Add Lessons",
-                                style: TextStyle(
-                                    fontSize: 40.0,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                            ),
-                          ],
-                        ),
+                    AddingLessons(
+                      endSetup: _endSetup,
+                      pageNavigationButtons: SetupNavigationButtons(
+                        changePage: _changePage,
+                        pageIndex: pageIndex,
                       ),
                     ),
-                    IconButton(
-                      icon: Icon(Icons.ac_unit),
-                      onPressed: () =>
-                          Auth(auth: widget.auth, firestore: widget.firestore)
-                              .signOut(),
-                    )
                   ],
                 ),
               ),

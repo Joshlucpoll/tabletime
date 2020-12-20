@@ -11,7 +11,7 @@ class Database {
 
   Future<void> addUser({String uid}) async {
     DocumentReference userRef = getUserRef(uid: uid);
-    await userRef.set({"initial_setup_complete": false});
+    await userRef.set({"setup": true});
     await addTimetable(uid: uid);
   }
 
@@ -72,11 +72,19 @@ class Database {
     }
   }
 
-  Future<bool> finishedInitialSetup({String uid}) async {
+  Stream<DocumentSnapshot> finishedInitialSetup({String uid}) {
     try {
       DocumentReference userRef = getUserRef(uid: uid);
-      return await userRef.get().then((DocumentSnapshot docSnapshot) =>
-          docSnapshot.data()["initial_setup_complete"]);
+      return userRef.snapshots();
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> setup({String uid, bool enable}) async {
+    try {
+      DocumentReference userRef = getUserRef(uid: uid);
+      userRef.update({"setup": enable});
     } catch (e) {
       rethrow;
     }
