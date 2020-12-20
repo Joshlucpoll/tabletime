@@ -15,10 +15,7 @@ class Loading extends StatelessWidget {
               "assets/images/tabletime_logo.png",
               width: MediaQuery.of(context).size.shortestSide * 0.6,
             ),
-            Text(
-              "Loading",
-              style: TextStyle(fontSize: 20),
-            )
+            CircularProgressIndicator.adaptive(),
           ],
         ),
       ),
