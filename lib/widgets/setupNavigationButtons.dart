@@ -13,7 +13,7 @@ class SetupNavigationButtons extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
         Visibility(
-          visible: pageIndex >= 1,
+          visible: pageIndex >= 0.1,
           child: Container(
             margin: EdgeInsets.all(10.0),
             child: IconButton(
@@ -26,15 +26,18 @@ class SetupNavigationButtons extends StatelessWidget {
             ),
           ),
         ),
-        Container(
-          margin: EdgeInsets.all(10.0),
-          child: IconButton(
-            onPressed: () {
-              FocusScope.of(context).unfocus();
-              changePage(next: true);
-            },
-            splashRadius: 25.0,
-            icon: Icon(Icons.arrow_forward),
+        Visibility(
+          visible: pageIndex <= 2.9,
+          child: Container(
+            margin: EdgeInsets.all(10.0),
+            child: IconButton(
+              onPressed: () {
+                FocusScope.of(context).unfocus();
+                changePage(next: true);
+              },
+              splashRadius: 25.0,
+              icon: Icon(Icons.arrow_forward),
+            ),
           ),
         ),
       ],
