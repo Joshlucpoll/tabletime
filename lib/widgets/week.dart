@@ -1,7 +1,30 @@
 import 'package:flutter/material.dart';
 
-class Week extends StatelessWidget {
+class Week extends StatefulWidget {
+  final data;
+
+  Week({Key key, this.data}) : super(key: key);
+
+  @override
+  _WeekState createState() => _WeekState();
+}
+
+class _WeekState extends State<Week> with SingleTickerProviderStateMixin {
   final List days = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"];
+
+  TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(vsync: this, length: days.length);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
 
   int get day {
     DateTime date = DateTime.now();
@@ -27,27 +50,13 @@ class Week extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 5,
-      initialIndex: day,
-      child: Scaffold(
-        appBar: AppBar(
-          elevation: 0,
-          title: Row(
-            children: <Widget>[
-              Image(
-                  image: AssetImage("assets/images/tabletime_logo.png"),
-                  height: 25.0),
-              Container(
-                margin: EdgeInsets.only(left: 10.0),
-                child: Text(
-                  "Week",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
-                ),
-              )
-            ],
-          ),
-          bottom: TabBar(
+    return Column(
+      children: [
+        Container(
+          decoration: BoxDecoration(color: Theme.of(context).primaryColor),
+          padding: EdgeInsets.only(top: 10),
+          child: TabBar(
+            controller: _tabController,
             indicator: BoxDecoration(
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(5),
@@ -58,27 +67,30 @@ class Week extends StatelessWidget {
             tabs: days.map((name) => tab(name)).toList(),
           ),
         ),
-        body: TabBarView(
-          physics: PageScrollPhysics(),
-          children: <Widget>[
-            Tab(
-              icon: Icon(Icons.access_alarm),
-            ),
-            Tab(
-              icon: Icon(Icons.access_alarm),
-            ),
-            Tab(
-              icon: Icon(Icons.access_alarm),
-            ),
-            Tab(
-              icon: Icon(Icons.access_alarm),
-            ),
-            Tab(
-              icon: Icon(Icons.access_alarm),
-            )
-          ],
+        Expanded(
+          child: TabBarView(
+            controller: _tabController,
+            physics: PageScrollPhysics(),
+            children: <Widget>[
+              Tab(
+                icon: Icon(Icons.access_alarm),
+              ),
+              Tab(
+                icon: Icon(Icons.access_alarm),
+              ),
+              Tab(
+                icon: Icon(Icons.access_alarm),
+              ),
+              Tab(
+                icon: Icon(Icons.access_alarm),
+              ),
+              Tab(
+                icon: Icon(Icons.access_alarm),
+              )
+            ],
+          ),
         ),
-      ),
+      ],
     );
   }
 }

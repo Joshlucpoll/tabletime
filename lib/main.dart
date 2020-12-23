@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:get_it/get_it.dart';
 
 // Screens
 import './screens/home.dart';
@@ -10,50 +11,29 @@ import './screens/login.dart';
 import './screens/loading.dart';
 
 // Services
-import './services/auth.dart';
+import './services/getIt.dart';
 import './services/database.dart';
+import './services/auth.dart';
 
 // Theme
 import './theme.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  setupGetIt();
   runApp(App());
 }
 
 class App extends StatelessWidget {
-  final Future<FirebaseApp> _initialization = Firebase.initializeApp();
+  // final Future<FirebaseApp> _initialization = Firebase.initializeApp();
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: AppTheme(context: context).lightTheme,
       darkTheme: AppTheme(context: context).darkTheme,
       title: "Tabletime",
-
-      // Firebase builder
-      home: FutureBuilder(
-        future: _initialization,
-        builder: (context, snapshot) {
-          // Check for errors
-          if (snapshot.hasError) {
-            return Scaffold(
-              body: Center(
-                child: Text("Error"),
-              ),
-            );
-          }
-
-          // Once complete, show your application
-          if (snapshot.connectionState == ConnectionState.done) {
-            return Root();
-          }
-
-          // Otherwise, show something whilst waiting for initialization to complete
-          return Scaffold(
-            body: Center(child: Text("Loading...")),
-          );
-        },
-      ),
+      home: Root(),
     );
   }
 }
@@ -64,40 +44,26 @@ class Root extends StatefulWidget {
 }
 
 class _RootState extends State<Root> {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-      stream: Auth(
-        auth: _auth,
-        firestore: _firestore,
-      ).user,
-
+      stream: GetIt.I.get<Auth>().user,
       builder: (BuildContext context, AsyncSnapshot<User> snapshot) {
         if (snapshot.connectionState == ConnectionState.active) {
           if (snapshot.data?.uid == null) {
-            return Login(auth: _auth, firestore: _firestore);
+            return Login();
           } else {
             return StreamBuilder<DocumentSnapshot>(
-              stream: Database(firestore: _firestore)
-                  .finishedInitialSetup(uid: _auth.currentUser.uid),
+              stream: GetIt.I.get<Database>().finishedInitialSetup(),
               builder: (BuildContext context,
                   AsyncSnapshot<DocumentSnapshot> snapshot) {
                 if (!snapshot.hasData) {
                   return Loading();
                 } else {
                   if (snapshot.data["setup"] == true) {
-                    return Setup(
-                      auth: _auth,
-                      firestore: _firestore,
-                    );
+                    return Setup();
                   } else {
-                    return Home(
-                      auth: _auth,
-                      firestore: _firestore,
-                    );
+                    return Home();
                   }
                 }
               },
@@ -106,7 +72,27 @@ class _RootState extends State<Root> {
         } else {
           return Loading();
         }
-      }, //Auth stream
+      },
     );
   }
 }
+
+// class GlobalState extends InheritedWidget {
+//   final Widget child;
+
+//   GlobalState({this.child}) : super(child: child);
+
+//   final FirebaseAuth _auth = FirebaseAuth.instance;
+//   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+//   get auth => _auth;
+//   get firestore => _firestore;
+//   get database => Database(auth: _auth, firestore: _firestore);
+
+//   static GlobalState of(BuildContext context) {
+//     return context.dependOnInheritedWidgetOfExactType<GlobalState>();
+//   }
+
+//   @override
+//   bool updateShouldNotify(covariant InheritedWidget oldWidget) => true;
+// }

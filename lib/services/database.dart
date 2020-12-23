@@ -1,23 +1,22 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import './auth.dart';
+import 'package:get_it/get_it.dart';
 
 class Database {
-  final FirebaseFirestore firestore;
+  final FirebaseFirestore firestore = FirebaseFirestore.instance;
+  final _auth = GetIt.I.get<Auth>();
 
-  Database({this.firestore});
+  String get uid => _auth.uid;
 
-  DocumentReference getUserRef({String uid}) {
-    return firestore.collection("users").doc(uid);
-  }
+  DocumentReference get userRef => firestore.collection("users").doc(uid);
 
-  Future<void> addUser({String uid}) async {
-    DocumentReference userRef = getUserRef(uid: uid);
+  Future<void> addUser() async {
     await userRef.set({"setup": true});
-    await addTimetable(uid: uid);
+    await addTimetable();
   }
 
-  Future<void> addTimetable({String uid}) async {
+  Future<void> addTimetable() async {
     try {
-      DocumentReference userRef = getUserRef(uid: uid);
       CollectionReference timetablesRef = userRef.collection("timetables");
       DocumentReference timetableRef = timetablesRef.doc();
 
@@ -40,9 +39,8 @@ class Database {
     }
   }
 
-  Future<DocumentReference> getCurrentTimetable({String uid}) async {
+  Future<DocumentReference> getCurrentTimetable() async {
     try {
-      DocumentReference userRef = getUserRef(uid: uid);
       return await userRef.get().then((DocumentSnapshot docSnapshot) =>
           docSnapshot.data()["current_timetable"]);
     } catch (e) {
@@ -50,10 +48,10 @@ class Database {
     }
   }
 
-  Future<Map<dynamic, dynamic>> getTimetableData({String uid}) async {
+  Future<Map<dynamic, dynamic>> getTimetableData() async {
     try {
-      return await getCurrentTimetable(uid: uid).then(
-          (DocumentReference docRef) => docRef
+      return await getCurrentTimetable().then((DocumentReference docRef) =>
+          docRef
               .get()
               .then((DocumentSnapshot docSnapshot) => docSnapshot.data()));
     } catch (e) {
@@ -61,10 +59,18 @@ class Database {
     }
   }
 
-  Future<void> updateTimetableData(
-      {String uid, Map<String, dynamic> data}) async {
+  Stream<DocumentSnapshot> streamTimetableData(
+      {DocumentReference timetableRef}) {
     try {
-      DocumentReference timetableRef = await getCurrentTimetable(uid: uid);
+      return timetableRef.snapshots();
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> updateTimetableData({Map<String, dynamic> data}) async {
+    try {
+      DocumentReference timetableRef = await getCurrentTimetable();
 
       timetableRef.set(data);
     } catch (e) {
@@ -72,27 +78,25 @@ class Database {
     }
   }
 
-  Stream<DocumentSnapshot> finishedInitialSetup({String uid}) {
+  Stream<DocumentSnapshot> finishedInitialSetup() {
     try {
-      DocumentReference userRef = getUserRef(uid: uid);
       return userRef.snapshots();
     } catch (e) {
       rethrow;
     }
   }
 
-  Future<void> setup({String uid, bool enable}) async {
+  Future<void> setup({bool enable}) async {
     try {
-      DocumentReference userRef = getUserRef(uid: uid);
       userRef.update({"setup": enable});
     } catch (e) {
       rethrow;
     }
   }
 
-  Future<bool> finishedCurrentTimetable({String uid}) async {
+  Future<bool> finishedCurrentTimetable() async {
     try {
-      return await getCurrentTimetable(uid: uid).then(
+      return await getCurrentTimetable().then(
           (DocumentReference timetableRef) => timetableRef.get().then(
               (DocumentSnapshot timetableSnapshot) =>
                   timetableSnapshot.data()["finished_setup"] ?? false));

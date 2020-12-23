@@ -1,15 +1,13 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:get_it/get_it.dart';
 
 // Services
 import '../services/auth.dart';
 
 class Login extends StatefulWidget {
-  final FirebaseAuth auth;
-  final FirebaseFirestore firestore;
+  final Auth _auth = GetIt.I.get<Auth>();
 
-  const Login({Key key, this.auth, this.firestore}) : super(key: key);
+  Login({Key key}) : super(key: key);
 
   @override
   _LoginState createState() => _LoginState();
@@ -87,9 +85,7 @@ class _LoginState extends State<Login> {
                     RaisedButton(
                       key: const ValueKey("signIn"),
                       onPressed: () async {
-                        final String retVal = await Auth(
-                                auth: widget.auth, firestore: widget.firestore)
-                            .signIn(
+                        final String retVal = await widget._auth.signIn(
                           email: _emailController.text,
                           password: _passwordController.text,
                         );
@@ -107,9 +103,7 @@ class _LoginState extends State<Login> {
                     FlatButton(
                       key: const ValueKey("createAccount"),
                       onPressed: () async {
-                        final String retVal = await Auth(
-                                auth: widget.auth, firestore: widget.firestore)
-                            .createAccount(
+                        final String retVal = await widget._auth.createAccount(
                           email: _emailController.text,
                           password: _passwordController.text,
                         );

@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:get_it/get_it.dart';
 
 // screens
 import './loading.dart';
@@ -15,12 +13,13 @@ import '../widgets/setupWidgets/addingLessons.dart';
 
 // services
 import '../services/database.dart';
+import '../services/auth.dart';
 
 class Setup extends StatefulWidget {
-  final FirebaseFirestore firestore;
-  final FirebaseAuth auth;
+  final Auth _auth = GetIt.I.get<Auth>();
+  final Database _database = GetIt.I.get<Database>();
 
-  const Setup({Key key, this.auth, this.firestore}) : super(key: key);
+  Setup({Key key}) : super(key: key);
 
   @override
   _SetupState createState() => _SetupState();
@@ -34,11 +33,8 @@ class _SetupState extends State<Setup> {
   bool gotTimetable = false;
 
   void getTimetable() async {
-    Database database = Database(firestore: widget.firestore);
-    String uid = widget.auth.currentUser.uid;
-
-    if (await database.finishedCurrentTimetable(uid: uid) == false) {
-      Map<String, dynamic> data = await database.getTimetableData(uid: uid);
+    if (await widget._database.finishedCurrentTimetable() == false) {
+      Map<String, dynamic> data = await widget._database.getTimetableData();
       setState(() {
         _data = data;
         gotTimetable = true;
@@ -47,15 +43,13 @@ class _SetupState extends State<Setup> {
   }
 
   void updateTimetable() {
-    if (widget.auth.currentUser != null) {
-      Database(firestore: widget.firestore)
-          .updateTimetableData(uid: widget.auth.currentUser.uid, data: _data);
+    if (widget._auth.uid != null) {
+      widget._database.updateTimetableData(data: _data);
     }
   }
 
   void _endSetup() {
-    Database(firestore: widget.firestore)
-        .setup(uid: widget.auth.currentUser.uid, enable: false);
+    widget._database.setup(enable: false);
   }
 
   @override

@@ -1,14 +1,13 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:timetable/services/database.dart';
+import 'package:get_it/get_it.dart';
+import './database.dart';
 
 class Auth {
-  final FirebaseAuth auth;
-  final FirebaseFirestore firestore;
-
-  Auth({this.auth, this.firestore});
+  final FirebaseAuth auth = FirebaseAuth.instance;
 
   Stream<User> get user => auth.authStateChanges();
+
+  String get uid => auth.currentUser.uid;
 
   Future<String> createAccount({String email, String password}) async {
     try {
@@ -16,7 +15,8 @@ class Auth {
         email: email.trim(),
         password: password.trim(),
       );
-      await Database(firestore: firestore).addUser(uid: auth.currentUser.uid);
+      await GetIt.I.get<Database>().addUser();
+      // await Database(firestore: firestore).addUser(uid: auth.currentUser.uid);
       return "Success";
     } on FirebaseAuthException catch (e) {
       return e.message;
