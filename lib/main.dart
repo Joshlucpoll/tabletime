@@ -26,7 +26,6 @@ void main() async {
 }
 
 class App extends StatelessWidget {
-  // final Future<FirebaseApp> _initialization = Firebase.initializeApp();
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -76,23 +75,3 @@ class _RootState extends State<Root> {
     );
   }
 }
-
-// class GlobalState extends InheritedWidget {
-//   final Widget child;
-
-//   GlobalState({this.child}) : super(child: child);
-
-//   final FirebaseAuth _auth = FirebaseAuth.instance;
-//   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
-//   get auth => _auth;
-//   get firestore => _firestore;
-//   get database => Database(auth: _auth, firestore: _firestore);
-
-//   static GlobalState of(BuildContext context) {
-//     return context.dependOnInheritedWidgetOfExactType<GlobalState>();
-//   }
-
-//   @override
-//   bool updateShouldNotify(covariant InheritedWidget oldWidget) => true;
-// }

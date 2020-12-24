@@ -59,10 +59,10 @@ class Database {
     }
   }
 
-  Stream<DocumentSnapshot> streamTimetableData(
-      {DocumentReference timetableRef}) {
+  Future<Stream<DocumentSnapshot>> streamTimetableData() {
     try {
-      return timetableRef.snapshots();
+      return getCurrentTimetable()
+          .then((DocumentReference docRef) => docRef.snapshots());
     } catch (e) {
       rethrow;
     }
