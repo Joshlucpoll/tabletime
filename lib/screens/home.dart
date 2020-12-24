@@ -94,9 +94,12 @@ class _HomeState extends State<Home> {
           controller: _pageController,
           scrollDirection: Axis.vertical,
           physics: ScrollPhysics(),
-          children: new List<Widget>.filled(
+          children: new List<Widget>.generate(
             timetableData["number_of_weeks"],
-            Week(),
+            (int index) => Week(
+                lessons: timetableData["lessons"],
+                periodStructure: timetableData["period_structure"],
+                week: timetableData["weeks"][index.toString()]),
           ),
         ),
       );

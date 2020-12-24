@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 
 class Week extends StatefulWidget {
-  final data;
+  final lessons;
+  final periodStructure;
+  final week;
 
-  Week({Key key, this.data}) : super(key: key);
+  Week({Key key, this.lessons, this.periodStructure, this.week})
+      : super(key: key);
 
   @override
   _WeekState createState() => _WeekState();
@@ -53,6 +56,8 @@ class _WeekState extends State<Week> with SingleTickerProviderStateMixin {
     return Column(
       children: [
         Container(
+          width: MediaQuery.of(context).size.width,
+          alignment: Alignment.center,
           decoration: BoxDecoration(color: Theme.of(context).primaryColor),
           padding: EdgeInsets.only(top: 10),
           child: TabBar(

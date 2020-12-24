@@ -20,7 +20,7 @@ class Database {
       CollectionReference timetablesRef = userRef.collection("timetables");
       DocumentReference timetableRef = timetablesRef.doc();
 
-      await timetableRef.set({
+      final data = {
         "timetable_name": "My Timetable",
         "finished_setup": false,
         "number_of_weeks": 1,
@@ -28,8 +28,30 @@ class Database {
         "updated": DateTime.now().toIso8601String(),
         "period_structure": [],
         "lessons": {},
-        "weeks": [],
-      });
+      };
+
+      final List<String> days = [
+        "mon",
+        "tue",
+        "wed",
+        "thu",
+        "fri",
+        "sat",
+        "sun"
+      ];
+
+      final Map weeks = {};
+
+      for (var i = 0; i <= 4; i++) {
+        var week = weeks[i.toString()] = {};
+        days.forEach((day) {
+          week[day] = {};
+        });
+      }
+
+      data["weeks"] = weeks;
+
+      await timetableRef.set(data);
 
       userRef.update({"current_timetable": timetableRef});
 
@@ -48,12 +70,11 @@ class Database {
     }
   }
 
-  Future<Map<dynamic, dynamic>> getTimetableData() async {
+  Future<Map<dynamic, dynamic>> getTimetableData() {
     try {
-      return await getCurrentTimetable().then((DocumentReference docRef) =>
-          docRef
-              .get()
-              .then((DocumentSnapshot docSnapshot) => docSnapshot.data()));
+      return getCurrentTimetable().then((DocumentReference docRef) => docRef
+          .get()
+          .then((DocumentSnapshot docSnapshot) => docSnapshot.data()));
     } catch (e) {
       rethrow;
     }
