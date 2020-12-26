@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class Period extends StatelessWidget {
   Period(
@@ -11,14 +12,13 @@ class Period extends StatelessWidget {
   final Function deletePeriod;
 
   String getStart(BuildContext context) {
-    TimeOfDay startTime =
-        TimeOfDay.fromDateTime(DateTime.parse(period["start"]));
-    return startTime.format(context);
+    final DateFormat formatter = DateFormat.Hm();
+    return formatter.format(DateTime.parse(period["start"]));
   }
 
   String getEnd(BuildContext context) {
-    TimeOfDay endTime = TimeOfDay.fromDateTime(DateTime.parse(period["end"]));
-    return endTime.format(context);
+    final DateFormat formatter = DateFormat.Hm();
+    return formatter.format(DateTime.parse(period["end"]));
   }
 
   @override
@@ -123,17 +123,12 @@ class PeriodStructure extends StatefulWidget {
 }
 
 class PeriodStructureState extends State<PeriodStructure> {
-  TimeOfDay currentStartTime;
-  TimeOfDay currentEndTime;
+  DateTime currentStartTime;
+  DateTime currentEndTime;
 
-  void _addPeriod(TimeOfDay startTime, TimeOfDay endTime) {
-    DateTime now = DateTime.now();
-    String start = new DateTime(
-            now.year, now.month, now.day, startTime.hour, startTime.minute)
-        .toIso8601String();
-    String end =
-        new DateTime(now.year, now.month, now.day, endTime.hour, endTime.minute)
-            .toIso8601String();
+  void _addPeriod(DateTime startTime, DateTime endTime) {
+    String start = startTime.toIso8601String();
+    String end = endTime.toIso8601String();
 
     List newList = List.from(widget.periodStructure)
       ..add({"start": start, "end": end});
@@ -143,22 +138,25 @@ class PeriodStructureState extends State<PeriodStructure> {
   void _changeNewPeriod(
       {bool start, BuildContext context, Function newState}) async {
     TimeOfDay t = await showTimePicker(
-      initialTime: start ? currentStartTime : currentEndTime,
+      initialTime: start
+          ? TimeOfDay.fromDateTime(currentStartTime)
+          : TimeOfDay.fromDateTime(currentEndTime),
       context: context,
     );
     if (t != null) {
+      DateTime now = new DateTime.now();
       if (start) {
-        DateTime now = new DateTime.now();
-
         newState(() {
-          currentStartTime = t;
-          currentEndTime = new TimeOfDay.fromDateTime(
+          currentStartTime =
+              new DateTime(now.year, now.month, now.day, t.hour, t.minute);
+          currentEndTime =
               new DateTime(now.year, now.month, now.day, t.hour, t.minute)
-                  .add(new Duration(minutes: 60)));
+                  .add(new Duration(minutes: 60));
         });
       } else {
         newState(() {
-          currentEndTime = t;
+          currentEndTime =
+              new DateTime(now.year, now.month, now.day, t.hour, t.minute);
         });
       }
     }
@@ -250,13 +248,13 @@ class PeriodStructureState extends State<PeriodStructure> {
     );
   }
 
-  _periodSheet(BuildContext context, previousEnd) {
+  _periodSheet(BuildContext context, String previousEnd) {
     setState(() {
-      currentStartTime =
-          new TimeOfDay.fromDateTime(DateTime.parse(previousEnd));
-      currentEndTime = new TimeOfDay.fromDateTime(
-          DateTime.parse(previousEnd).add(new Duration(hours: 1)));
+      currentStartTime = DateTime.parse(previousEnd);
+      currentEndTime = DateTime.parse(previousEnd).add(new Duration(hours: 1));
     });
+
+    final DateFormat formatter = DateFormat.Hm();
 
     showModalBottomSheet(
       isScrollControlled: true,
@@ -330,7 +328,7 @@ class PeriodStructureState extends State<PeriodStructure> {
                                     child: Row(
                                       children: [
                                         Text(
-                                          currentStartTime.format(context),
+                                          formatter.format(currentStartTime),
                                         ),
                                         SizedBox(width: 10),
                                         Icon(
@@ -360,7 +358,7 @@ class PeriodStructureState extends State<PeriodStructure> {
                                     child: Row(
                                       children: [
                                         Text(
-                                          currentEndTime.format(context),
+                                          formatter.format(currentEndTime),
                                         ),
                                         SizedBox(width: 10),
                                         Icon(
