@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:timetable/screens/loading.dart';
 
+// Screens
+import './settings.dart';
+
 // Services
 import '../services/database.dart';
 
@@ -28,6 +31,7 @@ class _HomeState extends State<Home> {
 
   @override
   void initState() {
+    // GetIt.I.get<Database>().updateWeeks();
     GetIt.I
         .get<Database>()
         .streamTimetableData()
@@ -69,6 +73,9 @@ class _HomeState extends State<Home> {
                   image: AssetImage("assets/images/tabletime_logo.png"),
                   height: 25.0),
               FlatButton(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5.0),
+                ),
                 onPressed: () {},
                 child: Text(
                   "Week " + (pageIndex.round() + 1).toString(),
@@ -84,7 +91,12 @@ class _HomeState extends State<Home> {
               splashRadius: 20,
             ),
             IconButton(
-              onPressed: () {},
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => SettingsPage(),
+                ),
+              ),
               icon: Icon(Icons.menu),
               splashRadius: 20,
             ),
