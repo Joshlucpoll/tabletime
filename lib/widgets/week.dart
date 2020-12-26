@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../widgets/day.dart';
+
+final shortDays = ["mon", "tue", "wed", "thu", "fri"];
+
 class Week extends StatefulWidget {
   final lessons;
   final periodStructure;
@@ -72,27 +76,20 @@ class _WeekState extends State<Week> with SingleTickerProviderStateMixin {
             tabs: days.map((name) => tab(name)).toList(),
           ),
         ),
+        SizedBox(height: 5),
         Expanded(
           child: TabBarView(
             controller: _tabController,
             physics: PageScrollPhysics(),
-            children: <Widget>[
-              Tab(
-                icon: Icon(Icons.access_alarm),
-              ),
-              Tab(
-                icon: Icon(Icons.access_alarm),
-              ),
-              Tab(
-                icon: Icon(Icons.access_alarm),
-              ),
-              Tab(
-                icon: Icon(Icons.access_alarm),
-              ),
-              Tab(
-                icon: Icon(Icons.access_alarm),
-              )
-            ],
+            children: shortDays
+                .map(
+                  (day) => Day(
+                    day: widget.week[day],
+                    lessons: widget.lessons,
+                    periodStructure: widget.periodStructure,
+                  ),
+                )
+                .toList(),
           ),
         ),
       ],

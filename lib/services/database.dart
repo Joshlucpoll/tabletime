@@ -45,7 +45,7 @@ class Database {
       for (var i = 0; i <= 4; i++) {
         var week = weeks[i.toString()] = {};
         days.forEach((day) {
-          week[day] = {};
+          week[day] = [];
         });
       }
 
