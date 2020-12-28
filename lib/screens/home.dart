@@ -29,27 +29,51 @@ class _HomeState extends State<Home> {
   PageController _pageController;
   double pageIndex = 0;
 
-  @override
-  void initState() {
-    // GetIt.I.get<Database>().updateWeeks();
-    GetIt.I
-        .get<Database>()
-        .streamTimetableData()
-        .then((stream) => stream.listen((timetable) {
-              setState(() {
-                timetableData = timetable.data();
-              });
-            }));
+  void initialisePageController(timetable) {
+    int difference = (DateTime.now()
+                .difference(DateTime.parse(timetable["current_week"]["date"]))
+                .inDays /
+            7)
+        .truncate();
 
-    _pageController = PageController();
+    int currentWeek = (timetable["current_week"]["week"] + difference) %
+        timetable["number_of_weeks"];
+
+    currentWeek =
+        currentWeek == 0 ? timetable["current_week"]["week"] : currentWeek;
+
+    _pageController = PageController(initialPage: currentWeek - 1);
+    if (this.mounted) {
+      setState(() {
+        pageIndex = (currentWeek - 1).roundToDouble();
+      });
+    }
 
     _pageController.addListener(() {
       if (_pageController.hasClients) {
-        setState(() {
-          pageIndex = _pageController.page;
-        });
+        if (this.mounted) {
+          setState(() {
+            pageIndex = _pageController.page;
+          });
+        }
       }
     });
+  }
+
+  @override
+  void initState() {
+    widget._database
+        .streamTimetableData()
+        .then((stream) => stream.listen((timetable) {
+              if (timetableData == null) {
+                initialisePageController(timetable.data());
+              }
+              if (this.mounted) {
+                setState(() {
+                  timetableData = timetable.data();
+                });
+              }
+            }));
     super.initState();
   }
 
@@ -57,6 +81,18 @@ class _HomeState extends State<Home> {
   void dispose() {
     _pageController.dispose();
     super.dispose();
+  }
+
+  void changeCurrentWeek({BuildContext context, int week}) async {
+    String retVal = await widget._database.setCurrentWeek(currentWeek: week);
+    String outputText =
+        retVal == "Success" ? "Current Week is now " + week.toString() : retVal;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(outputText),
+      ),
+    );
   }
 
   @override
@@ -76,10 +112,16 @@ class _HomeState extends State<Home> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(5.0),
                 ),
-                onPressed: () {},
+                onPressed: () => changeCurrentWeek(
+                  context: context,
+                  week: pageIndex.round() + 1,
+                ),
                 child: Text(
                   "Week " + (pageIndex.round() + 1).toString(),
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 25,
+                  ),
                 ),
               ),
             ],
@@ -109,9 +151,10 @@ class _HomeState extends State<Home> {
           children: new List<Widget>.generate(
             timetableData["number_of_weeks"],
             (int index) => Week(
-                lessons: timetableData["lessons"],
-                periodStructure: timetableData["period_structure"],
-                week: timetableData["weeks"][index.toString()]),
+              lessons: timetableData["lessons"],
+              periodStructure: timetableData["period_structure"],
+              week: timetableData["weeks"][index.toString()],
+            ),
           ),
         ),
       );

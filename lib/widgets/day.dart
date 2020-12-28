@@ -8,8 +8,14 @@ import './expandedSelection.dart';
 class Period extends StatefulWidget {
   final lesson;
   final period;
+  final int dayNum;
 
-  Period({Key key, this.lesson, this.period}) : super(key: key);
+  Period({
+    Key key,
+    this.lesson,
+    this.period,
+    this.dayNum,
+  }) : super(key: key);
   @override
   _PeriodState createState() => _PeriodState();
 }
@@ -17,6 +23,19 @@ class Period extends StatefulWidget {
 class _PeriodState extends State<Period> {
   final DateFormat formatter = DateFormat.Hm();
   bool expanded = false;
+
+  bool get isCurrentLesson {
+    DateTime now = DateTime.now();
+    if (now.weekday == widget.dayNum) {
+      DateTime start = DateTime.parse(widget.period["start"]);
+      DateTime end = DateTime.parse(widget.period["end"]);
+      if ((now.hour * 60 + now.minute) >= (start.hour * 60 + start.minute) &&
+          (now.hour * 60 + now.minute) <= (end.hour * 60 + end.minute)) {
+        return true;
+      }
+    }
+    return false;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,6 +87,26 @@ class _PeriodState extends State<Period> {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
+                  Expanded(
+                    child: Container(),
+                  ),
+                  Visibility(
+                    visible: isCurrentLesson,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: textColour,
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      padding: EdgeInsets.all(5),
+                      child: Text(
+                        "Now",
+                        style: TextStyle(
+                          color: backgroundColour,
+                          fontSize: 10,
+                        ),
+                      ),
+                    ),
+                  )
                 ],
               ),
               ExpandedSection(
@@ -80,9 +119,11 @@ class _PeriodState extends State<Period> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Text(
-                            "to",
-                            style: TextStyle(color: textColour, height: 1),
+                          Container(
+                            child: Text(
+                              "to",
+                              style: TextStyle(color: textColour, height: 1),
+                            ),
                           ),
                           Text(
                             formatter
@@ -136,21 +177,32 @@ class Day extends StatelessWidget {
   final lessons;
   final periodStructure;
   final List day;
+  final int dayNum;
 
-  Day({Key key, this.lessons, this.periodStructure, this.day})
-      : super(key: key);
+  Day({
+    Key key,
+    this.lessons,
+    this.periodStructure,
+    this.day,
+    this.dayNum,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: day
-          .map(
-            (day) => Period(
+      children: day.map(
+        (day) {
+          if (day["period"] >= 0 && day["period"] < periodStructure.length) {
+            return Period(
               period: periodStructure[day["period"]],
               lesson: lessons[day["lesson"]],
-            ),
-          )
-          .toList(),
+              dayNum: dayNum,
+            );
+          } else {
+            return Container();
+          }
+        },
+      ).toList(),
     );
   }
 }

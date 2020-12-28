@@ -23,9 +23,11 @@ class Database {
       final data = {
         "timetable_name": "My Timetable",
         "finished_setup": false,
+        "current_week": {
+          "week": 0,
+          "date": new DateTime.now(),
+        },
         "number_of_weeks": 1,
-        "data_created": DateTime.now().toIso8601String(),
-        "updated": DateTime.now().toIso8601String(),
         "period_structure": [],
         "lessons": {},
       };
@@ -56,6 +58,32 @@ class Database {
       userRef.update({"current_timetable": timetableRef});
 
       return "Success";
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<String> setCurrentWeek({int currentWeek}) async {
+    try {
+      DateTime now = DateTime.now();
+      DateTime lastMonday = now.subtract(Duration(days: now.weekday - 1));
+
+      String date =
+          new DateTime(lastMonday.year, lastMonday.month, lastMonday.day)
+              .toIso8601String();
+
+      DocumentReference timetableRef = await getCurrentTimetable();
+
+      timetableRef.update({
+        "current_week": {
+          "date": date,
+          "week": currentWeek,
+        }
+      });
+
+      return "Success";
+    } on FirebaseException catch (e) {
+      return e.message;
     } catch (e) {
       rethrow;
     }

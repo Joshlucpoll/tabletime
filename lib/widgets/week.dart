@@ -87,6 +87,7 @@ class _WeekState extends State<Week> with SingleTickerProviderStateMixin {
                     day: widget.week[day],
                     lessons: widget.lessons,
                     periodStructure: widget.periodStructure,
+                    dayNum: shortDays.indexOf(day) + 1,
                   ),
                 )
                 .toList(),
