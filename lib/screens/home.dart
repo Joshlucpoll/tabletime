@@ -28,6 +28,7 @@ class _HomeState extends State<Home> {
   Map<String, dynamic> timetableData;
   PageController _pageController;
   double pageIndex = 0;
+  int selectedWeek;
 
   void initialisePageController(timetable) {
     int difference = (DateTime.now()
@@ -41,6 +42,10 @@ class _HomeState extends State<Home> {
 
     currentWeek =
         currentWeek == 0 ? timetable["current_week"]["week"] : currentWeek;
+
+    if (this.mounted) {
+      setState(() => selectedWeek = currentWeek);
+    }
 
     _pageController = PageController(initialPage: currentWeek - 1);
     if (this.mounted) {
@@ -86,13 +91,15 @@ class _HomeState extends State<Home> {
   void changeCurrentWeek({BuildContext context, int week}) async {
     String retVal = await widget._database.setCurrentWeek(currentWeek: week);
     String outputText =
-        retVal == "Success" ? "Current Week is now " + week.toString() : retVal;
+        retVal == "Success" ? "Current week is now " + week.toString() : retVal;
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(outputText),
       ),
     );
+
+    if (retVal == "Success") setState(() => selectedWeek = week);
   }
 
   @override
@@ -121,6 +128,13 @@ class _HomeState extends State<Home> {
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 25,
+                    color: selectedWeek == (pageIndex.round() + 1)
+                        ? Theme.of(context).textTheme.bodyText1.color
+                        : Theme.of(context)
+                            .textTheme
+                            .bodyText1
+                            .color
+                            .withOpacity(0.5),
                   ),
                 ),
               ),
