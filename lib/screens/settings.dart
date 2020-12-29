@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
+
+// Services
+import '../services/database.dart';
 
 class SettingsPage extends StatefulWidget {
   @override
@@ -6,6 +10,8 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
+  final Database _database = GetIt.I.get<Database>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -17,7 +23,18 @@ class _SettingsPageState extends State<SettingsPage> {
         ),
         title: Text("Settings"),
       ),
-      body: Column(),
+      body: ListView(
+        children: [
+          ListTile(
+            onTap: () {
+              _database.setup(enable: true);
+              Navigator.of(context).pop();
+            },
+            leading: Icon(Icons.edit),
+            title: Text("Edit Timetable"),
+          )
+        ],
+      ),
     );
   }
 }

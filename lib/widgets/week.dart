@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 
-import '../widgets/day.dart';
+import './customScrollPhysics.dart';
+import './day.dart';
 
 final shortDays = ["mon", "tue", "wed", "thu", "fri"];
 
 class Week extends StatefulWidget {
-  final lessons;
-  final periodStructure;
   final week;
+  final int weekNum;
 
-  Week({Key key, this.lessons, this.periodStructure, this.week})
-      : super(key: key);
+  Week({
+    Key key,
+    this.week,
+    this.weekNum,
+  }) : super(key: key);
 
   @override
   _WeekState createState() => _WeekState();
@@ -80,14 +83,13 @@ class _WeekState extends State<Week> with SingleTickerProviderStateMixin {
         Expanded(
           child: TabBarView(
             controller: _tabController,
-            physics: PageScrollPhysics(),
+            physics: const CustomPageViewScrollPhysics(),
             children: shortDays
                 .map(
                   (day) => Day(
-                    day: widget.week[day],
-                    lessons: widget.lessons,
-                    periodStructure: widget.periodStructure,
-                    dayNum: shortDays.indexOf(day) + 1,
+                    blocks: widget.week[day],
+                    dayNum: shortDays.indexOf(day),
+                    weekNum: widget.weekNum,
                   ),
                 )
                 .toList(),

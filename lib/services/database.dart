@@ -127,6 +127,16 @@ class Database {
     }
   }
 
+  Future<void> updateWeeksData({Map weeks}) async {
+    try {
+      DocumentReference timetableRef = await getCurrentTimetable();
+
+      timetableRef.update({"weeks": weeks});
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   Stream<DocumentSnapshot> finishedInitialSetup() {
     try {
       return userRef.snapshots();

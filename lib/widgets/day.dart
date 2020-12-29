@@ -1,32 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:intl/intl.dart';
+import 'package:timetable/screens/home.dart';
 
 // Widgets
 import './expandedSelection.dart';
 
-class Period extends StatefulWidget {
+class BlockCard extends StatefulWidget {
   final lesson;
   final period;
   final int dayNum;
 
-  Period({
+  BlockCard({
     Key key,
     this.lesson,
     this.period,
     this.dayNum,
   }) : super(key: key);
   @override
-  _PeriodState createState() => _PeriodState();
+  _BlockCardState createState() => _BlockCardState();
 }
 
-class _PeriodState extends State<Period> {
+class _BlockCardState extends State<BlockCard> {
   final DateFormat formatter = DateFormat.Hm();
   bool expanded = false;
 
   bool get isCurrentLesson {
     DateTime now = DateTime.now();
-    if (now.weekday == widget.dayNum) {
+    if (now.weekday == widget.dayNum + 1) {
       DateTime start = DateTime.parse(widget.period["start"]);
       DateTime end = DateTime.parse(widget.period["end"]);
       if ((now.hour * 60 + now.minute) >= (start.hour * 60 + start.minute) &&
@@ -173,36 +174,183 @@ class _PeriodState extends State<Period> {
   }
 }
 
-class Day extends StatelessWidget {
-  final lessons;
-  final periodStructure;
-  final List day;
+class EditingBlock extends StatelessWidget {
+  final period;
+  final periodNum;
+  final lesson;
   final int dayNum;
+  final int weekNum;
+
+  EditingBlock({
+    Key key,
+    this.period,
+    this.periodNum,
+    this.lesson,
+    this.dayNum,
+    this.weekNum,
+  }) : super(key: key);
+
+  final DateFormat formatter = DateFormat.Hm();
+
+  @override
+  Widget build(BuildContext context) {
+    Color backgroundColour = lesson == null
+        ? Theme.of(context).cardColor
+        : Color.fromRGBO(
+            lesson["colour"]["red"],
+            lesson["colour"]["green"],
+            lesson["colour"]["blue"],
+            1,
+          );
+
+    Color textColour = lesson == null
+        ? Theme.of(context).textTheme.bodyText1.color
+        : useWhiteForeground(backgroundColour)
+            ? const Color(0xffffffff)
+            : const Color(0xff000000);
+
+    return DragTarget<String>(
+      onWillAccept: (data) => lesson == null ? true : false,
+      onAccept: (data) => InheritedWeeksModify.of(context).addBlockToWeeks(
+        block: {"period": periodNum, "lesson": data},
+        weekNum: weekNum,
+        dayNum: dayNum,
+      ),
+      builder: (context, List<String> candidateData, rejectedData) {
+        return Card(
+          margin: EdgeInsets.symmetric(vertical: 2, horizontal: 5),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          color: backgroundColour,
+          child: Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      formatter.format(DateTime.parse(period["start"])),
+                      style: TextStyle(
+                        color: textColour,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                  ),
+                ),
+                Container(
+                  alignment: Alignment.center,
+                  child: Text(
+                    lesson == null
+                        ? "Period " + (periodNum + 1).toString()
+                        : lesson["name"],
+                    style: TextStyle(
+                      color: textColour,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Container(
+                    alignment: Alignment.centerRight,
+                    child: Text(
+                      formatter.format(DateTime.parse(period["end"])),
+                      style: TextStyle(
+                        color: textColour,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                  ),
+                ),
+                Visibility(
+                  visible: lesson != null,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(30),
+                    child: Container(
+                      height: 30,
+                      width: 30,
+                      alignment: Alignment.center,
+                      child: Icon(
+                        Icons.close,
+                        color: textColour,
+                      ),
+                    ),
+                    onTap: () =>
+                        InheritedWeeksModify.of(context).removeBlockFromWeeks(
+                      weekNum: weekNum,
+                      dayNum: dayNum,
+                      period: periodNum,
+                    ),
+                  ),
+                )
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class Day extends StatelessWidget {
+  final List blocks;
+  final int dayNum;
+  final int weekNum;
 
   Day({
     Key key,
-    this.lessons,
-    this.periodStructure,
-    this.day,
+    this.blocks,
     this.dayNum,
+    this.weekNum,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: day.map(
-        (day) {
-          if (day["period"] >= 0 && day["period"] < periodStructure.length) {
-            return Period(
-              period: periodStructure[day["period"]],
-              lesson: lessons[day["lesson"]],
-              dayNum: dayNum,
-            );
-          } else {
-            return Container();
-          }
-        },
-      ).toList(),
+    final inheritedState = InheritedWeeksModify.of(context);
+    return SingleChildScrollView(
+      child: Column(
+        children: inheritedState.editingLessons
+            ? inheritedState.periodStructure
+                .asMap()
+                .entries
+                .map<Widget>((period) {
+                // if a period contains a lesson
+                for (var block in blocks) {
+                  if (block["period"] == period.key) {
+                    return EditingBlock(
+                      period: period.value,
+                      lesson: inheritedState.lessons[block["lesson"]],
+                      dayNum: dayNum,
+                      weekNum: weekNum,
+                      periodNum: period.key,
+                    );
+                  }
+                }
+                return EditingBlock(
+                  period: period.value,
+                  periodNum: period.key,
+                  weekNum: weekNum,
+                  dayNum: dayNum,
+                );
+              }).toList()
+            : blocks.map(
+                (block) {
+                  if (block["period"] >= 0 &&
+                      block["period"] < inheritedState.periodStructure.length) {
+                    return BlockCard(
+                      period: inheritedState.periodStructure[block["period"]],
+                      lesson: inheritedState.lessons[block["lesson"]],
+                      dayNum: dayNum,
+                    );
+                  } else {
+                    return Container();
+                  }
+                },
+              ).toList(),
+      ),
     );
   }
 }
