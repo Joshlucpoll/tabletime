@@ -312,45 +312,37 @@ class Day extends StatelessWidget {
     final inheritedState = InheritedWeeksModify.of(context);
     return SingleChildScrollView(
       child: Column(
-        children: inheritedState.editingLessons
-            ? inheritedState.periodStructure
-                .asMap()
-                .entries
-                .map<Widget>((period) {
-                // if a period contains a lesson
-                for (var block in blocks) {
-                  if (block["period"] == period.key) {
-                    return EditingBlock(
-                      period: period.value,
-                      lesson: inheritedState.lessons[block["lesson"]],
-                      dayNum: dayNum,
-                      weekNum: weekNum,
-                      periodNum: period.key,
-                    );
-                  }
-                }
-                return EditingBlock(
-                  period: period.value,
-                  periodNum: period.key,
-                  weekNum: weekNum,
-                  dayNum: dayNum,
-                );
-              }).toList()
-            : blocks.map(
-                (block) {
-                  if (block["period"] >= 0 &&
-                      block["period"] < inheritedState.periodStructure.length) {
-                    return BlockCard(
-                      period: inheritedState.periodStructure[block["period"]],
-                      lesson: inheritedState.lessons[block["lesson"]],
-                      dayNum: dayNum,
-                    );
-                  } else {
-                    return Container();
-                  }
-                },
-              ).toList(),
-      ),
+          children: inheritedState.periodStructure
+              .asMap()
+              .entries
+              .map<Widget>((period) {
+        // if a period contains a lesson
+        for (var block in blocks) {
+          if (block["period"] == period.key) {
+            return inheritedState.editingLessons
+                ? EditingBlock(
+                    period: period.value,
+                    lesson: inheritedState.lessons[block["lesson"]],
+                    dayNum: dayNum,
+                    weekNum: weekNum,
+                    periodNum: period.key,
+                  )
+                : BlockCard(
+                    period: inheritedState.periodStructure[block["period"]],
+                    lesson: inheritedState.lessons[block["lesson"]],
+                    dayNum: dayNum,
+                  );
+          }
+        }
+        return inheritedState.editingLessons
+            ? EditingBlock(
+                period: period.value,
+                periodNum: period.key,
+                weekNum: weekNum,
+                dayNum: dayNum,
+              )
+            : Container();
+      }).toList()),
     );
   }
 }

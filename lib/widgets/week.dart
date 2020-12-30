@@ -27,7 +27,11 @@ class _WeekState extends State<Week> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(vsync: this, length: days.length);
+    _tabController = TabController(
+      vsync: this,
+      length: days.length,
+      initialIndex: day,
+    );
   }
 
   @override
