@@ -24,8 +24,8 @@ class Database {
         "timetable_name": "My Timetable",
         "finished_setup": false,
         "current_week": {
-          "week": 0,
-          "date": new DateTime.now(),
+          "week": 1,
+          "date": new DateTime.now().toIso8601String(),
         },
         "number_of_weeks": 1,
         "period_structure": [],
@@ -131,7 +131,7 @@ class Database {
     try {
       DocumentReference timetableRef = await getCurrentTimetable();
 
-      timetableRef.update({"weeks": weeks});
+      await timetableRef.update({"weeks": weeks});
     } catch (e) {
       rethrow;
     }

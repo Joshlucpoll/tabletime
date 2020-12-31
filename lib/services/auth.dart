@@ -16,7 +16,6 @@ class Auth {
         password: password.trim(),
       );
       await GetIt.I.get<Database>().addUser();
-      // await Database(firestore: firestore).addUser(uid: auth.currentUser.uid);
       return "Success";
     } on FirebaseAuthException catch (e) {
       return e.message;

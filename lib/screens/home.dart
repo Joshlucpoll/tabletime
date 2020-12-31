@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
@@ -29,6 +30,7 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   DocumentReference timetableRef;
   Map<String, dynamic> timetableData;
+  Map weeksEditingState;
   PageController _pageController;
   double pageIndex = 0;
   int selectedWeek;
@@ -72,6 +74,7 @@ class _HomeState extends State<Home> {
 
   @override
   void initState() {
+    // widget._database.setWeeks();
     widget._database
         .streamTimetableData()
         .then((stream) => stream.listen((timetable) {
@@ -96,17 +99,17 @@ class _HomeState extends State<Home> {
   void addBlockToWeeks({Map<String, dynamic> block, int weekNum, int dayNum}) {
     final shortDays = ["mon", "tue", "wed", "thu", "fri"];
 
-    Map newWeeks = new Map.from(timetableData["weeks"]);
+    Map newWeeks = json.decode(json.encode(weeksEditingState));
 
     newWeeks[weekNum.toString()][shortDays[dayNum]].add(block);
 
-    widget._database.updateWeeksData(weeks: newWeeks);
+    setState(() => weeksEditingState = newWeeks);
   }
 
   void removeBlockFromWeeks({int weekNum, int dayNum, int period}) {
     final shortDays = ["mon", "tue", "wed", "thu", "fri"];
 
-    Map newWeeks = new Map.from(timetableData["weeks"]);
+    Map newWeeks = json.decode(json.encode(weeksEditingState));
 
     List dayBlocks = newWeeks[weekNum.toString()][shortDays[dayNum]];
 
@@ -115,7 +118,7 @@ class _HomeState extends State<Home> {
         newWeeks[weekNum.toString()][shortDays[dayNum]].remove(block);
       }
     }
-    widget._database.updateWeeksData(weeks: newWeeks);
+    setState(() => weeksEditingState = newWeeks);
   }
 
   void changeCurrentWeek({BuildContext context, int week}) async {
@@ -130,6 +133,18 @@ class _HomeState extends State<Home> {
     );
 
     if (retVal == "Success") setState(() => selectedWeek = week);
+  }
+
+  void toggleEditingWeeks(bool editing) async {
+    if (!editing) {
+      if (weeksEditingState.toString() == timetableData["weeks"].toString())
+        await widget._database.updateWeeksData(weeks: weeksEditingState);
+    }
+    setState(() {
+      editingLessons = editing;
+      if (editing)
+        weeksEditingState = json.decode(json.encode(timetableData["weeks"]));
+    });
   }
 
   @override
@@ -187,12 +202,12 @@ class _HomeState extends State<Home> {
                   IconButton(
                     icon: Icon(Icons.close),
                     splashRadius: 20,
-                    onPressed: () => setState(() => editingLessons = false),
+                    onPressed: () => toggleEditingWeeks(false),
                   ),
                 ]
               : [
                   IconButton(
-                    onPressed: () => setState(() => editingLessons = true),
+                    onPressed: () => toggleEditingWeeks(true),
                     icon: Icon(Icons.edit),
                     splashRadius: 20,
                   ),
@@ -209,9 +224,10 @@ class _HomeState extends State<Home> {
                 ],
         ),
         body: InheritedWeeksModify(
-          editingLessons: editingLessons,
           lessons: timetableData["lessons"],
           periodStructure: timetableData["period_structure"],
+          editingLessons: editingLessons,
+          weeksEditingState: weeksEditingState,
           addBlockToWeeks: addBlockToWeeks,
           removeBlockFromWeeks: removeBlockFromWeeks,
           child: Column(
@@ -262,8 +278,7 @@ class _HomeState extends State<Home> {
                             IconButton(
                               icon: Icon(Icons.close),
                               splashRadius: 20,
-                              onPressed: () =>
-                                  setState(() => editingLessons = false),
+                              onPressed: () => toggleEditingWeeks(false),
                             )
                           ],
                         ),
@@ -296,8 +311,7 @@ class _HomeState extends State<Home> {
                                   margin: EdgeInsets.symmetric(horizontal: 5),
                                   decoration: BoxDecoration(
                                     color: backgroundColour,
-                                    borderRadius:
-                                        BorderRadius.circular(double.maxFinite),
+                                    borderRadius: BorderRadius.circular(20),
                                   ),
                                   child: Text(
                                     lesson.value["name"],
@@ -306,6 +320,8 @@ class _HomeState extends State<Home> {
                                 ),
                               );
                               return Draggable<String>(
+                                maxSimultaneousDrags: 1,
+                                dragAnchor: DragAnchor.child,
                                 affinity: Axis.vertical,
                                 data: lesson.key,
                                 child: lessonPill,
@@ -328,17 +344,19 @@ class _HomeState extends State<Home> {
 }
 
 class InheritedWeeksModify extends InheritedWidget {
-  final bool editingLessons;
   final lessons;
   final periodStructure;
+  final bool editingLessons;
+  final Map weeksEditingState;
   final Function removeBlockFromWeeks;
   final Function addBlockToWeeks;
 
   InheritedWeeksModify({
     Key key,
-    this.editingLessons,
     this.lessons,
     this.periodStructure,
+    this.editingLessons,
+    this.weeksEditingState,
     this.addBlockToWeeks,
     this.removeBlockFromWeeks,
     Widget child,

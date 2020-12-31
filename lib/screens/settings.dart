@@ -3,6 +3,7 @@ import 'package:get_it/get_it.dart';
 
 // Services
 import '../services/database.dart';
+import '../services/auth.dart';
 
 class SettingsPage extends StatefulWidget {
   @override
@@ -11,6 +12,7 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   final Database _database = GetIt.I.get<Database>();
+  final Auth _auth = GetIt.I.get<Auth>();
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +34,15 @@ class _SettingsPageState extends State<SettingsPage> {
             },
             leading: Icon(Icons.edit),
             title: Text("Edit Timetable"),
-          )
+          ),
+          ListTile(
+            onTap: () {
+              _auth.signOut();
+              Navigator.of(context).pop();
+            },
+            leading: Icon(Icons.exit_to_app),
+            title: Text("Sign out"),
+          ),
         ],
       ),
     );
