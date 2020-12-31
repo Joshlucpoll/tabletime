@@ -116,6 +116,7 @@ class _HomeState extends State<Home> {
     for (var block in dayBlocks) {
       if (block["period"] == period) {
         newWeeks[weekNum.toString()][shortDays[dayNum]].remove(block);
+        break;
       }
     }
     setState(() => weeksEditingState = newWeeks);
