@@ -137,8 +137,9 @@ class _HomeState extends State<Home> {
 
   void toggleEditingWeeks(bool editing) async {
     if (!editing) {
-      if (weeksEditingState.toString() == timetableData["weeks"].toString())
+      if (weeksEditingState.toString() != timetableData["weeks"].toString()) {
         await widget._database.updateWeeksData(weeks: weeksEditingState);
+      }
     }
     setState(() {
       editingLessons = editing;
