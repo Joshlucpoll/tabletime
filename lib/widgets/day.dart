@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:intl/intl.dart';
 import 'package:timetable/screens/home.dart';
@@ -27,7 +28,25 @@ class BlockCard extends StatefulWidget {
 
 class _BlockCardState extends State<BlockCard> {
   final DateFormat formatter = DateFormat.Hm();
+  bool currentLesson = false;
   bool expanded = false;
+
+  Timer nowTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    setState(() => currentLesson = isCurrentLesson);
+
+    nowTimer = Timer.periodic(Duration(seconds: 10),
+        (Timer t) => setState(() => currentLesson = isCurrentLesson));
+  }
+
+  @override
+  void dispose() {
+    nowTimer?.cancel();
+    super.dispose();
+  }
 
   bool get isCurrentLesson {
     if (widget.weekNum + 1 == widget.selectedWeek) {
@@ -36,7 +55,7 @@ class _BlockCardState extends State<BlockCard> {
         DateTime start = DateTime.parse(widget.period["start"]);
         DateTime end = DateTime.parse(widget.period["end"]);
         if ((now.hour * 60 + now.minute) >= (start.hour * 60 + start.minute) &&
-            (now.hour * 60 + now.minute) <= (end.hour * 60 + end.minute)) {
+            (now.hour * 60 + now.minute) <= (end.hour * 60 + end.minute - 1)) {
           return true;
         }
       }
