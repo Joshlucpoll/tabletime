@@ -74,7 +74,6 @@ class _HomeState extends State<Home> {
 
   @override
   void initState() {
-    // widget._database.setWeeks();
     widget._database
         .streamTimetableData()
         .then((stream) => stream.listen((timetable) {
@@ -228,6 +227,7 @@ class _HomeState extends State<Home> {
         body: InheritedWeeksModify(
           lessons: timetableData["lessons"],
           periodStructure: timetableData["period_structure"],
+          selectedWeek: selectedWeek,
           editingLessons: editingLessons,
           weeksEditingState: weeksEditingState,
           addBlockToWeeks: addBlockToWeeks,
@@ -348,6 +348,7 @@ class _HomeState extends State<Home> {
 class InheritedWeeksModify extends InheritedWidget {
   final lessons;
   final periodStructure;
+  final int selectedWeek;
   final bool editingLessons;
   final Map weeksEditingState;
   final Function removeBlockFromWeeks;
@@ -357,6 +358,7 @@ class InheritedWeeksModify extends InheritedWidget {
     Key key,
     this.lessons,
     this.periodStructure,
+    this.selectedWeek,
     this.editingLessons,
     this.weeksEditingState,
     this.addBlockToWeeks,

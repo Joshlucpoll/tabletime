@@ -10,12 +10,16 @@ class BlockCard extends StatefulWidget {
   final lesson;
   final period;
   final int dayNum;
+  final int weekNum;
+  final int selectedWeek;
 
   BlockCard({
     Key key,
     this.lesson,
     this.period,
     this.dayNum,
+    this.weekNum,
+    this.selectedWeek,
   }) : super(key: key);
   @override
   _BlockCardState createState() => _BlockCardState();
@@ -26,13 +30,15 @@ class _BlockCardState extends State<BlockCard> {
   bool expanded = false;
 
   bool get isCurrentLesson {
-    DateTime now = DateTime.now();
-    if (now.weekday == widget.dayNum + 1) {
-      DateTime start = DateTime.parse(widget.period["start"]);
-      DateTime end = DateTime.parse(widget.period["end"]);
-      if ((now.hour * 60 + now.minute) >= (start.hour * 60 + start.minute) &&
-          (now.hour * 60 + now.minute) <= (end.hour * 60 + end.minute)) {
-        return true;
+    if (widget.weekNum + 1 == widget.selectedWeek) {
+      DateTime now = DateTime.now();
+      if (now.weekday == widget.dayNum + 1) {
+        DateTime start = DateTime.parse(widget.period["start"]);
+        DateTime end = DateTime.parse(widget.period["end"]);
+        if ((now.hour * 60 + now.minute) >= (start.hour * 60 + start.minute) &&
+            (now.hour * 60 + now.minute) <= (end.hour * 60 + end.minute)) {
+          return true;
+        }
       }
     }
     return false;
@@ -345,6 +351,8 @@ class Day extends StatelessWidget {
                     period: inheritedState.periodStructure[block["period"]],
                     lesson: inheritedState.lessons[block["lesson"]],
                     dayNum: dayNum,
+                    weekNum: weekNum,
+                    selectedWeek: inheritedState.selectedWeek,
                   );
                 }
               }
