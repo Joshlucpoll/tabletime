@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:showcaseview/showcaseview.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:get_it/get_it.dart';
@@ -36,6 +37,10 @@ class _HomeState extends State<Home> {
   int selectedWeek;
 
   bool editingLessons = false;
+
+  GlobalKey _currentWeekButton = GlobalKey();
+  GlobalKey _editButton = GlobalKey();
+  GlobalKey _body = GlobalKey();
 
   void initialisePageController(timetable) {
     int difference = (DateTime.now()
@@ -144,8 +149,28 @@ class _HomeState extends State<Home> {
     setState(() {
       editingLessons = editing;
       if (editing)
+        // Temporary state for editing
         weeksEditingState = json.decode(json.encode(timetableData["weeks"]));
     });
+  }
+
+  Widget showcase({
+    GlobalKey key,
+    String title,
+    String description,
+    Widget child,
+  }) {
+    return Showcase(
+      key: key,
+      title: title,
+      description: description,
+      descTextStyle: TextStyle(
+        color: Theme.of(context).textTheme.bodyText1.color.withAlpha(155),
+      ),
+      disableAnimation: true,
+      contentPadding: EdgeInsets.all(10),
+      child: child,
+    );
   }
 
   @override
@@ -153,191 +178,265 @@ class _HomeState extends State<Home> {
     if (timetableData == null) {
       return Loading();
     } else {
-      return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-          title: Row(
-            children: <Widget>[
-              Image(
-                image: AssetImage("assets/images/tabletime_logo.png"),
-                height: 25.0,
-              ),
-              editingLessons
-                  ? Container(
-                      padding: EdgeInsets.only(left: 10),
-                      child: Text(
-                        "Editing Week " + (pageIndex.round() + 1).toString(),
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 25,
-                        ),
-                      ),
-                    )
-                  : FlatButton(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5.0),
-                      ),
-                      onPressed: () => changeCurrentWeek(
-                        context: context,
-                        week: pageIndex.round() + 1,
-                      ),
-                      child: Text(
-                        "Week " + (pageIndex.round() + 1).toString(),
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 25,
-                          color: selectedWeek == (pageIndex.round() + 1)
-                              ? Theme.of(context).textTheme.bodyText1.color
-                              : Theme.of(context)
-                                  .textTheme
-                                  .bodyText1
-                                  .color
-                                  .withOpacity(0.5),
-                        ),
-                      ),
-                    ),
-            ],
-          ),
-          actions: editingLessons
-              ? [
-                  IconButton(
-                    icon: Icon(Icons.close),
-                    splashRadius: 20,
-                    onPressed: () => toggleEditingWeeks(false),
+      return ShowCaseWidget(
+        builder: Builder(
+          builder: (context) => Scaffold(
+            appBar: AppBar(
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+              title: Row(
+                children: <Widget>[
+                  Image(
+                    image: AssetImage("assets/images/tabletime_logo.png"),
+                    height: 25.0,
                   ),
-                ]
-              : [
-                  IconButton(
-                    onPressed: () => toggleEditingWeeks(true),
-                    icon: Icon(Icons.edit),
-                    splashRadius: 20,
-                  ),
-                  IconButton(
-                    onPressed: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => SettingsPage(),
-                      ),
-                    ),
-                    icon: Icon(Icons.menu),
-                    splashRadius: 20,
-                  ),
-                ],
-        ),
-        body: InheritedWeeksModify(
-          lessons: timetableData["lessons"],
-          periodStructure: timetableData["period_structure"],
-          selectedWeek: selectedWeek,
-          editingLessons: editingLessons,
-          weeksEditingState: weeksEditingState,
-          addBlockToWeeks: addBlockToWeeks,
-          removeBlockFromWeeks: removeBlockFromWeeks,
-          child: Column(
-            children: [
-              Expanded(
-                child: PageView(
-                  controller: _pageController,
-                  scrollDirection: Axis.vertical,
-                  physics: const CustomPageViewScrollPhysics(),
-                  children: new List<Widget>.generate(
-                    timetableData["number_of_weeks"],
-                    (int index) => Week(
-                      week: timetableData["weeks"][index.toString()],
-                      weekNum: index,
-                    ),
-                  ),
-                ),
-              ),
-              Visibility(
-                visible: editingLessons,
-                child: Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).primaryColor,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Theme.of(context).shadowColor.withOpacity(0.5),
-                        spreadRadius: 1,
-                        blurRadius: 4,
-                        offset: Offset(0, -1),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    children: [
-                      Container(
-                        padding: EdgeInsets.all(10),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              "Drag Lessons",
+                  showcase(
+                    key: _currentWeekButton,
+                    title: "Current Week",
+                    description: "Tap to change current week",
+                    child: editingLessons
+                        ? Container(
+                            padding: EdgeInsets.only(left: 10),
+                            child: Text(
+                              "Editing Week " +
+                                  (pageIndex.round() + 1).toString(),
                               style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 25,
                               ),
                             ),
-                            IconButton(
-                              icon: Icon(Icons.close),
-                              splashRadius: 20,
-                              onPressed: () => toggleEditingWeeks(false),
-                            )
-                          ],
+                          )
+                        : FlatButton(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5.0),
+                            ),
+                            onPressed: () => changeCurrentWeek(
+                              context: context,
+                              week: pageIndex.round() + 1,
+                            ),
+                            child: Text(
+                              "Week " + (pageIndex.round() + 1).toString(),
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 25,
+                                color: selectedWeek == (pageIndex.round() + 1)
+                                    ? Theme.of(context)
+                                        .textTheme
+                                        .bodyText1
+                                        .color
+                                    : Theme.of(context)
+                                        .textTheme
+                                        .bodyText1
+                                        .color
+                                        .withOpacity(0.5),
+                              ),
+                            ),
+                          ),
+                  ),
+                ],
+              ),
+              actions: editingLessons
+                  ? [
+                      IconButton(
+                        icon: Icon(Icons.close),
+                        splashRadius: 20,
+                        onPressed: () => toggleEditingWeeks(false),
+                      ),
+                    ]
+                  : [
+                      showcase(
+                        key: _editButton,
+                        title: "Edit Button",
+                        description: "Tap to edit  timetable",
+                        child: IconButton(
+                          onPressed: () => toggleEditingWeeks(true),
+                          icon: Icon(Icons.edit),
+                          splashRadius: 20,
                         ),
                       ),
-                      Container(
-                        alignment: Alignment.centerLeft,
-                        child: SingleChildScrollView(
-                          padding: EdgeInsets.symmetric(vertical: 10),
-                          scrollDirection: Axis.horizontal,
-                          child: Row(
-                            children: timetableData["lessons"]
-                                .entries
-                                .map<Widget>((lesson) {
-                              Color backgroundColour = Color.fromRGBO(
-                                lesson.value["colour"]["red"],
-                                lesson.value["colour"]["green"],
-                                lesson.value["colour"]["blue"],
-                                1,
-                              );
-                              Color textColour =
-                                  useWhiteForeground(backgroundColour)
-                                      ? const Color(0xffffffff)
-                                      : const Color(0xff000000);
-
-                              Widget lessonPill = Material(
-                                color: Colors.transparent,
-                                child: Container(
-                                  alignment: Alignment.center,
-                                  padding: EdgeInsets.all(10),
-                                  margin: EdgeInsets.symmetric(horizontal: 5),
-                                  decoration: BoxDecoration(
-                                    color: backgroundColour,
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: Text(
-                                    lesson.value["name"],
-                                    style: TextStyle(color: textColour),
+                      IconButton(
+                        onPressed: () => Navigator.push(
+                          context,
+                          PageRouteBuilder(
+                            pageBuilder: (context, animation,
+                                    secondaryAnimation) =>
+                                SettingsPage(showShowcase: () {}
+                                    //   WidgetsBinding.instance.addPostFrameCallback(
+                                    // (_) => ShowCaseWidget.of(context).startShowCase(
+                                    //   [
+                                    //     _currentWeekButton,
+                                    //     _editButton,
+                                    //     _body,
+                                    //   ],
+                                    // ),
+                                    // ),
+                                    ),
+                            transitionsBuilder: (
+                              context,
+                              animation,
+                              secondaryAnimation,
+                              child,
+                            ) =>
+                                SlideTransition(
+                              position: animation.drive(
+                                Tween(
+                                  begin: Offset(1.0, 0.0),
+                                  end: Offset.zero,
+                                ).chain(
+                                  CurveTween(
+                                    curve: Curves.ease,
                                   ),
                                 ),
-                              );
-                              return Draggable<String>(
-                                maxSimultaneousDrags: 1,
-                                dragAnchor: DragAnchor.child,
-                                affinity: Axis.vertical,
-                                data: lesson.key,
-                                child: lessonPill,
-                                feedback: lessonPill,
-                              );
-                            }).toList(),
+                              ),
+                              child: child,
+                            ),
+                          ),
+                        ),
+                        icon: Icon(Icons.menu),
+                        splashRadius: 20,
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.help),
+                        onPressed: () =>
+                            WidgetsBinding.instance.addPostFrameCallback(
+                          (_) => ShowCaseWidget.of(context).startShowCase(
+                            [
+                              _currentWeekButton,
+                              _editButton,
+                              _body,
+                            ],
                           ),
                         ),
                       ),
                     ],
-                  ),
+            ),
+            body: InheritedWeeksModify(
+              lessons: timetableData["lessons"],
+              periodStructure: timetableData["period_structure"],
+              selectedWeek: selectedWeek,
+              editingLessons: editingLessons,
+              weeksEditingState: weeksEditingState,
+              addBlockToWeeks: addBlockToWeeks,
+              removeBlockFromWeeks: removeBlockFromWeeks,
+              child: showcase(
+                key: _body,
+                title: "",
+                description: "",
+                // description:
+                //     "Swipe left or right to switch days and swipe up and down to switch weeks",
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: PageView(
+                        controller: _pageController,
+                        scrollDirection: Axis.vertical,
+                        physics: const CustomPageViewScrollPhysics(),
+                        children: new List<Widget>.generate(
+                          timetableData["number_of_weeks"],
+                          (int index) => Week(
+                            week: timetableData["weeks"][index.toString()],
+                            weekNum: index,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Visibility(
+                      visible: editingLessons,
+                      child: Container(
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).primaryColor,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Theme.of(context)
+                                  .shadowColor
+                                  .withOpacity(0.5),
+                              spreadRadius: 1,
+                              blurRadius: 4,
+                              offset: Offset(0, -1),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          children: [
+                            Container(
+                              padding: EdgeInsets.all(10),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    "Drag Lessons",
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  IconButton(
+                                    icon: Icon(Icons.close),
+                                    splashRadius: 20,
+                                    onPressed: () => toggleEditingWeeks(false),
+                                  )
+                                ],
+                              ),
+                            ),
+                            Container(
+                              alignment: Alignment.centerLeft,
+                              child: SingleChildScrollView(
+                                padding: EdgeInsets.symmetric(vertical: 10),
+                                scrollDirection: Axis.horizontal,
+                                child: Row(
+                                  children: timetableData["lessons"]
+                                      .entries
+                                      .map<Widget>((lesson) {
+                                    Color backgroundColour = Color.fromRGBO(
+                                      lesson.value["colour"]["red"],
+                                      lesson.value["colour"]["green"],
+                                      lesson.value["colour"]["blue"],
+                                      1,
+                                    );
+                                    Color textColour =
+                                        useWhiteForeground(backgroundColour)
+                                            ? const Color(0xffffffff)
+                                            : const Color(0xff000000);
+
+                                    Widget lessonPill = Material(
+                                      color: Colors.transparent,
+                                      child: Container(
+                                        alignment: Alignment.center,
+                                        padding: EdgeInsets.all(10),
+                                        margin:
+                                            EdgeInsets.symmetric(horizontal: 5),
+                                        decoration: BoxDecoration(
+                                          color: backgroundColour,
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                        ),
+                                        child: Text(
+                                          lesson.value["name"],
+                                          style: TextStyle(color: textColour),
+                                        ),
+                                      ),
+                                    );
+                                    return Draggable<String>(
+                                      maxSimultaneousDrags: 1,
+                                      dragAnchor: DragAnchor.child,
+                                      affinity: Axis.vertical,
+                                      data: lesson.key,
+                                      child: lessonPill,
+                                      feedback: lessonPill,
+                                    );
+                                  }).toList(),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ],
+            ),
           ),
         ),
       );

@@ -22,7 +22,6 @@ class Database {
 
       final data = {
         "timetable_name": "My Timetable",
-        "finished_setup": false,
         "current_week": {
           "week": 1,
           "date": new DateTime.now().toIso8601String(),
@@ -148,17 +147,6 @@ class Database {
   Future<void> setup({bool enable}) async {
     try {
       userRef.update({"setup": enable});
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  Future<bool> finishedCurrentTimetable() async {
-    try {
-      return await getCurrentTimetable().then(
-          (DocumentReference timetableRef) => timetableRef.get().then(
-              (DocumentSnapshot timetableSnapshot) =>
-                  timetableSnapshot.data()["finished_setup"] ?? false));
     } catch (e) {
       rethrow;
     }
