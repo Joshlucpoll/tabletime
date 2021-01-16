@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -29,8 +30,9 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: AppTheme(context: context).lightTheme,
-      darkTheme: AppTheme(context: context).darkTheme,
+      theme: AppTheme(context: context).lightTheme(),
+      darkTheme: AppTheme(context: context).darkTheme(),
+      themeMode: ThemeMode.system,
       title: "Tabletime",
       home: Root(),
     );
@@ -43,8 +45,36 @@ class Root extends StatefulWidget {
 }
 
 class _RootState extends State<Root> {
+  Brightness currentBrightness = Brightness.light;
+
   @override
   Widget build(BuildContext context) {
+    var brightness = MediaQuery.of(context).platformBrightness;
+    if (brightness != currentBrightness) {
+      setState(() {
+        currentBrightness = brightness;
+      });
+      brightness == Brightness.light
+          ? SystemChrome.setSystemUIOverlayStyle(
+              SystemUiOverlayStyle(
+                statusBarColor: Colors.grey[50],
+                statusBarBrightness: Brightness.light,
+                statusBarIconBrightness: Brightness.dark,
+                systemNavigationBarColor: Colors.grey[50],
+                systemNavigationBarIconBrightness: Brightness.dark,
+              ),
+            )
+          : SystemChrome.setSystemUIOverlayStyle(
+              SystemUiOverlayStyle(
+                statusBarColor: Colors.grey[850],
+                statusBarBrightness: Brightness.dark,
+                statusBarIconBrightness: Brightness.light,
+                systemNavigationBarColor: Colors.grey[850],
+                systemNavigationBarIconBrightness: Brightness.light,
+              ),
+            );
+    }
+
     return StreamBuilder(
       stream: GetIt.I.get<Auth>().user,
       builder: (BuildContext context, AsyncSnapshot<User> snapshot) {
