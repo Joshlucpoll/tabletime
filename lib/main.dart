@@ -2,18 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get_it/get_it.dart';
 
 // Screens
 import './screens/home.dart';
-import './screens/setup.dart';
 import './screens/login.dart';
 import './screens/loading.dart';
 
 // Services
 import './services/getIt.dart';
-import './services/database.dart';
 import './services/auth.dart';
 
 // Theme
