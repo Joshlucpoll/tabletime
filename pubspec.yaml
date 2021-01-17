@@ -37,6 +37,7 @@ dependencies:
 
   flutter_launcher_icons: "^0.8.0"
   shared_preferences: ^0.4.3
+  showcaseview: ^0.1.6
   flutter_colorpicker: ^0.3.4
   uuid: ^2.2.2
 

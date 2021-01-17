@@ -335,51 +335,77 @@ class Day extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final inheritedState = InheritedWeeksModify.of(context);
-    return SingleChildScrollView(
-      child: Column(
-        children: inheritedState.periodStructure.asMap().entries.map<Widget>(
-          (period) {
-            if (inheritedState.editingLessons) {
-              final shortDays = ["mon", "tue", "wed", "thu", "fri"];
+    return Stack(
+      children: [
+        SingleChildScrollView(
+          child: Column(
+            children:
+                inheritedState.periodStructure.asMap().entries.map<Widget>(
+              (period) {
+                if (inheritedState.editingLessons) {
+                  final shortDays = ["mon", "tue", "wed", "thu", "fri"];
 
-              List editingBlocks = inheritedState
-                  .weeksEditingState[weekNum.toString()][shortDays[dayNum]];
+                  List editingBlocks = inheritedState
+                      .weeksEditingState[weekNum.toString()][shortDays[dayNum]];
 
-              for (var editingBlock in editingBlocks) {
-                if (editingBlock["period"] == period.key) {
+                  for (var editingBlock in editingBlocks) {
+                    if (editingBlock["period"] == period.key) {
+                      return EditingBlock(
+                        period: period.value,
+                        lesson: inheritedState.lessons[editingBlock["lesson"]],
+                        dayNum: dayNum,
+                        weekNum: weekNum,
+                        periodNum: period.key,
+                      );
+                    }
+                  }
                   return EditingBlock(
                     period: period.value,
-                    lesson: inheritedState.lessons[editingBlock["lesson"]],
-                    dayNum: dayNum,
-                    weekNum: weekNum,
+                    lesson: null,
                     periodNum: period.key,
-                  );
-                }
-              }
-              return EditingBlock(
-                period: period.value,
-                lesson: null,
-                periodNum: period.key,
-                weekNum: weekNum,
-                dayNum: dayNum,
-              );
-            } else {
-              for (var block in blocks) {
-                if (block["period"] == period.key) {
-                  return BlockCard(
-                    period: inheritedState.periodStructure[block["period"]],
-                    lesson: inheritedState.lessons[block["lesson"]],
-                    dayNum: dayNum,
                     weekNum: weekNum,
-                    selectedWeek: inheritedState.selectedWeek,
+                    dayNum: dayNum,
                   );
+                } else {
+                  for (var block in blocks) {
+                    if (block["period"] == period.key) {
+                      return BlockCard(
+                        period: inheritedState.periodStructure[block["period"]],
+                        lesson: inheritedState.lessons[block["lesson"]],
+                        dayNum: dayNum,
+                        weekNum: weekNum,
+                        selectedWeek: inheritedState.selectedWeek,
+                      );
+                    }
+                  }
+                  return Container();
                 }
-              }
-              return Container();
-            }
-          },
-        ).toList(),
-      ),
+              },
+            ).toList(),
+          ),
+        ),
+        Visibility(
+          visible: blocks.isEmpty && !inheritedState.editingLessons,
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Icon(
+                  Icons.event_busy,
+                  size: 100,
+                ),
+                Container(
+                  padding: EdgeInsets.all(40),
+                  child: Text(
+                    "Press the edit button to add some lessons",
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

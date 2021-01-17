@@ -10,7 +10,11 @@ class AppTheme {
       brightness: Brightness.light,
       fontFamily: "Poppins",
       primaryColor: Colors.grey[300],
-      accentColor: Colors.red,
+      accentColor: Colors.black,
+      buttonTheme: ButtonThemeData(
+        buttonColor: Colors.blue,
+        textTheme: ButtonTextTheme.primary,
+      ),
       visualDensity: VisualDensity.adaptivePlatformDensity,
     );
   }
@@ -20,6 +24,8 @@ class AppTheme {
       brightness: Brightness.dark,
       fontFamily: "Poppins",
       visualDensity: VisualDensity.adaptivePlatformDensity,
+      floatingActionButtonTheme:
+          FloatingActionButtonThemeData(backgroundColor: Colors.white),
     );
   }
 }

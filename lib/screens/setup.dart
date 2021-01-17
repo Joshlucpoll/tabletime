@@ -33,13 +33,13 @@ class _SetupState extends State<Setup> {
   bool gotTimetable = false;
 
   void getTimetable() async {
-    if (await widget._database.finishedCurrentTimetable() == false) {
+    Future.delayed(const Duration(seconds: 1), () async {
       Map<String, dynamic> data = await widget._database.getTimetableData();
       setState(() {
         _data = data;
         gotTimetable = true;
       });
-    }
+    });
   }
 
   void updateTimetable() {
@@ -99,26 +99,6 @@ class _SetupState extends State<Setup> {
     updateTimetable();
   }
 
-  void _handlePeriodStructureChange(List data) {
-    data.sort((a, b) {
-      return (DateTime.parse(a["start"]).hour * 60 +
-              DateTime.parse(a["start"]).minute)
-          .compareTo(DateTime.parse(b["start"]).hour * 60 +
-              DateTime.parse(b["start"]).minute);
-    });
-    setState(() {
-      _data["period_structure"] = data;
-    });
-    updateTimetable();
-  }
-
-  void _handleLessonsChange(Map data) {
-    setState(() {
-      _data["lessons"] = data;
-    });
-    updateTimetable();
-  }
-
   @override
   Widget build(BuildContext context) {
     if (gotTimetable) {
@@ -142,22 +122,8 @@ class _SetupState extends State<Setup> {
                         pageIndex: pageIndex,
                       ),
                     ),
-                    PeriodStructure(
-                      periodStructure: _data["period_structure"],
-                      updatePeriod: _handlePeriodStructureChange,
-                      pageNavigationButtons: SetupNavigationButtons(
-                        changePage: _changePage,
-                        pageIndex: pageIndex,
-                      ),
-                    ),
-                    LessonGenerator(
-                      lessons: _data["lessons"],
-                      updateLessons: _handleLessonsChange,
-                      pageNavigationButtons: SetupNavigationButtons(
-                        changePage: _changePage,
-                        pageIndex: pageIndex,
-                      ),
-                    ),
+                    PeriodStructure(),
+                    LessonGenerator(),
                     AddingLessons(
                       endSetup: _endSetup,
                       pageNavigationButtons: SetupNavigationButtons(

@@ -136,6 +136,35 @@ class Database {
     }
   }
 
+  Future<void> resetWeeksData() async {
+    try {
+      final List<String> days = [
+        "mon",
+        "tue",
+        "wed",
+        "thu",
+        "fri",
+        "sat",
+        "sun"
+      ];
+
+      final Map weeks = {};
+
+      for (var i = 0; i <= 4; i++) {
+        var week = weeks[i.toString()] = {};
+        days.forEach((day) {
+          week[day] = [];
+        });
+      }
+
+      DocumentReference timetableRef = await getCurrentTimetable();
+
+      await timetableRef.update({"weeks": weeks});
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   Stream<DocumentSnapshot> finishedInitialSetup() {
     try {
       return userRef.snapshots();

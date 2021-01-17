@@ -1,10 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:get_it/get_it.dart';
+
+// Widgets
+import 'package:timetable/screens/loading.dart';
+
+// Services
+import '../../services/database.dart';
 
 class Period extends StatelessWidget {
-  Period(
-      {Key key, this.period, this.index, this.changePeriod, this.deletePeriod})
-      : super(key: key);
+  Period({
+    Key key,
+    this.period,
+    this.index,
+    this.changePeriod,
+    this.deletePeriod,
+  }) : super(key: key);
 
   final period;
   final index;
@@ -107,16 +119,7 @@ class Period extends StatelessWidget {
 }
 
 class PeriodStructure extends StatefulWidget {
-  final List periodStructure;
-  final Function updatePeriod;
-  final Widget pageNavigationButtons;
-
-  PeriodStructure(
-      {Key key,
-      this.periodStructure,
-      this.updatePeriod,
-      this.pageNavigationButtons})
-      : super(key: key);
+  final Database _database = GetIt.I.get<Database>();
 
   @override
   PeriodStructureState createState() => PeriodStructureState();
@@ -126,13 +129,33 @@ class PeriodStructureState extends State<PeriodStructure> {
   DateTime currentStartTime;
   DateTime currentEndTime;
 
+  Stream<DocumentSnapshot> subscription;
+  Map<String, dynamic> timetable;
+
+  @override
+  void initState() {
+    super.initState();
+    setupStream();
+  }
+
+  void setupStream() async {
+    subscription = await widget._database.streamTimetableData();
+    subscription.listen(
+      (docSnapshot) => setState(() => timetable = docSnapshot.data()),
+    );
+  }
+
   void _addPeriod(DateTime startTime, DateTime endTime) {
     String start = startTime.toIso8601String();
     String end = endTime.toIso8601String();
 
-    List newList = List.from(widget.periodStructure)
+    List newList = List.from(timetable["period_structure"])
       ..add({"start": start, "end": end});
-    widget.updatePeriod(newList);
+
+    final newTimetable = timetable;
+    newTimetable["period_structure"] = newList;
+
+    widget._database.updateTimetableData(data: newTimetable);
   }
 
   void _changeNewPeriod(
@@ -163,17 +186,21 @@ class PeriodStructureState extends State<PeriodStructure> {
   }
 
   void _deletePeriod(int index) {
-    List newList = List.from(widget.periodStructure)..removeAt(index);
-    widget.updatePeriod(newList);
+    List newList = List.from(timetable["period_structure"])..removeAt(index);
+
+    final newTimetable = timetable;
+    newTimetable["period_structure"] = newList;
+
+    widget._database.updateTimetableData(data: newTimetable);
   }
 
   void _changePeriod(int index, bool start, BuildContext context) async {
     TimeOfDay t = await showTimePicker(
       initialTime: start
           ? TimeOfDay.fromDateTime(
-              DateTime.parse(widget.periodStructure[index]["start"]))
+              DateTime.parse(timetable["period_structure"][index]["start"]))
           : TimeOfDay.fromDateTime(
-              DateTime.parse(widget.periodStructure[index]["end"])),
+              DateTime.parse(timetable["period_structure"][index]["end"])),
       context: context,
     );
 
@@ -183,40 +210,46 @@ class PeriodStructureState extends State<PeriodStructure> {
           new DateTime(now.year, now.month, now.day, t.hour, t.minute)
               .toIso8601String();
 
-      List newList = List.from(widget.periodStructure);
+      List newList = List.from(timetable["period_structure"]);
       newList[index] = {
         "start": start == true ? selectedTime : newList[index]["start"],
         "end": start == false ? selectedTime : newList[index]["end"]
       };
 
-      widget.updatePeriod(newList);
+      final newTimetable = timetable;
+      newTimetable["period_structure"] = newList;
+
+      widget._database.updateTimetableData(data: newTimetable);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: double.infinity,
-      child: SafeArea(
-        child: Column(
-          children: <Widget>[
-            Container(
-              padding: EdgeInsets.only(
-                  top: 20.0, bottom: 20.0, left: 20.0, right: 20.0),
-              child: Text(
-                "Setup Periods",
-                style: TextStyle(fontSize: 40.0, fontWeight: FontWeight.bold),
+    return timetable == null
+        ? Loading()
+        : Scaffold(
+            appBar: AppBar(
+              title: Text("Setup Periods"),
+            ),
+            floatingActionButton: FloatingActionButton(
+              child: Icon(Icons.add),
+              onPressed: () => _periodSheet(
+                context,
+                timetable["period_structure"].isEmpty
+                    ? DateTime.now().toIso8601String()
+                    : timetable["period_structure"].last["end"],
               ),
             ),
-            Expanded(
+            body: SafeArea(
               child: Container(
                 constraints: BoxConstraints(maxWidth: 500),
                 child: ListView(
+                  padding: EdgeInsets.only(top: 20.0, bottom: 80.0),
                   scrollDirection: Axis.vertical,
-                  children: widget.periodStructure
+                  children: timetable["period_structure"]
                       .asMap()
                       .entries
-                      .map(
+                      .map<Widget>(
                         (period) => Period(
                             period: period.value,
                             index: period.key,
@@ -227,25 +260,7 @@ class PeriodStructureState extends State<PeriodStructure> {
                 ),
               ),
             ),
-            Container(
-              padding: EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0),
-              width: double.infinity,
-              constraints: BoxConstraints(maxWidth: 500),
-              child: RaisedButton(
-                child: Text("New Period"),
-                onPressed: () => _periodSheet(
-                  context,
-                  widget.periodStructure.isEmpty
-                      ? DateTime.now().toIso8601String()
-                      : widget.periodStructure.last["end"],
-                ),
-              ),
-            ),
-            widget.pageNavigationButtons,
-          ],
-        ),
-      ),
-    );
+          );
   }
 
   _periodSheet(BuildContext context, String previousEnd) {

@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:uuid/uuid.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import 'package:get_it/get_it.dart';
+
+// Widgets
+import 'package:timetable/screens/loading.dart';
+
+// Services
+import '../../services/database.dart';
 
 class LessonGenerator extends StatefulWidget {
-  final Map<String, dynamic> lessons;
-  final Function updateLessons;
-  final Widget pageNavigationButtons;
-
-  LessonGenerator({
-    Key key,
-    this.lessons,
-    this.updateLessons,
-    this.pageNavigationButtons,
-  }) : super(key: key);
+  final Database _database = GetIt.I.get<Database>();
 
   @override
   _LessonGeneratorState createState() => _LessonGeneratorState();
@@ -23,11 +22,26 @@ class _LessonGeneratorState extends State<LessonGenerator> {
   Color currentColour =
       Colors.primaries[Random().nextInt(Colors.primaries.length)];
 
+  final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _teacherController = TextEditingController();
   final _roomController = TextEditingController();
 
-  final _formKey = GlobalKey<FormState>();
+  Stream<DocumentSnapshot> subscription;
+  Map<String, dynamic> timetable;
+
+  @override
+  void initState() {
+    super.initState();
+    setupStream();
+  }
+
+  void setupStream() async {
+    subscription = await widget._database.streamTimetableData();
+    subscription.listen(
+      (docSnapshot) => setState(() => timetable = docSnapshot.data()),
+    );
+  }
 
   void _addLesson({String name, Color colour, String teacher, String room}) {
     setState(() {
@@ -44,9 +58,13 @@ class _LessonGeneratorState extends State<LessonGenerator> {
       "teacher": teacher,
       "room": room,
     };
-    final newLessons = widget.lessons;
+    final newLessons = timetable["lessons"];
     newLessons[Uuid().v1()] = data;
-    widget.updateLessons(newLessons);
+
+    final newTimetable = timetable;
+    newTimetable["lessons"] = newLessons;
+
+    widget._database.updateTimetableData(data: newTimetable);
   }
 
   void _editLesson(
@@ -65,15 +83,23 @@ class _LessonGeneratorState extends State<LessonGenerator> {
       "teacher": teacher,
       "room": room,
     };
-    final newLessons = widget.lessons;
+    final newLessons = timetable["lessons"];
     newLessons[id] = data;
-    widget.updateLessons(newLessons);
+
+    final newTimetable = timetable;
+    newTimetable["lessons"] = newLessons;
+
+    widget._database.updateTimetableData(data: newTimetable);
   }
 
   void _removeLesson({String id}) {
-    final newLessons = widget.lessons;
+    final newLessons = timetable["lessons"];
     newLessons.remove(id);
-    widget.updateLessons(newLessons);
+
+    final newTimetable = timetable;
+    newTimetable["lessons"] = newLessons;
+
+    widget._database.updateTimetableData(data: newTimetable);
   }
 
   @override
@@ -83,44 +109,46 @@ class _LessonGeneratorState extends State<LessonGenerator> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: double.infinity,
-      child: SafeArea(
-        child: Column(
-          children: <Widget>[
-            Container(
-              padding: EdgeInsets.only(
-                  top: 20.0, bottom: 20.0, left: 20.0, right: 20.0),
-              child: Text(
-                "Setup Lessons",
-                style: TextStyle(fontSize: 40.0, fontWeight: FontWeight.bold),
-              ),
+    return timetable == null
+        ? Loading()
+        : Scaffold(
+            appBar: AppBar(
+              title: Text("Setup Lessons"),
             ),
-            Expanded(
+            floatingActionButton: FloatingActionButton(
+              child: Icon(Icons.add),
+              onPressed: () => _lessonSheet(context, null),
+            ),
+            body: SafeArea(
               child: Container(
                 constraints: BoxConstraints(maxWidth: 500),
-                child: GridView.count(
-                    crossAxisCount: 2,
-                    children: widget.lessons.entries
-                        .map(
-                            (entry) => _lesson(context, entry.key, entry.value))
-                        .toList()),
+                child: timetable["lessons"].isEmpty
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text("You haven't added any lessons yet"),
+                            Text("Click the add button to start"),
+                          ],
+                        ),
+                      )
+                    : GridView.count(
+                        padding: EdgeInsets.only(
+                          top: 20,
+                          left: 20,
+                          right: 20,
+                          bottom: 80,
+                        ),
+                        crossAxisCount: 2,
+                        children: timetable["lessons"]
+                            .entries
+                            .map<Widget>((entry) =>
+                                _lesson(context, entry.key, entry.value))
+                            .toList(),
+                      ),
               ),
             ),
-            Container(
-              padding: EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0),
-              width: double.infinity,
-              constraints: BoxConstraints(maxWidth: 500),
-              child: RaisedButton(
-                child: Text("New Lesson"),
-                onPressed: () => _lessonSheet(context, null),
-              ),
-            ),
-            widget.pageNavigationButtons,
-          ],
-        ),
-      ),
-    );
+          );
   }
 
   Widget _lesson(BuildContext context, String id, data) {
@@ -206,7 +234,7 @@ class _LessonGeneratorState extends State<LessonGenerator> {
 
   _lessonSheet(BuildContext context, String editId) {
     if (editId != null) {
-      final lesson = widget.lessons[editId];
+      final lesson = timetable["lessons"][editId];
       _nameController.text = lesson["name"];
       _teacherController.text = lesson["teacher"];
       _roomController.text = lesson["room"];

@@ -26,8 +26,6 @@ class Home extends StatefulWidget {
   _HomeState createState() => _HomeState();
 }
 
-// https://api.flutter.dev/flutter/widgets/Draggable-class.html
-
 class _HomeState extends State<Home> {
   DocumentReference timetableRef;
   Map<String, dynamic> timetableData;
@@ -140,10 +138,12 @@ class _HomeState extends State<Home> {
     if (retVal == "Success") setState(() => selectedWeek = week);
   }
 
-  void toggleEditingWeeks(bool editing) async {
+  void toggleEditingWeeks({bool editing, bool save}) async {
     if (!editing) {
-      if (weeksEditingState.toString() != timetableData["weeks"].toString()) {
-        await widget._database.updateWeeksData(weeks: weeksEditingState);
+      if (save) {
+        if (weeksEditingState.toString() != timetableData["weeks"].toString()) {
+          await widget._database.updateWeeksData(weeks: weeksEditingState);
+        }
       }
     }
     setState(() {
@@ -164,9 +164,6 @@ class _HomeState extends State<Home> {
       key: key,
       title: title,
       description: description,
-      descTextStyle: TextStyle(
-        color: Theme.of(context).textTheme.bodyText1.color.withAlpha(155),
-      ),
       disableAnimation: true,
       contentPadding: EdgeInsets.all(10),
       child: child,
@@ -239,16 +236,18 @@ class _HomeState extends State<Home> {
                       IconButton(
                         icon: Icon(Icons.close),
                         splashRadius: 20,
-                        onPressed: () => toggleEditingWeeks(false),
+                        onPressed: () =>
+                            toggleEditingWeeks(editing: false, save: false),
                       ),
                     ]
                   : [
                       showcase(
                         key: _editButton,
                         title: "Edit Button",
-                        description: "Tap to edit  timetable",
+                        description: "Tap to edit timetable",
                         child: IconButton(
-                          onPressed: () => toggleEditingWeeks(true),
+                          onPressed: () =>
+                              toggleEditingWeeks(editing: true, save: true),
                           icon: Icon(Icons.edit),
                           splashRadius: 20,
                         ),
@@ -257,19 +256,12 @@ class _HomeState extends State<Home> {
                         onPressed: () => Navigator.push(
                           context,
                           PageRouteBuilder(
-                            pageBuilder: (context, animation,
-                                    secondaryAnimation) =>
-                                SettingsPage(showShowcase: () {}
-                                    //   WidgetsBinding.instance.addPostFrameCallback(
-                                    // (_) => ShowCaseWidget.of(context).startShowCase(
-                                    //   [
-                                    //     _currentWeekButton,
-                                    //     _editButton,
-                                    //     _body,
-                                    //   ],
-                                    // ),
-                                    // ),
-                                    ),
+                            pageBuilder:
+                                (context, animation, secondaryAnimation) =>
+                                    SettingsPage(
+                              showShowcase: () {},
+                              timetableData: timetableData,
+                            ),
                             transitionsBuilder: (
                               context,
                               animation,
@@ -291,7 +283,7 @@ class _HomeState extends State<Home> {
                             ),
                           ),
                         ),
-                        icon: Icon(Icons.menu),
+                        icon: Icon(Icons.settings),
                         splashRadius: 20,
                       ),
                       IconButton(
@@ -317,124 +309,137 @@ class _HomeState extends State<Home> {
               weeksEditingState: weeksEditingState,
               addBlockToWeeks: addBlockToWeeks,
               removeBlockFromWeeks: removeBlockFromWeeks,
-              child: showcase(
-                key: _body,
-                title: "",
-                description: "",
-                // description:
-                //     "Swipe left or right to switch days and swipe up and down to switch weeks",
-                child: Column(
-                  children: [
-                    Expanded(
-                      child: PageView(
-                        controller: _pageController,
-                        scrollDirection: Axis.vertical,
-                        physics: const CustomPageViewScrollPhysics(),
-                        children: new List<Widget>.generate(
-                          timetableData["number_of_weeks"],
-                          (int index) => Week(
-                            week: timetableData["weeks"][index.toString()],
-                            weekNum: index,
+              child: Stack(
+                children: [
+                  Center(
+                    child: showcase(
+                      key: _body,
+                      title: "Lessons View",
+                      description:
+                          "Swipe left/right to switch days\n or swipe up/down to switch weeks",
+                      child: SizedBox(
+                        height: MediaQuery.of(context).size.shortestSide * 0.6,
+                        width: MediaQuery.of(context).size.shortestSide * 0.6,
+                      ),
+                    ),
+                  ),
+                  Column(
+                    children: [
+                      Expanded(
+                        child: PageView(
+                          controller: _pageController,
+                          scrollDirection: Axis.vertical,
+                          physics: const CustomPageViewScrollPhysics(),
+                          children: new List<Widget>.generate(
+                            timetableData["number_of_weeks"],
+                            (int index) => Week(
+                              week: timetableData["weeks"][index.toString()],
+                              weekNum: index,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    Visibility(
-                      visible: editingLessons,
-                      child: Container(
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).primaryColor,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Theme.of(context)
-                                  .shadowColor
-                                  .withOpacity(0.5),
-                              spreadRadius: 1,
-                              blurRadius: 4,
-                              offset: Offset(0, -1),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          children: [
-                            Container(
-                              padding: EdgeInsets.all(10),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    "Drag Lessons",
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  IconButton(
-                                    icon: Icon(Icons.close),
-                                    splashRadius: 20,
-                                    onPressed: () => toggleEditingWeeks(false),
-                                  )
-                                ],
+                      Visibility(
+                        visible: editingLessons,
+                        child: Container(
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).primaryColor,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Theme.of(context)
+                                    .shadowColor
+                                    .withOpacity(0.5),
+                                spreadRadius: 1,
+                                blurRadius: 4,
+                                offset: Offset(0, -1),
                               ),
-                            ),
-                            Container(
-                              alignment: Alignment.centerLeft,
-                              child: SingleChildScrollView(
-                                padding: EdgeInsets.symmetric(vertical: 10),
-                                scrollDirection: Axis.horizontal,
+                            ],
+                          ),
+                          child: Column(
+                            children: [
+                              Container(
+                                padding: EdgeInsets.all(10),
                                 child: Row(
-                                  children: timetableData["lessons"]
-                                      .entries
-                                      .map<Widget>((lesson) {
-                                    Color backgroundColour = Color.fromRGBO(
-                                      lesson.value["colour"]["red"],
-                                      lesson.value["colour"]["green"],
-                                      lesson.value["colour"]["blue"],
-                                      1,
-                                    );
-                                    Color textColour =
-                                        useWhiteForeground(backgroundColour)
-                                            ? const Color(0xffffffff)
-                                            : const Color(0xff000000);
-
-                                    Widget lessonPill = Material(
-                                      color: Colors.transparent,
-                                      child: Container(
-                                        alignment: Alignment.center,
-                                        padding: EdgeInsets.all(10),
-                                        margin:
-                                            EdgeInsets.symmetric(horizontal: 5),
-                                        decoration: BoxDecoration(
-                                          color: backgroundColour,
-                                          borderRadius:
-                                              BorderRadius.circular(20),
-                                        ),
-                                        child: Text(
-                                          lesson.value["name"],
-                                          style: TextStyle(color: textColour),
-                                        ),
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      "Drag Lessons",
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w600,
                                       ),
-                                    );
-                                    return Draggable<String>(
-                                      maxSimultaneousDrags: 1,
-                                      dragAnchor: DragAnchor.child,
-                                      affinity: Axis.vertical,
-                                      data: lesson.key,
-                                      child: lessonPill,
-                                      feedback: lessonPill,
-                                    );
-                                  }).toList(),
+                                    ),
+                                    FlatButton(
+                                      color: Theme.of(context).canvasColor,
+                                      padding: EdgeInsets.all(0),
+                                      child: Text("Save"),
+                                      onPressed: () => toggleEditingWeeks(
+                                        editing: false,
+                                        save: true,
+                                      ),
+                                    )
+                                  ],
                                 ),
                               ),
-                            ),
-                          ],
+                              Container(
+                                alignment: Alignment.centerLeft,
+                                child: SingleChildScrollView(
+                                  padding: EdgeInsets.symmetric(vertical: 10),
+                                  scrollDirection: Axis.horizontal,
+                                  child: Row(
+                                    children: timetableData["lessons"]
+                                        .entries
+                                        .map<Widget>((lesson) {
+                                      Color backgroundColour = Color.fromRGBO(
+                                        lesson.value["colour"]["red"],
+                                        lesson.value["colour"]["green"],
+                                        lesson.value["colour"]["blue"],
+                                        1,
+                                      );
+                                      Color textColour =
+                                          useWhiteForeground(backgroundColour)
+                                              ? const Color(0xffffffff)
+                                              : const Color(0xff000000);
+
+                                      Widget lessonPill = Material(
+                                        color: Colors.transparent,
+                                        child: Container(
+                                          alignment: Alignment.center,
+                                          padding: EdgeInsets.all(10),
+                                          margin: EdgeInsets.symmetric(
+                                              horizontal: 5),
+                                          decoration: BoxDecoration(
+                                            color: backgroundColour,
+                                            borderRadius:
+                                                BorderRadius.circular(20),
+                                          ),
+                                          child: Text(
+                                            lesson.value["name"],
+                                            style: TextStyle(color: textColour),
+                                          ),
+                                        ),
+                                      );
+                                      return Draggable<String>(
+                                        maxSimultaneousDrags: 1,
+                                        dragAnchor: DragAnchor.child,
+                                        affinity: Axis.vertical,
+                                        data: lesson.key,
+                                        child: lessonPill,
+                                        feedback: lessonPill,
+                                      );
+                                    }).toList(),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
+                    ],
+                  ),
+                ],
               ),
             ),
           ),

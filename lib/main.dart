@@ -57,7 +57,7 @@ class _RootState extends State<Root> {
       brightness == Brightness.light
           ? SystemChrome.setSystemUIOverlayStyle(
               SystemUiOverlayStyle(
-                statusBarColor: Colors.grey[50],
+                statusBarColor: Colors.grey[50].withOpacity(0.1),
                 statusBarBrightness: Brightness.light,
                 statusBarIconBrightness: Brightness.dark,
                 systemNavigationBarColor: Colors.grey[50],
@@ -66,7 +66,7 @@ class _RootState extends State<Root> {
             )
           : SystemChrome.setSystemUIOverlayStyle(
               SystemUiOverlayStyle(
-                statusBarColor: Colors.grey[850],
+                statusBarColor: Colors.grey[850].withOpacity(0.1),
                 statusBarBrightness: Brightness.dark,
                 statusBarIconBrightness: Brightness.light,
                 systemNavigationBarColor: Colors.grey[850],
@@ -82,21 +82,7 @@ class _RootState extends State<Root> {
           if (snapshot.data?.uid == null) {
             return Login();
           } else {
-            return StreamBuilder<DocumentSnapshot>(
-              stream: GetIt.I.get<Database>().finishedInitialSetup(),
-              builder: (BuildContext context,
-                  AsyncSnapshot<DocumentSnapshot> snapshot) {
-                if (!snapshot.hasData) {
-                  return Loading();
-                } else {
-                  if (snapshot.data["setup"] == true) {
-                    return Setup();
-                  } else {
-                    return Home();
-                  }
-                }
-              },
-            );
+            return Home();
           }
         } else {
           return Loading();
