@@ -120,32 +120,34 @@ class _LessonGeneratorState extends State<LessonGenerator> {
               onPressed: () => _lessonSheet(context, null),
             ),
             body: SafeArea(
-              child: Container(
-                constraints: BoxConstraints(maxWidth: 500),
-                child: timetable["lessons"].isEmpty
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text("You haven't added any lessons yet"),
-                            Text("Click the add button to start"),
-                          ],
+              child: Center(
+                child: Container(
+                  constraints: BoxConstraints(maxWidth: 700),
+                  child: timetable["lessons"].isEmpty
+                      ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text("You haven't added any lessons yet"),
+                              Text("Click the add button to start"),
+                            ],
+                          ),
+                        )
+                      : GridView.count(
+                          padding: EdgeInsets.only(
+                            top: 20,
+                            left: 20,
+                            right: 20,
+                            bottom: 80,
+                          ),
+                          crossAxisCount: 2,
+                          children: timetable["lessons"]
+                              .entries
+                              .map<Widget>((entry) =>
+                                  _lesson(context, entry.key, entry.value))
+                              .toList(),
                         ),
-                      )
-                    : GridView.count(
-                        padding: EdgeInsets.only(
-                          top: 20,
-                          left: 20,
-                          right: 20,
-                          bottom: 80,
-                        ),
-                        crossAxisCount: 2,
-                        children: timetable["lessons"]
-                            .entries
-                            .map<Widget>((entry) =>
-                                _lesson(context, entry.key, entry.value))
-                            .toList(),
-                      ),
+                ),
               ),
             ),
           );
