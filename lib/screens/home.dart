@@ -9,6 +9,7 @@ import 'package:get_it/get_it.dart';
 // Screens
 import './settings.dart';
 import 'package:timetable/screens/loading.dart';
+import 'package:timetable/widgets/setupWidgets/lessonGenerator.dart';
 
 // Services
 import '../services/database.dart';
@@ -154,6 +155,31 @@ class _HomeState extends State<Home> {
     });
   }
 
+  PageRouteBuilder pageRouteBuilder({BuildContext context, Widget child}) {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => child,
+      transitionsBuilder: (
+        context,
+        animation,
+        secondaryAnimation,
+        child,
+      ) =>
+          SlideTransition(
+        position: animation.drive(
+          Tween(
+            begin: Offset(1.0, 0.0),
+            end: Offset.zero,
+          ).chain(
+            CurveTween(
+              curve: Curves.ease,
+            ),
+          ),
+        ),
+        child: child,
+      ),
+    );
+  }
+
   Widget showcase({
     GlobalKey key,
     String title,
@@ -236,8 +262,37 @@ class _HomeState extends State<Home> {
                       IconButton(
                         icon: Icon(Icons.close),
                         splashRadius: 20,
-                        onPressed: () =>
-                            toggleEditingWeeks(editing: false, save: false),
+                        onPressed: () {
+                          if (weeksEditingState.toString() !=
+                              timetableData["weeks"].toString()) {
+                            showDialog(
+                              context: context,
+                              builder: (_) => AlertDialog(
+                                title: Text("Cancel Editing?"),
+                                content: Text(
+                                    "You are about to discard unsaved changes."),
+                                actions: [
+                                  FlatButton(
+                                    child: Text("Cancel"),
+                                    onPressed: () =>
+                                        Navigator.of(context).pop(),
+                                  ),
+                                  FlatButton(
+                                    textColor: Colors.red,
+                                    child: Text("Continue"),
+                                    onPressed: () {
+                                      toggleEditingWeeks(
+                                          editing: false, save: false);
+                                      Navigator.of(context).pop();
+                                    },
+                                  )
+                                ],
+                              ),
+                            );
+                          } else {
+                            toggleEditingWeeks(editing: false, save: false);
+                          }
+                        },
                       ),
                     ]
                   : [
@@ -255,31 +310,12 @@ class _HomeState extends State<Home> {
                       IconButton(
                         onPressed: () => Navigator.push(
                           context,
-                          PageRouteBuilder(
-                            pageBuilder:
-                                (context, animation, secondaryAnimation) =>
-                                    SettingsPage(
+                          pageRouteBuilder(
+                            context: context,
+                            child: SettingsPage(
                               showShowcase: () {},
+                              pageRouteBuilder: pageRouteBuilder,
                               timetableData: timetableData,
-                            ),
-                            transitionsBuilder: (
-                              context,
-                              animation,
-                              secondaryAnimation,
-                              child,
-                            ) =>
-                                SlideTransition(
-                              position: animation.drive(
-                                Tween(
-                                  begin: Offset(1.0, 0.0),
-                                  end: Offset.zero,
-                                ).chain(
-                                  CurveTween(
-                                    curve: Curves.ease,
-                                  ),
-                                ),
-                              ),
-                              child: child,
                             ),
                           ),
                         ),
@@ -389,47 +425,97 @@ class _HomeState extends State<Home> {
                                   padding: EdgeInsets.symmetric(vertical: 10),
                                   scrollDirection: Axis.horizontal,
                                   child: Row(
-                                    children: timetableData["lessons"]
-                                        .entries
-                                        .map<Widget>((lesson) {
-                                      Color backgroundColour = Color.fromRGBO(
-                                        lesson.value["colour"]["red"],
-                                        lesson.value["colour"]["green"],
-                                        lesson.value["colour"]["blue"],
-                                        1,
-                                      );
-                                      Color textColour =
-                                          useWhiteForeground(backgroundColour)
-                                              ? const Color(0xffffffff)
-                                              : const Color(0xff000000);
+                                    children: new List.from(
+                                      timetableData["lessons"]
+                                          .entries
+                                          .map<Widget>((lesson) {
+                                        Color backgroundColour = Color.fromRGBO(
+                                          lesson.value["colour"]["red"],
+                                          lesson.value["colour"]["green"],
+                                          lesson.value["colour"]["blue"],
+                                          1,
+                                        );
+                                        Color textColour =
+                                            useWhiteForeground(backgroundColour)
+                                                ? const Color(0xffffffff)
+                                                : const Color(0xff000000);
 
-                                      Widget lessonPill = Material(
-                                        color: Colors.transparent,
-                                        child: Container(
-                                          alignment: Alignment.center,
-                                          padding: EdgeInsets.all(10),
-                                          margin: EdgeInsets.symmetric(
-                                              horizontal: 5),
-                                          decoration: BoxDecoration(
-                                            color: backgroundColour,
-                                            borderRadius:
-                                                BorderRadius.circular(20),
+                                        Widget lessonPill = Material(
+                                          color: Colors.transparent,
+                                          child: Container(
+                                            alignment: Alignment.center,
+                                            padding: EdgeInsets.all(10),
+                                            margin: EdgeInsets.symmetric(
+                                                horizontal: 5),
+                                            decoration: BoxDecoration(
+                                              color: backgroundColour,
+                                              borderRadius:
+                                                  BorderRadius.circular(20),
+                                            ),
+                                            child: Text(
+                                              lesson.value["name"],
+                                              style:
+                                                  TextStyle(color: textColour),
+                                            ),
                                           ),
-                                          child: Text(
-                                            lesson.value["name"],
-                                            style: TextStyle(color: textColour),
+                                        );
+                                        return Draggable<String>(
+                                          maxSimultaneousDrags: 1,
+                                          dragAnchor: DragAnchor.child,
+                                          affinity: Axis.vertical,
+                                          data: lesson.key,
+                                          child: lessonPill,
+                                          feedback: lessonPill,
+                                        );
+                                      }).toList(),
+                                    )..add(
+                                        Material(
+                                          color: Colors.transparent,
+                                          child: Container(
+                                            margin: EdgeInsets.symmetric(
+                                                horizontal: 5),
+                                            child: InkWell(
+                                              onTap: () => Navigator.push(
+                                                context,
+                                                pageRouteBuilder(
+                                                  context: context,
+                                                  child: LessonGenerator(),
+                                                ),
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(20),
+                                              child: Container(
+                                                alignment: Alignment.center,
+                                                padding: EdgeInsets.all(10),
+                                                decoration: BoxDecoration(
+                                                  color: Theme.of(context)
+                                                      .canvasColor
+                                                      .withOpacity(0.7),
+                                                  borderRadius:
+                                                      BorderRadius.circular(20),
+                                                ),
+                                                child: Row(
+                                                  children: [
+                                                    Icon(
+                                                      timetableData["lessons"]
+                                                              .isEmpty
+                                                          ? Icons.add
+                                                          : Icons.edit,
+                                                    ),
+                                                    SizedBox(width: 5),
+                                                    Text(
+                                                      timetableData["lessons"]
+                                                              .isEmpty
+                                                          ? "Add Lesson"
+                                                          : "Edit Lessons",
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
                                           ),
                                         ),
-                                      );
-                                      return Draggable<String>(
-                                        maxSimultaneousDrags: 1,
-                                        dragAnchor: DragAnchor.child,
-                                        affinity: Axis.vertical,
-                                        data: lesson.key,
-                                        child: lessonPill,
-                                        feedback: lessonPill,
-                                      );
-                                    }).toList(),
+                                      ),
                                   ),
                                 ),
                               ),

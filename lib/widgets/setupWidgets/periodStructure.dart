@@ -243,21 +243,31 @@ class PeriodStructureState extends State<PeriodStructure> {
             body: SafeArea(
               child: Container(
                 constraints: BoxConstraints(maxWidth: 500),
-                child: ListView(
-                  padding: EdgeInsets.only(top: 20.0, bottom: 80.0),
-                  scrollDirection: Axis.vertical,
-                  children: timetable["period_structure"]
-                      .asMap()
-                      .entries
-                      .map<Widget>(
-                        (period) => Period(
-                            period: period.value,
-                            index: period.key,
-                            changePeriod: _changePeriod,
-                            deletePeriod: _deletePeriod),
+                child: timetable["period_structure"].isEmpty
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text("You haven't added any periods yet"),
+                            Text("Click the add button to start"),
+                          ],
+                        ),
                       )
-                      .toList(),
-                ),
+                    : ListView(
+                        padding: EdgeInsets.only(top: 20.0, bottom: 80.0),
+                        scrollDirection: Axis.vertical,
+                        children: timetable["period_structure"]
+                            .asMap()
+                            .entries
+                            .map<Widget>(
+                              (period) => Period(
+                                  period: period.value,
+                                  index: period.key,
+                                  changePeriod: _changePeriod,
+                                  deletePeriod: _deletePeriod),
+                            )
+                            .toList(),
+                      ),
               ),
             ),
           );

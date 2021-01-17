@@ -14,11 +14,13 @@ class SettingsPage extends StatefulWidget {
   final Database _database = GetIt.I.get<Database>();
   final Auth _auth = GetIt.I.get<Auth>();
   final Map<String, dynamic> timetableData;
+  final Function pageRouteBuilder;
   final showShowcase;
 
   SettingsPage({
     Key key,
     this.timetableData,
+    this.pageRouteBuilder,
     this.showShowcase,
   }) : super(key: key);
 
@@ -36,31 +38,6 @@ class _SettingsPageState extends State<SettingsPage> {
     _tabletimeNameController =
         TextEditingController(text: widget.timetableData["timetable_name"]);
     super.initState();
-  }
-
-  PageRouteBuilder pageRouteBuilder({BuildContext context, Widget child}) {
-    return PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) => child,
-      transitionsBuilder: (
-        context,
-        animation,
-        secondaryAnimation,
-        child,
-      ) =>
-          SlideTransition(
-        position: animation.drive(
-          Tween(
-            begin: Offset(1.0, 0.0),
-            end: Offset.zero,
-          ).chain(
-            CurveTween(
-              curve: Curves.ease,
-            ),
-          ),
-        ),
-        child: child,
-      ),
-    );
   }
 
   @override
@@ -139,7 +116,8 @@ class _SettingsPageState extends State<SettingsPage> {
           ListTile(
             onTap: () => Navigator.push(
               context,
-              pageRouteBuilder(context: context, child: LessonGenerator()),
+              widget.pageRouteBuilder(
+                  context: context, child: LessonGenerator()),
             ),
             leading: Icon(Icons.class_),
             title: Text("Edit Lessons"),
@@ -147,7 +125,8 @@ class _SettingsPageState extends State<SettingsPage> {
           ListTile(
             onTap: () => Navigator.push(
               context,
-              pageRouteBuilder(context: context, child: PeriodStructure()),
+              widget.pageRouteBuilder(
+                  context: context, child: PeriodStructure()),
             ),
             leading: Icon(Icons.calendar_today),
             title: Text("Edit Periods"),

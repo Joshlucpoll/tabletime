@@ -6,6 +6,7 @@ import 'package:timetable/screens/home.dart';
 
 // Widgets
 import './expandedSelection.dart';
+import 'package:timetable/widgets/setupWidgets/periodStructure.dart';
 
 class BlockCard extends StatefulWidget {
   final lesson;
@@ -335,60 +336,125 @@ class Day extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final inheritedState = InheritedWeeksModify.of(context);
+    print(blocks);
     return Stack(
       children: [
         SingleChildScrollView(
           child: Column(
-            children:
-                inheritedState.periodStructure.asMap().entries.map<Widget>(
-              (period) {
-                if (inheritedState.editingLessons) {
-                  final shortDays = ["mon", "tue", "wed", "thu", "fri"];
+            children: List.from(
+              inheritedState.periodStructure.asMap().entries.map<Widget>(
+                (period) {
+                  if (inheritedState.editingLessons) {
+                    final shortDays = ["mon", "tue", "wed", "thu", "fri"];
 
-                  List editingBlocks = inheritedState
-                      .weeksEditingState[weekNum.toString()][shortDays[dayNum]];
+                    List editingBlocks =
+                        inheritedState.weeksEditingState[weekNum.toString()]
+                            [shortDays[dayNum]];
 
-                  for (var editingBlock in editingBlocks) {
-                    if (editingBlock["period"] == period.key) {
-                      return EditingBlock(
-                        period: period.value,
-                        lesson: inheritedState.lessons[editingBlock["lesson"]],
-                        dayNum: dayNum,
-                        weekNum: weekNum,
-                        periodNum: period.key,
-                      );
+                    for (var editingBlock in editingBlocks) {
+                      if (editingBlock["period"] == period.key) {
+                        return EditingBlock(
+                          period: period.value,
+                          lesson:
+                              inheritedState.lessons[editingBlock["lesson"]],
+                          dayNum: dayNum,
+                          weekNum: weekNum,
+                          periodNum: period.key,
+                        );
+                      }
                     }
-                  }
-                  return EditingBlock(
-                    period: period.value,
-                    lesson: null,
-                    periodNum: period.key,
-                    weekNum: weekNum,
-                    dayNum: dayNum,
-                  );
-                } else {
-                  for (var block in blocks) {
-                    if (block["period"] == period.key) {
-                      return BlockCard(
-                        period: inheritedState.periodStructure[block["period"]],
-                        lesson: inheritedState.lessons[block["lesson"]],
-                        dayNum: dayNum,
-                        weekNum: weekNum,
-                        selectedWeek: inheritedState.selectedWeek,
-                      );
+                    return EditingBlock(
+                      period: period.value,
+                      lesson: null,
+                      periodNum: period.key,
+                      weekNum: weekNum,
+                      dayNum: dayNum,
+                    );
+                  } else {
+                    for (var block in blocks) {
+                      if (block["period"] == period.key) {
+                        return BlockCard(
+                          period:
+                              inheritedState.periodStructure[block["period"]],
+                          lesson: inheritedState.lessons[block["lesson"]],
+                          dayNum: dayNum,
+                          weekNum: weekNum,
+                          selectedWeek: inheritedState.selectedWeek,
+                        );
+                      }
                     }
+                    return Container();
                   }
-                  return Container();
-                }
-              },
-            ).toList(),
+                },
+              ).toList(),
+            )..add(
+                inheritedState.editingLessons
+                    ? Card(
+                        margin:
+                            EdgeInsets.symmetric(vertical: 2, horizontal: 5),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        color: Theme.of(context).primaryColor.withOpacity(0.7),
+                        child: InkWell(
+                          onTap: () => Navigator.push(
+                            context,
+                            PageRouteBuilder(
+                              pageBuilder:
+                                  (context, animation, secondaryAnimation) =>
+                                      PeriodStructure(),
+                              transitionsBuilder: (
+                                context,
+                                animation,
+                                secondaryAnimation,
+                                child,
+                              ) =>
+                                  SlideTransition(
+                                position: animation.drive(
+                                  Tween(
+                                    begin: Offset(1.0, 0.0),
+                                    end: Offset.zero,
+                                  ).chain(
+                                    CurveTween(
+                                      curve: Curves.ease,
+                                    ),
+                                  ),
+                                ),
+                                child: child,
+                              ),
+                            ),
+                          ),
+                          borderRadius: BorderRadius.circular(10),
+                          child: Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Icon(inheritedState.periodStructure.isEmpty
+                                    ? Icons.add
+                                    : Icons.edit),
+                                Container(
+                                  margin: EdgeInsets.only(left: 10),
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                      inheritedState.periodStructure.isEmpty
+                                          ? "Add Period"
+                                          : "Edit Periods"),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      )
+                    : Container(),
+              ),
           ),
         ),
         Visibility(
           visible: blocks.isEmpty && !inheritedState.editingLessons,
           child: Center(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(
                   Icons.event_busy,
