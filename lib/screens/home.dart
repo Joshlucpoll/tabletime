@@ -444,7 +444,7 @@ class _HomeState extends State<Home> {
                                           color: Colors.transparent,
                                           child: Container(
                                             alignment: Alignment.center,
-                                            padding: EdgeInsets.all(10),
+                                            padding: EdgeInsets.all(7),
                                             margin: EdgeInsets.symmetric(
                                                 horizontal: 5),
                                             decoration: BoxDecoration(
@@ -486,7 +486,7 @@ class _HomeState extends State<Home> {
                                                   BorderRadius.circular(20),
                                               child: Container(
                                                 alignment: Alignment.center,
-                                                padding: EdgeInsets.all(10),
+                                                padding: EdgeInsets.all(7),
                                                 decoration: BoxDecoration(
                                                   color: Theme.of(context)
                                                       .canvasColor

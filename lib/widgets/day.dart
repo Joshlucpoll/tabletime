@@ -336,7 +336,6 @@ class Day extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final inheritedState = InheritedWeeksModify.of(context);
-    print(blocks);
     return Stack(
       children: [
         SingleChildScrollView(
@@ -389,13 +388,13 @@ class Day extends StatelessWidget {
               ).toList(),
             )..add(
                 inheritedState.editingLessons
-                    ? Card(
-                        margin:
-                            EdgeInsets.symmetric(vertical: 2, horizontal: 5),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                    ? Container(
+                        margin: EdgeInsets.symmetric(vertical: 5),
+                        decoration: BoxDecoration(
+                          color:
+                              Theme.of(context).primaryColor.withOpacity(0.7),
+                          borderRadius: BorderRadius.circular(50),
                         ),
-                        color: Theme.of(context).primaryColor.withOpacity(0.7),
                         child: InkWell(
                           onTap: () => Navigator.push(
                             context,
@@ -424,22 +423,23 @@ class Day extends StatelessWidget {
                               ),
                             ),
                           ),
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(50),
                           child: Padding(
-                            padding: const EdgeInsets.all(10.0),
+                            padding: EdgeInsets.all(7),
                             child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Icon(inheritedState.periodStructure.isEmpty
                                     ? Icons.add
                                     : Icons.edit),
                                 Container(
                                   margin: EdgeInsets.only(left: 10),
-                                  alignment: Alignment.center,
                                   child: Text(
-                                      inheritedState.periodStructure.isEmpty
-                                          ? "Add Period"
-                                          : "Edit Periods"),
+                                    inheritedState.periodStructure.isEmpty
+                                        ? "Add Period"
+                                        : "Edit Periods",
+                                  ),
                                 ),
                               ],
                             ),
