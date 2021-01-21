@@ -9,12 +9,17 @@ import 'package:timetable/widgets/setupWidgets/periodStructure.dart';
 // Services
 import '../services/database.dart';
 import '../services/auth.dart';
+import '../services/notifications.dart';
 
 class SettingsPage extends StatefulWidget {
   final Database _database = GetIt.I.get<Database>();
   final Auth _auth = GetIt.I.get<Auth>();
+
+  final Notifications _notifications = GetIt.I.get<Notifications>();
   final Map<String, dynamic> timetableData;
   final Function pageRouteBuilder;
+  final Function setUpNotifications;
+
   final showShowcase;
 
   SettingsPage({
@@ -22,6 +27,7 @@ class SettingsPage extends StatefulWidget {
     this.timetableData,
     this.pageRouteBuilder,
     this.showShowcase,
+    this.setUpNotifications,
   }) : super(key: key);
 
   @override
@@ -176,6 +182,13 @@ class _SettingsPageState extends State<SettingsPage> {
             },
             leading: Icon(Icons.exit_to_app),
             title: Text("Sign out"),
+          ),
+          ListTile(
+            onTap: () {
+              widget.setUpNotifications();
+            },
+            leading: Icon(Icons.notification_important),
+            title: Text("Test Noti"),
           ),
         ],
       ),

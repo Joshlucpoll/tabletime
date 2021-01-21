@@ -13,6 +13,7 @@ import 'package:timetable/widgets/setupWidgets/lessonGenerator.dart';
 
 // Services
 import '../services/database.dart';
+import '../services/notifications.dart';
 
 // Widgets
 import '../widgets/week.dart';
@@ -20,6 +21,7 @@ import '../widgets/customScrollPhysics.dart';
 
 class Home extends StatefulWidget {
   final Database _database = GetIt.I.get<Database>();
+  final Notifications _notifications = GetIt.I.get<Notifications>();
 
   Home({Key key}) : super(key: key);
 
@@ -153,6 +155,16 @@ class _HomeState extends State<Home> {
         // Temporary state for editing
         weeksEditingState = json.decode(json.encode(timetableData["weeks"]));
     });
+  }
+
+  void setUpNotifications() {
+    widget._notifications.scheduleTimetableNotifications(
+      weeks: timetableData["weeks"],
+      lessons: timetableData["lessons"],
+      periodStructure: timetableData["period_structure"],
+      currentWeekData: timetableData["current_week"],
+      numberOfWeeks: timetableData["number_of_weeks"],
+    );
   }
 
   PageRouteBuilder pageRouteBuilder({BuildContext context, Widget child}) {
@@ -316,6 +328,7 @@ class _HomeState extends State<Home> {
                               showShowcase: () {},
                               pageRouteBuilder: pageRouteBuilder,
                               timetableData: timetableData,
+                              setUpNotifications: setUpNotifications,
                             ),
                           ),
                         ),
