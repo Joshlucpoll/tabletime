@@ -388,60 +388,65 @@ class Day extends StatelessWidget {
               ).toList(),
             )..add(
                 inheritedState.editingLessons
-                    ? Container(
-                        margin: EdgeInsets.symmetric(vertical: 5),
-                        decoration: BoxDecoration(
-                          color:
-                              Theme.of(context).primaryColor.withOpacity(0.7),
-                          borderRadius: BorderRadius.circular(50),
-                        ),
-                        child: InkWell(
-                          onTap: () => Navigator.push(
-                            context,
-                            PageRouteBuilder(
-                              pageBuilder:
-                                  (context, animation, secondaryAnimation) =>
-                                      PeriodStructure(),
-                              transitionsBuilder: (
-                                context,
-                                animation,
-                                secondaryAnimation,
-                                child,
-                              ) =>
-                                  SlideTransition(
-                                position: animation.drive(
-                                  Tween(
-                                    begin: Offset(1.0, 0.0),
-                                    end: Offset.zero,
-                                  ).chain(
-                                    CurveTween(
-                                      curve: Curves.ease,
+                    ? Center(
+                        child: Container(
+                          margin: EdgeInsets.symmetric(vertical: 5),
+                          decoration: BoxDecoration(
+                            color:
+                                Theme.of(context).primaryColor.withOpacity(0.7),
+                            borderRadius: BorderRadius.circular(50),
+                          ),
+                          child: InkWell(
+                            onTap: () => Navigator.push(
+                              context,
+                              PageRouteBuilder(
+                                pageBuilder:
+                                    (context, animation, secondaryAnimation) =>
+                                        PeriodStructure(),
+                                transitionsBuilder: (
+                                  context,
+                                  animation,
+                                  secondaryAnimation,
+                                  child,
+                                ) =>
+                                    SlideTransition(
+                                  position: animation.drive(
+                                    Tween(
+                                      begin: Offset(1.0, 0.0),
+                                      end: Offset.zero,
+                                    ).chain(
+                                      CurveTween(
+                                        curve: Curves.ease,
+                                      ),
                                     ),
                                   ),
+                                  child: child,
                                 ),
-                                child: child,
                               ),
                             ),
-                          ),
-                          borderRadius: BorderRadius.circular(50),
-                          child: Padding(
-                            padding: EdgeInsets.all(7),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(inheritedState.periodStructure.isEmpty
-                                    ? Icons.add
-                                    : Icons.edit),
-                                Container(
-                                  margin: EdgeInsets.only(left: 10),
-                                  child: Text(
+                            borderRadius: BorderRadius.circular(50),
+                            child: Padding(
+                              padding: EdgeInsets.all(7),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
                                     inheritedState.periodStructure.isEmpty
-                                        ? "Add Period"
-                                        : "Edit Periods",
+                                        ? Icons.add
+                                        : Icons.edit,
+                                    size: 16,
                                   ),
-                                ),
-                              ],
+                                  Container(
+                                    margin: EdgeInsets.symmetric(horizontal: 5),
+                                    child: Text(
+                                      inheritedState.periodStructure.isEmpty
+                                          ? "Add Periods"
+                                          : "Edit Periods",
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),

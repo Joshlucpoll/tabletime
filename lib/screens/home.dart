@@ -514,13 +514,19 @@ class _HomeState extends State<Home> {
                                                               .isEmpty
                                                           ? Icons.add
                                                           : Icons.edit,
+                                                      size: 16,
                                                     ),
-                                                    SizedBox(width: 5),
-                                                    Text(
-                                                      timetableData["lessons"]
-                                                              .isEmpty
-                                                          ? "Add Lesson"
-                                                          : "Edit Lessons",
+                                                    Container(
+                                                      margin:
+                                                          EdgeInsets.symmetric(
+                                                        horizontal: 5,
+                                                      ),
+                                                      child: Text(
+                                                        timetableData["lessons"]
+                                                                .isEmpty
+                                                            ? "Add Lessons"
+                                                            : "Edit Lessons",
+                                                      ),
                                                     ),
                                                   ],
                                                 ),
