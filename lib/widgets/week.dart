@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import './customScrollPhysics.dart';
 import './day.dart';
 
+import '../services/timetable.dart';
+
 final shortDays = ["mon", "tue", "wed", "thu", "fri"];
 
 class Week extends StatefulWidget {
-  final week;
+  final WeekData week;
   final int weekNum;
 
   Week({
@@ -91,7 +93,7 @@ class _WeekState extends State<Week> with SingleTickerProviderStateMixin {
             children: shortDays
                 .map(
                   (day) => Day(
-                    blocks: widget.week[day],
+                    blocks: widget.week.week[day],
                     dayNum: shortDays.indexOf(day),
                     weekNum: widget.weekNum,
                   ),

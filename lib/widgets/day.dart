@@ -4,13 +4,15 @@ import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:intl/intl.dart';
 import 'package:timetable/screens/home.dart';
 
+import '../services/timetable.dart';
+
 // Widgets
 import './expandedSelection.dart';
 import 'package:timetable/widgets/setupWidgets/periodStructure.dart';
 
 class BlockCard extends StatefulWidget {
-  final lesson;
-  final period;
+  final LessonData lesson;
+  final PeriodData period;
   final int dayNum;
   final int weekNum;
   final int selectedWeek;
@@ -53,8 +55,8 @@ class _BlockCardState extends State<BlockCard> {
     if (widget.weekNum + 1 == widget.selectedWeek) {
       DateTime now = DateTime.now();
       if (now.weekday == widget.dayNum + 1) {
-        DateTime start = DateTime.parse(widget.period["start"]);
-        DateTime end = DateTime.parse(widget.period["end"]);
+        DateTime start = widget.period.start;
+        DateTime end = widget.period.end;
         if ((now.hour * 60 + now.minute) >= (start.hour * 60 + start.minute) &&
             (now.hour * 60 + now.minute) <= (end.hour * 60 + end.minute - 1)) {
           return true;
@@ -66,13 +68,7 @@ class _BlockCardState extends State<BlockCard> {
 
   @override
   Widget build(BuildContext context) {
-    Color backgroundColour = Color.fromRGBO(
-      widget.lesson["colour"]["red"],
-      widget.lesson["colour"]["green"],
-      widget.lesson["colour"]["blue"],
-      1,
-    );
-
+    Color backgroundColour = widget.lesson.colour;
     Color textColour = useWhiteForeground(backgroundColour)
         ? const Color(0xffffffff)
         : const Color(0xff000000);
@@ -97,7 +93,7 @@ class _BlockCardState extends State<BlockCard> {
                     width: 70,
                     alignment: Alignment.center,
                     child: Text(
-                      formatter.format(DateTime.parse(widget.period["start"])),
+                      formatter.format(widget.period.start),
                       style: TextStyle(
                           color: textColour,
                           fontSize: 20,
@@ -108,7 +104,7 @@ class _BlockCardState extends State<BlockCard> {
                     constraints: BoxConstraints(maxWidth: 10),
                   ),
                   Text(
-                    widget.lesson["name"],
+                    widget.lesson.name,
                     style: TextStyle(
                       color: textColour,
                       fontWeight: FontWeight.w600,
@@ -153,8 +149,7 @@ class _BlockCardState extends State<BlockCard> {
                             ),
                           ),
                           Text(
-                            formatter
-                                .format(DateTime.parse(widget.period["end"])),
+                            formatter.format(widget.period.end),
                             style: TextStyle(
                                 color: textColour,
                                 fontSize: 20,
@@ -169,18 +164,18 @@ class _BlockCardState extends State<BlockCard> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        if (widget.lesson["teacher"] != "")
+                        if (widget.lesson.teacher != "")
                           Text(
-                            "Teacher: " + widget.lesson["teacher"],
+                            "Teacher: " + widget.lesson.teacher,
                             style: TextStyle(
                               fontWeight: FontWeight.normal,
                               fontSize: 12,
                               color: textColour.withAlpha(155),
                             ),
                           ),
-                        if (widget.lesson["room"] != "")
+                        if (widget.lesson.room != "")
                           Text(
-                            "Room: " + widget.lesson["room"],
+                            "Room: " + widget.lesson.room,
                             style: TextStyle(
                               fontWeight: FontWeight.normal,
                               fontSize: 12,
@@ -322,7 +317,7 @@ class EditingBlock extends StatelessWidget {
 }
 
 class Day extends StatelessWidget {
-  final List blocks;
+  final DayData blocks;
   final int dayNum;
   final int weekNum;
 
@@ -370,12 +365,12 @@ class Day extends StatelessWidget {
                       dayNum: dayNum,
                     );
                   } else {
-                    for (var block in blocks) {
-                      if (block["period"] == period.key) {
+                    for (var block in blocks.day) {
+                      if (block.period.start == period.value.start &&
+                          block.period.end == period.value.end) {
                         return BlockCard(
-                          period:
-                              inheritedState.periodStructure[block["period"]],
-                          lesson: inheritedState.lessons[block["lesson"]],
+                          period: block.period,
+                          lesson: block.lesson,
                           dayNum: dayNum,
                           weekNum: weekNum,
                           selectedWeek: inheritedState.selectedWeek,
@@ -456,7 +451,7 @@ class Day extends StatelessWidget {
           ),
         ),
         Visibility(
-          visible: blocks.isEmpty && !inheritedState.editingLessons,
+          visible: blocks.day.isEmpty && !inheritedState.editingLessons,
           child: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,

@@ -70,7 +70,7 @@ class Notifications {
     Map weeks,
     List periodStructure,
     Map lessons,
-    Map currentWeekData,
+    var currentWeekData,
     int numberOfWeeks,
   }) {
     int difference = (DateTime.now()

@@ -9,14 +9,17 @@ import 'package:timetable/widgets/setupWidgets/periodStructure.dart';
 // Services
 import '../services/database.dart';
 import '../services/auth.dart';
+import '../services/timetable.dart';
 import '../services/notifications.dart';
 
 class SettingsPage extends StatefulWidget {
   final Database _database = GetIt.I.get<Database>();
   final Auth _auth = GetIt.I.get<Auth>();
-
+  final Timetable _timetable = GetIt.I.get<Timetable>();
   final Notifications _notifications = GetIt.I.get<Notifications>();
-  final Map<String, dynamic> timetableData;
+
+  final String timetableName;
+  final int numberOfWeeks;
   final Function pageRouteBuilder;
   final Function setUpNotifications;
 
@@ -24,7 +27,8 @@ class SettingsPage extends StatefulWidget {
 
   SettingsPage({
     Key key,
-    this.timetableData,
+    this.timetableName,
+    this.numberOfWeeks,
     this.pageRouteBuilder,
     this.showShowcase,
     this.setUpNotifications,
@@ -40,9 +44,9 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   void initState() {
-    dropdownValue = widget.timetableData["number_of_weeks"];
+    dropdownValue = widget.numberOfWeeks;
     _tabletimeNameController =
-        TextEditingController(text: widget.timetableData["timetable_name"]);
+        TextEditingController(text: widget.timetableName);
     super.initState();
   }
 
@@ -60,8 +64,7 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           ListTile(
             onTap: () {
-              _tabletimeNameController.text =
-                  widget.timetableData["timetable_name"];
+              _tabletimeNameController.text = widget.timetableName;
               showDialog(
                 context: context,
                 builder: (_) => new AlertDialog(
@@ -77,7 +80,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     FlatButton(
                       child: Text("Ok"),
                       onPressed: () {
-                        final newTimetableData = widget.timetableData;
+                        final newTimetableData = widget._timetable.rawTimetable;
                         newTimetableData["timetable_name"] =
                             _tabletimeNameController.text;
                         widget._database
@@ -105,7 +108,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 setState(() {
                   dropdownValue = newValue;
                 });
-                final newTimetableData = widget.timetableData;
+                final newTimetableData = widget._timetable.rawTimetable;
                 newTimetableData["number_of_weeks"] = newValue;
                 widget._database.updateTimetableData(data: newTimetableData);
               },

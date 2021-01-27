@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:showcaseview/showcaseview.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
@@ -13,6 +12,7 @@ import 'package:timetable/widgets/setupWidgets/lessonGenerator.dart';
 
 // Services
 import '../services/database.dart';
+import '../services/timetable.dart';
 import '../services/notifications.dart';
 
 // Widgets
@@ -21,6 +21,7 @@ import '../widgets/customScrollPhysics.dart';
 
 class Home extends StatefulWidget {
   final Database _database = GetIt.I.get<Database>();
+  final Timetable _timetable = GetIt.I.get<Timetable>();
   final Notifications _notifications = GetIt.I.get<Notifications>();
 
   Home({Key key}) : super(key: key);
@@ -30,8 +31,14 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  DocumentReference timetableRef;
-  Map<String, dynamic> timetableData;
+  bool timetableData = false;
+  String timetableName;
+  CurrentWeek currentWeek;
+  int numberOfWeeks;
+  Map<String, LessonData> lessonsData;
+  List<PeriodData> periodsData;
+  Map<String, WeekData> weeksData;
+
   Map weeksEditingState;
   PageController _pageController;
   double pageIndex = 0;
@@ -43,18 +50,16 @@ class _HomeState extends State<Home> {
   GlobalKey _editButton = GlobalKey();
   GlobalKey _body = GlobalKey();
 
-  void initialisePageController(timetable) {
-    int difference = (DateTime.now()
-                .difference(DateTime.parse(timetable["current_week"]["date"]))
-                .inDays /
-            7)
-        .truncate();
+  void initialisePageController({
+    int numberOfWeeks,
+    CurrentWeek currentWeekData,
+  }) {
+    int difference =
+        (DateTime.now().difference(currentWeekData.date).inDays / 7).truncate();
 
-    int currentWeek = (timetable["current_week"]["week"] + difference) %
-        timetable["number_of_weeks"];
+    int currentWeek = (currentWeekData.week + difference) % numberOfWeeks;
 
-    currentWeek =
-        currentWeek == 0 ? timetable["current_week"]["week"] : currentWeek;
+    currentWeek = currentWeek == 0 ? currentWeekData.week : currentWeek;
 
     if (this.mounted) {
       setState(() => selectedWeek = currentWeek);
@@ -80,19 +85,33 @@ class _HomeState extends State<Home> {
 
   @override
   void initState() {
-    widget._database
-        .streamTimetableData()
-        .then((stream) => stream.listen((timetable) {
-              if (timetableData == null) {
-                initialisePageController(timetable.data());
-              }
-              if (this.mounted) {
-                setState(() {
-                  timetableData = timetable.data();
-                });
-              }
-            }));
+    widget._timetable.onTimeTableChange.listen(
+      (update) {
+        getUpdatedTimetable();
+
+        if (!timetableData) {
+          initialisePageController(
+            numberOfWeeks: widget._timetable.numberOfWeeks,
+            currentWeekData: widget._timetable.currentWeek,
+          );
+          setState(() {
+            timetableData = true;
+          });
+        }
+      },
+    );
     super.initState();
+  }
+
+  void getUpdatedTimetable() {
+    setState(() {
+      timetableName = widget._timetable.timetableName;
+      currentWeek = widget._timetable.currentWeek;
+      numberOfWeeks = widget._timetable.numberOfWeeks;
+      lessonsData = widget._timetable.lessons;
+      periodsData = widget._timetable.periods;
+      weeksData = widget._timetable.weeks;
+    });
   }
 
   @override
@@ -144,26 +163,24 @@ class _HomeState extends State<Home> {
   void toggleEditingWeeks({bool editing, bool save}) async {
     if (!editing) {
       if (save) {
-        if (weeksEditingState.toString() != timetableData["weeks"].toString()) {
-          await widget._database.updateWeeksData(weeks: weeksEditingState);
-        }
+        await widget._database.updateWeeksData(weeks: weeksEditingState);
       }
     }
     setState(() {
       editingLessons = editing;
       if (editing)
         // Temporary state for editing
-        weeksEditingState = json.decode(json.encode(timetableData["weeks"]));
+        weeksEditingState = widget._timetable.rawTimetable["weeks"];
     });
   }
 
   void setUpNotifications() {
     widget._notifications.scheduleTimetableNotifications(
-      weeks: timetableData["weeks"],
-      lessons: timetableData["lessons"],
-      periodStructure: timetableData["period_structure"],
-      currentWeekData: timetableData["current_week"],
-      numberOfWeeks: timetableData["number_of_weeks"],
+      weeks: widget._timetable.weeks,
+      lessons: widget._timetable.lessons,
+      periodStructure: widget._timetable.periods,
+      currentWeekData: widget._timetable.currentWeek,
+      numberOfWeeks: widget._timetable.numberOfWeeks,
     );
   }
 
@@ -210,7 +227,7 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    if (timetableData == null) {
+    if (timetableData == false) {
       return Loading();
     } else {
       return ShowCaseWidget(
@@ -276,7 +293,8 @@ class _HomeState extends State<Home> {
                         splashRadius: 20,
                         onPressed: () {
                           if (weeksEditingState.toString() !=
-                              timetableData["weeks"].toString()) {
+                              widget._timetable.rawTimetable["weeks"]
+                                  .toString()) {
                             showDialog(
                               context: context,
                               builder: (_) => AlertDialog(
@@ -327,7 +345,8 @@ class _HomeState extends State<Home> {
                             child: SettingsPage(
                               showShowcase: () {},
                               pageRouteBuilder: pageRouteBuilder,
-                              timetableData: timetableData,
+                              timetableName: timetableName,
+                              numberOfWeeks: numberOfWeeks,
                               setUpNotifications: setUpNotifications,
                             ),
                           ),
@@ -351,8 +370,8 @@ class _HomeState extends State<Home> {
                     ],
             ),
             body: InheritedWeeksModify(
-              lessons: timetableData["lessons"],
-              periodStructure: timetableData["period_structure"],
+              lessons: lessonsData,
+              periodStructure: periodsData,
               selectedWeek: selectedWeek,
               editingLessons: editingLessons,
               weeksEditingState: weeksEditingState,
@@ -380,9 +399,9 @@ class _HomeState extends State<Home> {
                           scrollDirection: Axis.vertical,
                           physics: const CustomPageViewScrollPhysics(),
                           children: new List<Widget>.generate(
-                            timetableData["number_of_weeks"],
+                            numberOfWeeks,
                             (int index) => Week(
-                              week: timetableData["weeks"][index.toString()],
+                              week: weeksData[index.toString()],
                               weekNum: index,
                             ),
                           ),
@@ -439,15 +458,8 @@ class _HomeState extends State<Home> {
                                   scrollDirection: Axis.horizontal,
                                   child: Row(
                                     children: new List.from(
-                                      timetableData["lessons"]
-                                          .entries
-                                          .map<Widget>((lesson) {
-                                        Color backgroundColour = Color.fromRGBO(
-                                          lesson.value["colour"]["red"],
-                                          lesson.value["colour"]["green"],
-                                          lesson.value["colour"]["blue"],
-                                          1,
-                                        );
+                                      lessonsData.values.map<Widget>((lesson) {
+                                        Color backgroundColour = lesson.colour;
                                         Color textColour =
                                             useWhiteForeground(backgroundColour)
                                                 ? const Color(0xffffffff)
@@ -466,7 +478,7 @@ class _HomeState extends State<Home> {
                                                   BorderRadius.circular(20),
                                             ),
                                             child: Text(
-                                              lesson.value["name"],
+                                              lesson.name,
                                               style:
                                                   TextStyle(color: textColour),
                                             ),
@@ -476,7 +488,7 @@ class _HomeState extends State<Home> {
                                           maxSimultaneousDrags: 1,
                                           dragAnchor: DragAnchor.child,
                                           affinity: Axis.vertical,
-                                          data: lesson.key,
+                                          data: lesson.id,
                                           child: lessonPill,
                                           feedback: lessonPill,
                                         );
@@ -510,8 +522,7 @@ class _HomeState extends State<Home> {
                                                 child: Row(
                                                   children: [
                                                     Icon(
-                                                      timetableData["lessons"]
-                                                              .isEmpty
+                                                      lessonsData.isEmpty
                                                           ? Icons.add
                                                           : Icons.edit,
                                                       size: 16,
@@ -522,8 +533,7 @@ class _HomeState extends State<Home> {
                                                         horizontal: 5,
                                                       ),
                                                       child: Text(
-                                                        timetableData["lessons"]
-                                                                .isEmpty
+                                                        lessonsData.isEmpty
                                                             ? "Add Lessons"
                                                             : "Edit Lessons",
                                                       ),
@@ -555,8 +565,8 @@ class _HomeState extends State<Home> {
 }
 
 class InheritedWeeksModify extends InheritedWidget {
-  final lessons;
-  final periodStructure;
+  final Map<String, LessonData> lessons;
+  final List<PeriodData> periodStructure;
   final int selectedWeek;
   final bool editingLessons;
   final Map weeksEditingState;
