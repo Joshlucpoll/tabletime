@@ -85,7 +85,7 @@ class _HomeState extends State<Home> {
 
   @override
   void initState() {
-    widget._timetable.onTimeTableChange.listen(
+    widget._timetable.onTimeTableChange().listen(
       (update) {
         getUpdatedTimetable();
 
@@ -104,14 +104,16 @@ class _HomeState extends State<Home> {
   }
 
   void getUpdatedTimetable() {
-    setState(() {
-      timetableName = widget._timetable.timetableName;
-      currentWeek = widget._timetable.currentWeek;
-      numberOfWeeks = widget._timetable.numberOfWeeks;
-      lessonsData = widget._timetable.lessons;
-      periodsData = widget._timetable.periods;
-      weeksData = widget._timetable.weeks;
-    });
+    if (mounted) {
+      setState(() {
+        timetableName = widget._timetable.timetableName;
+        currentWeek = widget._timetable.currentWeek;
+        numberOfWeeks = widget._timetable.numberOfWeeks;
+        lessonsData = widget._timetable.lessons;
+        periodsData = widget._timetable.periods;
+        weeksData = widget._timetable.weeks;
+      });
+    }
   }
 
   @override
@@ -220,6 +222,8 @@ class _HomeState extends State<Home> {
       title: title,
       description: description,
       disableAnimation: true,
+      animationDuration: Duration(microseconds: 1),
+      overlayOpacity: 0,
       contentPadding: EdgeInsets.all(10),
       child: child,
     );
@@ -356,6 +360,7 @@ class _HomeState extends State<Home> {
                       ),
                       IconButton(
                         icon: Icon(Icons.help),
+                        splashRadius: 20,
                         onPressed: () =>
                             WidgetsBinding.instance.addPostFrameCallback(
                           (_) => ShowCaseWidget.of(context).startShowCase(
@@ -386,8 +391,8 @@ class _HomeState extends State<Home> {
                       description:
                           "Swipe left/right to switch days\n or swipe up/down to switch weeks",
                       child: SizedBox(
-                        height: MediaQuery.of(context).size.shortestSide * 0.6,
-                        width: MediaQuery.of(context).size.shortestSide * 0.6,
+                        height: 0,
+                        width: 0,
                       ),
                     ),
                   ),

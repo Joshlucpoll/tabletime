@@ -66,13 +66,18 @@ class Timetable {
   List<PeriodData> periods = [];
   Map<String, WeekData> weeks = {};
 
-  Stream get onTimeTableChange => _onChange;
+  Stream onTimeTableChange() {
+    if (_rawTimetableData != null) {
+      _onChangeController.add(true);
+    }
+    return _onChange;
+  }
 
   Map<String, dynamic> get rawTimetable => _rawTimetableData;
 
   Timetable() {
     _onChangeController = StreamController();
-    _onChange = _onChangeController.stream;
+    _onChange = _onChangeController.stream.asBroadcastStream();
 
     _streamTimetable(true);
   }

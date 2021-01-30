@@ -10,9 +10,11 @@ import 'package:timetable/screens/loading.dart';
 
 // Services
 import '../../services/database.dart';
+import '../../services/timetable.dart';
 
 class LessonGenerator extends StatefulWidget {
   final Database _database = GetIt.I.get<Database>();
+  final Timetable _timetable = GetIt.I.get<Timetable>();
 
   @override
   _LessonGeneratorState createState() => _LessonGeneratorState();
@@ -27,20 +29,41 @@ class _LessonGeneratorState extends State<LessonGenerator> {
   final _teacherController = TextEditingController();
   final _roomController = TextEditingController();
 
-  Stream<DocumentSnapshot> subscription;
-  Map<String, dynamic> timetable;
+  bool timetableData = false;
+  String timetableName;
+  CurrentWeek currentWeek;
+  int numberOfWeeks;
+  Map<String, LessonData> lessonsData;
+  List<PeriodData> periodsData;
+  Map<String, WeekData> weeksData;
 
   @override
   void initState() {
     super.initState();
-    setupStream();
+    widget._timetable.onTimeTableChange().listen(
+      (update) {
+        getUpdatedTimetable();
+
+        if (!timetableData) {
+          setState(() {
+            timetableData = true;
+          });
+        }
+      },
+    );
   }
 
-  void setupStream() async {
-    subscription = await widget._database.streamTimetableData();
-    subscription.listen(
-      (docSnapshot) => setState(() => timetable = docSnapshot.data()),
-    );
+  void getUpdatedTimetable() {
+    if (mounted) {
+      setState(() {
+        timetableName = widget._timetable.timetableName;
+        currentWeek = widget._timetable.currentWeek;
+        numberOfWeeks = widget._timetable.numberOfWeeks;
+        lessonsData = widget._timetable.lessons;
+        periodsData = widget._timetable.periods;
+        weeksData = widget._timetable.weeks;
+      });
+    }
   }
 
   void _addLesson({String name, Color colour, String teacher, String room}) {
@@ -58,10 +81,13 @@ class _LessonGeneratorState extends State<LessonGenerator> {
       "teacher": teacher,
       "room": room,
     };
-    final newLessons = timetable["lessons"];
+
+    Map<String, dynamic> rawTimetable = widget._timetable.rawTimetable;
+
+    final newLessons = rawTimetable["lessons"];
     newLessons[Uuid().v1()] = data;
 
-    final newTimetable = timetable;
+    final newTimetable = rawTimetable;
     newTimetable["lessons"] = newLessons;
 
     widget._database.updateTimetableData(data: newTimetable);
@@ -83,20 +109,25 @@ class _LessonGeneratorState extends State<LessonGenerator> {
       "teacher": teacher,
       "room": room,
     };
-    final newLessons = timetable["lessons"];
+
+    Map<String, dynamic> rawTimetable = widget._timetable.rawTimetable;
+
+    final newLessons = rawTimetable["lessons"];
     newLessons[id] = data;
 
-    final newTimetable = timetable;
+    final newTimetable = rawTimetable;
     newTimetable["lessons"] = newLessons;
 
     widget._database.updateTimetableData(data: newTimetable);
   }
 
   void _removeLesson({String id}) {
-    final newLessons = timetable["lessons"];
+    Map<String, dynamic> rawTimetable = widget._timetable.rawTimetable;
+
+    final newLessons = rawTimetable["lessons"];
     newLessons.remove(id);
 
-    final newTimetable = timetable;
+    final newTimetable = rawTimetable;
     newTimetable["lessons"] = newLessons;
 
     widget._database.updateTimetableData(data: newTimetable);
@@ -109,7 +140,7 @@ class _LessonGeneratorState extends State<LessonGenerator> {
 
   @override
   Widget build(BuildContext context) {
-    return timetable == null
+    return timetableData == false
         ? Loading()
         : Scaffold(
             appBar: AppBar(
@@ -123,7 +154,7 @@ class _LessonGeneratorState extends State<LessonGenerator> {
               child: Center(
                 child: Container(
                   constraints: BoxConstraints(maxWidth: 700),
-                  child: timetable["lessons"].isEmpty
+                  child: lessonsData.isEmpty
                       ? Center(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -141,10 +172,8 @@ class _LessonGeneratorState extends State<LessonGenerator> {
                             bottom: 80,
                           ),
                           crossAxisCount: 2,
-                          children: timetable["lessons"]
-                              .entries
-                              .map<Widget>((entry) =>
-                                  _lesson(context, entry.key, entry.value))
+                          children: lessonsData.values
+                              .map<Widget>((lesson) => _lesson(context, lesson))
                               .toList(),
                         ),
                 ),
@@ -153,13 +182,8 @@ class _LessonGeneratorState extends State<LessonGenerator> {
           );
   }
 
-  Widget _lesson(BuildContext context, String id, data) {
-    Color colour = Color.fromRGBO(
-      data["colour"]["red"],
-      data["colour"]["green"],
-      data["colour"]["blue"],
-      1,
-    );
+  Widget _lesson(BuildContext context, LessonData lesson) {
+    Color colour = lesson.colour;
     Color textColor = useWhiteForeground(colour)
         ? const Color(0xffffffff)
         : const Color(0xff000000);
@@ -181,25 +205,25 @@ class _LessonGeneratorState extends State<LessonGenerator> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    data["name"],
+                    lesson.name,
                     style: TextStyle(
                       fontWeight: FontWeight.w500,
                       fontSize: 20,
                       color: textColor,
                     ),
                   ),
-                  if (data["teacher"] != "")
+                  if (lesson.teacher != "")
                     Text(
-                      "Teacher: " + data["teacher"],
+                      "Teacher: " + lesson.teacher,
                       style: TextStyle(
                         fontWeight: FontWeight.normal,
                         fontSize: 12,
                         color: textColor.withAlpha(155),
                       ),
                     ),
-                  if (data["room"] != "")
+                  if (lesson.room != "")
                     Text(
-                      "Room: " + data["room"],
+                      "Room: " + lesson.room,
                       style: TextStyle(
                         fontWeight: FontWeight.normal,
                         fontSize: 12,
@@ -216,14 +240,14 @@ class _LessonGeneratorState extends State<LessonGenerator> {
                       Icons.edit,
                       color: textColor,
                     ),
-                    onPressed: () => _lessonSheet(context, id),
+                    onPressed: () => _lessonSheet(context, lesson),
                   ),
                   IconButton(
                     icon: Icon(
                       Icons.delete,
                       color: textColor,
                     ),
-                    onPressed: () => _removeLesson(id: id),
+                    onPressed: () => _removeLesson(id: lesson.id),
                   ),
                 ],
               )
@@ -234,25 +258,22 @@ class _LessonGeneratorState extends State<LessonGenerator> {
     );
   }
 
-  _lessonSheet(BuildContext context, String editId) {
-    if (editId != null) {
-      final lesson = timetable["lessons"][editId];
-      _nameController.text = lesson["name"];
-      _teacherController.text = lesson["teacher"];
-      _roomController.text = lesson["room"];
+  _lessonSheet(BuildContext context, LessonData lesson) {
+    if (lesson != null) {
+      _nameController.text = lesson.name;
+      _teacherController.text = lesson.teacher;
+      _roomController.text = lesson.room;
       setState(() {
-        currentColour = Color.fromRGBO(
-          lesson["colour"]["red"],
-          lesson["colour"]["green"],
-          lesson["colour"]["blue"],
-          1,
-        );
+        currentColour = lesson.colour;
       });
     }
     showModalBottomSheet(
       isScrollControlled: true,
       shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20.0))),
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(20.0),
+        ),
+      ),
       context: context,
       builder: (_) {
         return StatefulBuilder(
@@ -292,7 +313,7 @@ class _LessonGeneratorState extends State<LessonGenerator> {
                               alignment: Alignment.centerLeft,
                               padding: EdgeInsets.all(10),
                               child: Text(
-                                editId == null ? "Add Lesson" : "Edit Lesson",
+                                lesson == null ? "Add Lesson" : "Edit Lesson",
                                 style: TextStyle(
                                     fontSize: 25, fontWeight: FontWeight.w500),
                               ),
@@ -390,10 +411,10 @@ class _LessonGeneratorState extends State<LessonGenerator> {
                               ),
                             ),
                             RaisedButton(
-                              child: Text(editId == null ? "Add" : "Save"),
+                              child: Text(lesson == null ? "Add" : "Save"),
                               onPressed: () {
                                 if (_formKey.currentState.validate()) {
-                                  if (editId == null) {
+                                  if (lesson == null) {
                                     _addLesson(
                                       name: _nameController.text,
                                       colour: currentColour,
@@ -402,7 +423,7 @@ class _LessonGeneratorState extends State<LessonGenerator> {
                                     );
                                   } else {
                                     _editLesson(
-                                      id: editId,
+                                      id: lesson.id,
                                       name: _nameController.text,
                                       colour: currentColour,
                                       teacher: _teacherController.text,

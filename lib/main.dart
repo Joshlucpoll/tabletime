@@ -79,7 +79,6 @@ class _RootState extends State<Root> {
           if (snapshot.data?.uid == null) {
             return Login();
           } else {
-            // return Loading();
             return Home();
           }
         } else {

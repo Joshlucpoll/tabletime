@@ -196,17 +196,17 @@ class _BlockCardState extends State<BlockCard> {
 }
 
 class EditingBlock extends StatelessWidget {
-  final period;
+  final PeriodData period;
+  final LessonData lesson;
   final periodNum;
-  final lesson;
   final int dayNum;
   final int weekNum;
 
   EditingBlock({
     Key key,
     this.period,
-    this.periodNum,
     this.lesson,
+    this.periodNum,
     this.dayNum,
     this.weekNum,
   }) : super(key: key);
@@ -215,15 +215,8 @@ class EditingBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Color backgroundColour = lesson == null
-        ? Theme.of(context).cardColor
-        : Color.fromRGBO(
-            lesson["colour"]["red"],
-            lesson["colour"]["green"],
-            lesson["colour"]["blue"],
-            1,
-          );
-
+    Color backgroundColour =
+        lesson == null ? Theme.of(context).cardColor : lesson.colour;
     Color textColour = lesson == null
         ? Theme.of(context).textTheme.bodyText1.color
         : useWhiteForeground(backgroundColour)
@@ -252,7 +245,7 @@ class EditingBlock extends StatelessWidget {
                   child: Container(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      formatter.format(DateTime.parse(period["start"])),
+                      formatter.format(period.start),
                       style: TextStyle(
                         color: textColour,
                         fontSize: 20,
@@ -266,7 +259,7 @@ class EditingBlock extends StatelessWidget {
                   child: Text(
                     lesson == null
                         ? "Period " + (periodNum + 1).toString()
-                        : lesson["name"],
+                        : lesson.name,
                     style: TextStyle(
                       color: textColour,
                       fontWeight: FontWeight.w600,
@@ -277,7 +270,7 @@ class EditingBlock extends StatelessWidget {
                   child: Container(
                     alignment: Alignment.centerRight,
                     child: Text(
-                      formatter.format(DateTime.parse(period["end"])),
+                      formatter.format(period.end),
                       style: TextStyle(
                         color: textColour,
                         fontSize: 20,
