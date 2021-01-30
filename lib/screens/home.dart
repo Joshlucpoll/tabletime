@@ -179,13 +179,7 @@ class _HomeState extends State<Home> {
   }
 
   void setUpNotifications() {
-    widget._notifications.scheduleTimetableNotifications(
-      weeks: widget._timetable.weeks,
-      lessons: widget._timetable.lessons,
-      periodStructure: widget._timetable.periods,
-      currentWeekData: widget._timetable.currentWeek,
-      numberOfWeeks: widget._timetable.numberOfWeeks,
-    );
+    widget._notifications.scheduleTimetableNotifications();
   }
 
   PageRouteBuilder pageRouteBuilder({BuildContext context, Widget child}) {
@@ -362,8 +356,6 @@ class _HomeState extends State<Home> {
                                 ),
                               ),
                               pageRouteBuilder: pageRouteBuilder,
-                              timetableName: timetableName,
-                              numberOfWeeks: numberOfWeeks,
                               setUpNotifications: setUpNotifications,
                             ),
                           ),

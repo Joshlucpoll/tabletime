@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get_it/get_it.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
+// Services
 import 'database.dart';
-import 'auth.dart';
+import 'notifications.dart';
 
 class LessonData {
   final String id;
@@ -50,8 +52,16 @@ class CurrentWeek {
   CurrentWeek({this.date, this.week});
 }
 
+class NotificationPref {
+  final bool enabled;
+  final int beforeMins;
+
+  NotificationPref({this.enabled, this.beforeMins});
+}
+
 class Timetable {
-  final _database = GetIt.I.get<Database>();
+  final Database _database = GetIt.I.get<Database>();
+  final Notifications _notifications = GetIt.I.get<Notifications>();
 
   Stream<DocumentSnapshot> _timetableStream;
   StreamController _onChangeController;
@@ -66,6 +76,8 @@ class Timetable {
   List<PeriodData> periods = [];
   Map<String, WeekData> weeks = {};
 
+  NotificationPref notificationPref;
+
   Stream onTimeTableChange() {
     if (_rawTimetableData != null) {
       _onChangeController.add(true);
@@ -78,8 +90,36 @@ class Timetable {
   Timetable() {
     _onChangeController = StreamController();
     _onChange = _onChangeController.stream.asBroadcastStream();
+    _getNotificationPref();
 
     _streamTimetable(true);
+  }
+
+  Future<void> _getNotificationPref() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool enabled = prefs.getBool('notifications_enabled') ?? false;
+    int beforeMins = prefs.getInt('notifications_beforeMins') ?? 5;
+
+    notificationPref =
+        NotificationPref(enabled: enabled, beforeMins: beforeMins);
+  }
+
+  Future<void> setNotificationPref({
+    bool enabled,
+    int beforeMins,
+  }) async {
+    if (enabled) {
+      _notifications.scheduleTimetableNotifications(beforeMins: beforeMins);
+    } else {
+      _notifications.cancelNotifications();
+    }
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool('notifications_enabled', enabled);
+    prefs.setInt('notifications_beforeMins', beforeMins);
+
+    notificationPref =
+        NotificationPref(enabled: enabled, beforeMins: beforeMins);
   }
 
   void _streamTimetable(bool enable) async {

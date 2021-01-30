@@ -1,23 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:get_it/get_it.dart';
+import 'timetable.dart';
 
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:flutter_native_timezone/flutter_native_timezone.dart';
 
+class ScheduledNotification {
+  final DateTime dateTime;
+  final LessonData lesson;
+
+  ScheduledNotification({this.dateTime, this.lesson});
+}
+
 class Notifications {
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
+  final Timetable _timetable = GetIt.I.get<Timetable>();
+  tz.Location timeZone;
 
   Notifications() {
-    init();
+    _init();
   }
 
-  Future<void> init() async {
+  Future<void> _init() async {
     tz.initializeTimeZones();
 
-    tz.setLocalLocation(tz.getLocation(
-      await FlutterNativeTimezone.getLocalTimezone(),
-    ));
+    timeZone = tz.getLocation(await FlutterNativeTimezone.getLocalTimezone());
+    tz.setLocalLocation(timeZone);
 
     this.flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
@@ -37,9 +47,18 @@ class Notifications {
     );
   }
 
-  tz.TZDateTime _nextInstanceOfLesson() {}
+  Future<void> cancelNotifications() async {
+    await flutterLocalNotificationsPlugin.cancelAll();
+  }
 
-  Future<void> scheduleNotification({int epochTime}) async {
+  Future<void> _scheduleNotification({
+    int id,
+    DateTime time,
+    String lessonName,
+    Color colour,
+    int beforeMins,
+  }) async {
+    // Platform settings
     AndroidNotificationDetails androidPlatformChannelSpecifics =
         AndroidNotificationDetails(
       'lessons',
@@ -47,64 +66,166 @@ class Notifications {
       'Get notified when a lesson is about to start',
       importance: Importance.max,
       priority: Priority.high,
-      when: epochTime,
-      color: Colors.yellow,
+      when: time.millisecondsSinceEpoch,
+      color: colour,
     );
 
     await flutterLocalNotificationsPlugin.zonedSchedule(
-      0,
-      '<LessonsName>',
+      id,
+      lessonName,
       'Your lessons is about to start!',
-      tz.TZDateTime.now(tz.local).add(const Duration(seconds: 5)),
+      tz.TZDateTime.from(
+        time.subtract(
+          Duration(minutes: beforeMins),
+        ),
+        timeZone,
+      ),
       NotificationDetails(
         android: androidPlatformChannelSpecifics,
       ),
       androidAllowWhileIdle: true,
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
-      matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime,
     );
   }
 
-  void scheduleTimetableNotifications({
-    Map weeks,
-    List periodStructure,
-    Map lessons,
-    var currentWeekData,
-    int numberOfWeeks,
-  }) {
-    int difference = (DateTime.now()
-                .difference(DateTime.parse(currentWeekData["date"]))
-                .inDays /
-            7)
-        .truncate();
+  Future<bool> scheduleTimetableNotifications({int beforeMins}) async {
+    if (_timetable.rawTimetable == null) {
+      return false;
+    }
 
-    int currentWeek = (currentWeekData["week"] + difference) % numberOfWeeks;
+    // Clear all previously scheduled notifications
+    await cancelNotifications();
 
-    currentWeek = currentWeek == 0 ? currentWeekData["week"] : currentWeek;
+    final CurrentWeek currentWeekData = _timetable.currentWeek;
+    final int numberOfWeeks = _timetable.numberOfWeeks;
+    final Map<String, WeekData> weeksData = _timetable.weeks;
 
-    sendNotification();
-    weeks.forEach(
-      (weekNum, week) => week.forEach(
-        (dayName, day) => day.forEach(
-          (period) {
-            // print(
-            // "Week: $weekNum day: $dayName lesson: ${lessons[period["lesson"]]["name"]} start: ${periodStructure[period["period"]]["start"]} end: ${periodStructure[period["period"]]["end"]}");
-          },
-        ),
-      ),
+    List<ScheduledNotification> notifications = [];
+
+    int difference =
+        (DateTime.now().difference(currentWeekData.date).inDays / 7).truncate();
+
+    int currentWeek = (currentWeekData.week + difference) % numberOfWeeks;
+
+    currentWeek = currentWeek == 0 ? currentWeekData.week : currentWeek;
+    // Current week starts with 0
+    currentWeek--;
+
+    // WeekNum start with 0
+    weeksData.forEach(
+      (weekNum, weekData) {
+        // Only include weeks that current timetable has
+        if (int.parse(weekNum) < numberOfWeeks) {
+          weekData.week.forEach(
+            (dayName, dayData) => dayData.day.forEach(
+              (blockData) {
+                // Calculate number of weeks until next block
+                int diff = int.parse(weekNum) - currentWeek;
+                int weekSteps = diff.isNegative ? numberOfWeeks + diff : diff;
+
+                DateTime start = blockData.period.start;
+                DateTime now = DateTime.now();
+                DateTime lastMonday =
+                    now.subtract(Duration(days: now.weekday - 1));
+                DateTime startOfMonday = new DateTime(
+                  lastMonday.year,
+                  lastMonday.month,
+                  lastMonday.day,
+                );
+
+                DateTime nextBlock;
+                // If block this week
+                if (weekSteps == 0) {
+                  // If block has already occurred this week
+                  if (now.weekday > start.weekday) {
+                    nextBlock = startOfMonday.add(Duration(
+                      days: numberOfWeeks * 7 + start.weekday - 1,
+                      hours: start.hour,
+                      minutes: start.minute,
+                    ));
+
+                    // If block has already occurred this week
+                  } else if (now.weekday == start.weekday &&
+                      now.hour * 60 + now.minute >=
+                          start.hour * 60 + start.minute) {
+                    nextBlock = startOfMonday.add(Duration(
+                      days: numberOfWeeks * 7 + start.weekday - 1,
+                      hours: start.hour,
+                      minutes: start.minute,
+                    ));
+                  }
+
+                  // If block will occur this week
+                  else {
+                    nextBlock = startOfMonday.add(
+                      Duration(
+                        days: start.weekday - 1,
+                        hours: start.hour,
+                        minutes: start.minute,
+                      ),
+                    );
+                  }
+
+                  // If block isn't this week
+                } else {
+                  nextBlock = startOfMonday.add(
+                    Duration(
+                      days: weekSteps * 7 + start.weekday - 1,
+                      hours: start.hour,
+                      minutes: start.minute,
+                    ),
+                  );
+                }
+
+                notifications.add(
+                  ScheduledNotification(
+                    dateTime: nextBlock,
+                    lesson: blockData.lesson,
+                  ),
+                );
+              },
+            ),
+          );
+        }
+      },
     );
-  }
 
-  void sendNotification() async {
-    await scheduleNotification(
-        epochTime: DateTime.now().millisecondsSinceEpoch);
-
-    List<PendingNotificationRequest> pending =
-        await flutterLocalNotificationsPlugin.pendingNotificationRequests();
-
-    pending.forEach((request) {
-      print("${request.id}  ${request.title} ${request.body}");
+    // Sort notifications into chronological order
+    notifications.sort((m1, m2) {
+      var r = m1.dateTime.compareTo(m2.dateTime);
+      if (r != 0) return r;
+      return m1.dateTime.compareTo(m2.dateTime);
     });
+
+    // Repeat notifications until 50 scheduled notifications has been reached
+    int notificationsLength = notifications.length;
+    int multiplier = (50 / notificationsLength).ceil();
+
+    for (var i = 1; i < multiplier; i++) {
+      for (var j = 0; j < notificationsLength; j++) {
+        notifications.add(
+          ScheduledNotification(
+            dateTime: notifications[j].dateTime.add(
+                  Duration(days: numberOfWeeks * 7 * i),
+                ),
+            lesson: notifications[j].lesson,
+          ),
+        );
+      }
+    }
+    notifications.removeRange(50, notifications.length);
+
+    // Schedule notifications
+    notifications.asMap().forEach(
+          (int index, ScheduledNotification element) => _scheduleNotification(
+            id: index,
+            lessonName: element.lesson.name,
+            time: element.dateTime,
+            beforeMins: beforeMins,
+            colour: element.lesson.colour,
+          ),
+        );
+    return true;
   }
 }
