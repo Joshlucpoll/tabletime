@@ -51,6 +51,12 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   @override
+  void dispose() {
+    _tabletimeNameController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -64,7 +70,6 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           ListTile(
             onTap: () {
-              _tabletimeNameController.text = widget.timetableName;
               showDialog(
                 context: context,
                 builder: (_) => new AlertDialog(
@@ -172,8 +177,11 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           ListTile(
             onTap: () {
-              // showShowcase();
-              // Navigator.of(context).pop();
+              new Future.delayed(
+                Duration(milliseconds: 1000),
+                widget.showShowcase(),
+              );
+              Navigator.of(context).pop();
             },
             leading: Icon(Icons.help),
             title: Text("Help"),

@@ -46,6 +46,8 @@ class _HomeState extends State<Home> {
 
   bool editingLessons = false;
 
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   GlobalKey _currentWeekButton = GlobalKey();
   GlobalKey _editButton = GlobalKey();
   GlobalKey _body = GlobalKey();
@@ -223,7 +225,6 @@ class _HomeState extends State<Home> {
       description: description,
       disableAnimation: true,
       animationDuration: Duration(microseconds: 1),
-      overlayOpacity: 0,
       contentPadding: EdgeInsets.all(10),
       child: child,
     );
@@ -237,6 +238,7 @@ class _HomeState extends State<Home> {
       return ShowCaseWidget(
         builder: Builder(
           builder: (context) => Scaffold(
+            key: _scaffoldKey,
             appBar: AppBar(
               backgroundColor: Theme.of(context).scaffoldBackgroundColor,
               title: Row(
@@ -347,7 +349,18 @@ class _HomeState extends State<Home> {
                           pageRouteBuilder(
                             context: context,
                             child: SettingsPage(
-                              showShowcase: () {},
+                              showShowcase: () =>
+                                  WidgetsBinding.instance.addPostFrameCallback(
+                                (_) => ShowCaseWidget.of(
+                                  _scaffoldKey.currentContext,
+                                ).startShowCase(
+                                  [
+                                    _currentWeekButton,
+                                    _editButton,
+                                    _body,
+                                  ],
+                                ),
+                              ),
                               pageRouteBuilder: pageRouteBuilder,
                               timetableName: timetableName,
                               numberOfWeeks: numberOfWeeks,
@@ -357,20 +370,6 @@ class _HomeState extends State<Home> {
                         ),
                         icon: Icon(Icons.settings),
                         splashRadius: 20,
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.help),
-                        splashRadius: 20,
-                        onPressed: () =>
-                            WidgetsBinding.instance.addPostFrameCallback(
-                          (_) => ShowCaseWidget.of(context).startShowCase(
-                            [
-                              _currentWeekButton,
-                              _editButton,
-                              _body,
-                            ],
-                          ),
-                        ),
                       ),
                     ],
             ),
@@ -391,8 +390,8 @@ class _HomeState extends State<Home> {
                       description:
                           "Swipe left/right to switch days\n or swipe up/down to switch weeks",
                       child: SizedBox(
-                        height: 0,
-                        width: 0,
+                        height: MediaQuery.of(context).size.height * 0.5,
+                        width: MediaQuery.of(context).size.width,
                       ),
                     ),
                   ),
