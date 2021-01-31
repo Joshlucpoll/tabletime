@@ -95,13 +95,14 @@ class Timetable {
     _streamTimetable(true);
   }
 
-  Future<void> _getNotificationPref() async {
+  Future<NotificationPref> _getNotificationPref() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool enabled = prefs.getBool('notifications_enabled') ?? false;
     int beforeMins = prefs.getInt('notifications_beforeMins') ?? 5;
 
     notificationPref =
         NotificationPref(enabled: enabled, beforeMins: beforeMins);
+    return notificationPref;
   }
 
   Future<void> setNotificationPref({
@@ -109,9 +110,14 @@ class Timetable {
     int beforeMins,
   }) async {
     if (enabled) {
-      _notifications.scheduleTimetableNotifications(beforeMins: beforeMins);
+      await _notifications.scheduleTimetableNotifications(
+        currentWeekData: currentWeek,
+        numberOfWeeks: numberOfWeeks,
+        weeksData: weeks,
+        beforeMins: beforeMins,
+      );
     } else {
-      _notifications.cancelNotifications();
+      await _notifications.cancelNotifications();
     }
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -132,7 +138,7 @@ class Timetable {
     }
   }
 
-  void _updateTimetable(timetableData) {
+  void _updateTimetable(timetableData) async {
     Map timetableata = {
       "weeks": {
         0: {
@@ -304,6 +310,15 @@ class Timetable {
           ),
         );
       },
+    );
+
+    NotificationPref notiPrefs = await _getNotificationPref();
+
+    _notifications.scheduleTimetableNotifications(
+      currentWeekData: currentWeek,
+      numberOfWeeks: numberOfWeeks,
+      weeksData: weeks,
+      beforeMins: notiPrefs.beforeMins,
     );
 
     _onChangeController.add(true);

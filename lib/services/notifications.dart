@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:get_it/get_it.dart';
 import 'timetable.dart';
 
 import 'package:timezone/data/latest.dart' as tz;
@@ -16,7 +15,6 @@ class ScheduledNotification {
 
 class Notifications {
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
-  final Timetable _timetable = GetIt.I.get<Timetable>();
   tz.Location timeZone;
 
   Notifications() {
@@ -89,17 +87,14 @@ class Notifications {
     );
   }
 
-  Future<bool> scheduleTimetableNotifications({int beforeMins}) async {
-    if (_timetable.rawTimetable == null) {
-      return false;
-    }
-
+  Future<void> scheduleTimetableNotifications({
+    CurrentWeek currentWeekData,
+    int numberOfWeeks,
+    Map<String, WeekData> weeksData,
+    int beforeMins,
+  }) async {
     // Clear all previously scheduled notifications
     await cancelNotifications();
-
-    final CurrentWeek currentWeekData = _timetable.currentWeek;
-    final int numberOfWeeks = _timetable.numberOfWeeks;
-    final Map<String, WeekData> weeksData = _timetable.weeks;
 
     List<ScheduledNotification> notifications = [];
 
@@ -191,41 +186,42 @@ class Notifications {
       },
     );
 
-    // Sort notifications into chronological order
-    notifications.sort((m1, m2) {
-      var r = m1.dateTime.compareTo(m2.dateTime);
-      if (r != 0) return r;
-      return m1.dateTime.compareTo(m2.dateTime);
-    });
+    if (notifications.length != 0) {
+      // Sort notifications into chronological order
+      notifications.sort((m1, m2) {
+        var r = m1.dateTime.compareTo(m2.dateTime);
+        if (r != 0) return r;
+        return m1.dateTime.compareTo(m2.dateTime);
+      });
 
-    // Repeat notifications until 50 scheduled notifications has been reached
-    int notificationsLength = notifications.length;
-    int multiplier = (50 / notificationsLength).ceil();
+      // Repeat notifications until 50 scheduled notifications has been reached
+      int notificationsLength = notifications.length;
+      int multiplier = (50 / notificationsLength).ceil();
 
-    for (var i = 1; i < multiplier; i++) {
-      for (var j = 0; j < notificationsLength; j++) {
-        notifications.add(
-          ScheduledNotification(
-            dateTime: notifications[j].dateTime.add(
-                  Duration(days: numberOfWeeks * 7 * i),
-                ),
-            lesson: notifications[j].lesson,
-          ),
-        );
+      for (var i = 1; i < multiplier; i++) {
+        for (var j = 0; j < notificationsLength; j++) {
+          notifications.add(
+            ScheduledNotification(
+              dateTime: notifications[j].dateTime.add(
+                    Duration(days: numberOfWeeks * 7 * i),
+                  ),
+              lesson: notifications[j].lesson,
+            ),
+          );
+        }
       }
-    }
-    notifications.removeRange(50, notifications.length);
+      notifications.removeRange(50, notifications.length);
 
-    // Schedule notifications
-    notifications.asMap().forEach(
-          (int index, ScheduledNotification element) => _scheduleNotification(
-            id: index,
-            lessonName: element.lesson.name,
-            time: element.dateTime,
-            beforeMins: beforeMins,
-            colour: element.lesson.colour,
-          ),
-        );
-    return true;
+      // Schedule notifications
+      notifications.asMap().forEach(
+            (int index, ScheduledNotification element) => _scheduleNotification(
+              id: index,
+              lessonName: element.lesson.name,
+              time: element.dateTime,
+              beforeMins: beforeMins,
+              colour: element.lesson.colour,
+            ),
+          );
+    }
   }
 }
