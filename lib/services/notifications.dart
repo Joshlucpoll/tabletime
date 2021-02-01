@@ -51,7 +51,7 @@ class Notifications {
 
   Future<void> _scheduleNotification({
     int id,
-    DateTime time,
+    DateTime dateTime,
     String lessonName,
     Color colour,
     int beforeMins,
@@ -64,20 +64,18 @@ class Notifications {
       'Get notified when a lesson is about to start',
       importance: Importance.max,
       priority: Priority.high,
-      when: time.millisecondsSinceEpoch,
+      when: dateTime.millisecondsSinceEpoch,
       color: colour,
     );
+
+    tz.TZDateTime tzDateTime = tz.TZDateTime.from(dateTime, timeZone);
+    print(tzDateTime);
 
     await flutterLocalNotificationsPlugin.zonedSchedule(
       id,
       lessonName,
       'Your lessons is about to start!',
-      tz.TZDateTime.from(
-        time.subtract(
-          Duration(minutes: beforeMins),
-        ),
-        timeZone,
-      ),
+      tzDateTime.subtract(Duration(minutes: beforeMins)),
       NotificationDetails(
         android: androidPlatformChannelSpecifics,
       ),
@@ -115,12 +113,17 @@ class Notifications {
           weekData.week.forEach(
             (dayName, dayData) => dayData.day.forEach(
               (blockData) {
+                final shortDays = ["mon", "tue", "wed", "thu", "fri"];
+
                 // Calculate number of weeks until next block
                 int diff = int.parse(weekNum) - currentWeek;
                 int weekSteps = diff.isNegative ? numberOfWeeks + diff : diff;
 
                 DateTime start = blockData.period.start;
+                // Mon = 0
+                int dayNum = shortDays.indexOf(dayName);
                 DateTime now = DateTime.now();
+
                 DateTime lastMonday =
                     now.subtract(Duration(days: now.weekday - 1));
                 DateTime startOfMonday = new DateTime(
@@ -133,19 +136,19 @@ class Notifications {
                 // If block this week
                 if (weekSteps == 0) {
                   // If block has already occurred this week
-                  if (now.weekday > start.weekday) {
+                  if (now.weekday > dayNum + 1) {
                     nextBlock = startOfMonday.add(Duration(
-                      days: numberOfWeeks * 7 + start.weekday - 1,
+                      days: numberOfWeeks * 7 + dayNum,
                       hours: start.hour,
                       minutes: start.minute,
                     ));
 
                     // If block has already occurred this week
-                  } else if (now.weekday == start.weekday &&
+                  } else if (now.weekday == dayNum + 1 &&
                       now.hour * 60 + now.minute >=
                           start.hour * 60 + start.minute) {
                     nextBlock = startOfMonday.add(Duration(
-                      days: numberOfWeeks * 7 + start.weekday - 1,
+                      days: numberOfWeeks * 7 + dayNum,
                       hours: start.hour,
                       minutes: start.minute,
                     ));
@@ -155,7 +158,7 @@ class Notifications {
                   else {
                     nextBlock = startOfMonday.add(
                       Duration(
-                        days: start.weekday - 1,
+                        days: dayNum,
                         hours: start.hour,
                         minutes: start.minute,
                       ),
@@ -166,7 +169,7 @@ class Notifications {
                 } else {
                   nextBlock = startOfMonday.add(
                     Duration(
-                      days: weekSteps * 7 + start.weekday - 1,
+                      days: weekSteps * 7 + dayNum,
                       hours: start.hour,
                       minutes: start.minute,
                     ),
@@ -217,7 +220,7 @@ class Notifications {
             (int index, ScheduledNotification element) => _scheduleNotification(
               id: index,
               lessonName: element.lesson.name,
-              time: element.dateTime,
+              dateTime: element.dateTime,
               beforeMins: beforeMins,
               colour: element.lesson.colour,
             ),

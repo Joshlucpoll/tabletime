@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:timetable/screens/loading.dart';
 
 // widgets
@@ -218,6 +219,10 @@ class _SettingsPageState extends State<SettingsPage> {
                 ListTile(
                   leading: Icon(Icons.timer),
                   title: Text("Notification Timing"),
+                  trailing: Opacity(
+                      opacity: 0.6,
+                      child: Text(
+                          notificationPref.beforeMins.toString() + " minutes")),
                 ),
                 ListTile(
                   title: Slider(
@@ -256,6 +261,30 @@ class _SettingsPageState extends State<SettingsPage> {
                   },
                   leading: Icon(Icons.help),
                   title: Text("Help"),
+                ),
+                ListTile(
+                  onTap: () async {
+                    const url = 'https://www.buymeacoffee.com/joshlucpoll';
+                    if (await canLaunch(url)) {
+                      await launch(url);
+                    } else {
+                      throw 'Could not launch $url';
+                    }
+                  },
+                  leading: Icon(Icons.toll),
+                  title: Text("Donate"),
+                ),
+                ListTile(
+                  onTap: () async {
+                    const url = 'https://tabletime.app';
+                    if (await canLaunch(url)) {
+                      await launch(url);
+                    } else {
+                      throw 'Could not launch $url';
+                    }
+                  },
+                  leading: Icon(Icons.language),
+                  title: Text("https://tabletime.app"),
                 ),
                 ListTile(
                   onTap: () {
