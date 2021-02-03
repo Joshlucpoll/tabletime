@@ -272,7 +272,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     }
                   },
                   leading: Icon(Icons.toll),
-                  title: Text("Donate"),
+                  title: Text("Support me"),
                 ),
                 ListTile(
                   onTap: () async {
