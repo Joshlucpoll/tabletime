@@ -52,8 +52,7 @@ class Notifications {
   Future<void> _scheduleNotification({
     int id,
     DateTime dateTime,
-    String lessonName,
-    Color colour,
+    LessonData lesson,
     int beforeMins,
   }) async {
     // Platform settings
@@ -65,16 +64,21 @@ class Notifications {
       importance: Importance.max,
       priority: Priority.high,
       when: dateTime.millisecondsSinceEpoch,
-      color: colour,
+      color: lesson.colour,
     );
 
+    String name = lesson.name;
+    String teacher = lesson.teacher == "" ? "" : " with ${lesson.teacher}";
+    String room = lesson.room == "" ? "" : "in room ${lesson.room} ";
+    String body =
+        "Your $name lesson" + teacher + " " + room + "is about to start";
+
     tz.TZDateTime tzDateTime = tz.TZDateTime.from(dateTime, timeZone);
-    print(tzDateTime);
 
     await flutterLocalNotificationsPlugin.zonedSchedule(
       id,
-      lessonName,
-      'Your lessons is about to start!',
+      name,
+      body,
       tzDateTime.subtract(Duration(minutes: beforeMins)),
       NotificationDetails(
         android: androidPlatformChannelSpecifics,
@@ -219,10 +223,9 @@ class Notifications {
       notifications.asMap().forEach(
             (int index, ScheduledNotification element) => _scheduleNotification(
               id: index,
-              lessonName: element.lesson.name,
+              lesson: element.lesson,
               dateTime: element.dateTime,
               beforeMins: beforeMins,
-              colour: element.lesson.colour,
             ),
           );
     }
