@@ -454,41 +454,10 @@ class _HomeState extends State<Home> {
                                   scrollDirection: Axis.horizontal,
                                   child: Row(
                                     children: new List.from(
-                                      lessonsData.values.map<Widget>((lesson) {
-                                        Color backgroundColour = lesson.colour;
-                                        Color textColour =
-                                            useWhiteForeground(backgroundColour)
-                                                ? const Color(0xffffffff)
-                                                : const Color(0xff000000);
-
-                                        Widget lessonPill = Material(
-                                          color: Colors.transparent,
-                                          child: Container(
-                                            alignment: Alignment.center,
-                                            padding: EdgeInsets.all(7),
-                                            margin: EdgeInsets.symmetric(
-                                                horizontal: 5),
-                                            decoration: BoxDecoration(
-                                              color: backgroundColour,
-                                              borderRadius:
-                                                  BorderRadius.circular(20),
-                                            ),
-                                            child: Text(
-                                              lesson.name,
-                                              style:
-                                                  TextStyle(color: textColour),
-                                            ),
-                                          ),
-                                        );
-                                        return Draggable<String>(
-                                          maxSimultaneousDrags: 1,
-                                          dragAnchor: DragAnchor.child,
-                                          affinity: Axis.vertical,
-                                          data: lesson.id,
-                                          child: lessonPill,
-                                          feedback: lessonPill,
-                                        );
-                                      }).toList(),
+                                      lessonsData.values
+                                          .map<Widget>((lesson) =>
+                                              DraggablePill(lesson: lesson))
+                                          .toList(),
                                     )..add(
                                         Material(
                                           color: Colors.transparent,
@@ -544,6 +513,7 @@ class _HomeState extends State<Home> {
                                   ),
                                 ),
                               ),
+                              SizedBox(height: 10),
                             ],
                           ),
                         ),
@@ -557,6 +527,85 @@ class _HomeState extends State<Home> {
         ),
       );
     }
+  }
+}
+
+class DraggablePill extends StatefulWidget {
+  final LessonData lesson;
+
+  DraggablePill({Key key, this.lesson}) : super(key: key);
+
+  @override
+  _DraggablePillState createState() => _DraggablePillState();
+}
+
+class _DraggablePillState extends State<DraggablePill> {
+  Offset position = Offset(0.0, 0.0);
+
+  @override
+  Widget build(BuildContext context) {
+    Color backgroundColour = widget.lesson.colour;
+    Color textColour = useWhiteForeground(backgroundColour)
+        ? const Color(0xffffffff)
+        : const Color(0xff000000);
+
+    Widget lessonPill(bool dragging) => Material(
+          color: Colors.transparent,
+          child: Container(
+            alignment: Alignment.center,
+            padding: EdgeInsets.all(7),
+            margin: EdgeInsets.symmetric(horizontal: 5),
+            decoration: BoxDecoration(
+              color: backgroundColour,
+              borderRadius: BorderRadius.circular(
+                dragging ? 10 : 20,
+              ),
+            ),
+            child: Text(
+              widget.lesson.name,
+              style: TextStyle(color: textColour),
+            ),
+          ),
+        );
+
+    Widget remainingChild = Material(
+      color: Colors.transparent,
+      child: Container(
+        alignment: Alignment.center,
+        padding: EdgeInsets.all(4),
+        margin: EdgeInsets.symmetric(horizontal: 6),
+        decoration: BoxDecoration(
+          border: Border.all(
+            width: 2,
+            color: backgroundColour,
+          ),
+          color: backgroundColour.withOpacity(0.4),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Text(
+          widget.lesson.name,
+          style: TextStyle(color: Colors.transparent),
+        ),
+      ),
+    );
+
+    return Align(
+      alignment: Alignment(position.dx, position.dy),
+      child: Draggable<String>(
+        maxSimultaneousDrags: 1,
+        dragAnchor: DragAnchor.child,
+        affinity: Axis.vertical,
+        data: widget.lesson.id,
+        child: lessonPill(false),
+        feedback: lessonPill(true),
+        childWhenDragging: remainingChild,
+        onDraggableCanceled: (velocity, offset) {
+          setState(() {
+            position = offset;
+          });
+        },
+      ),
+    );
   }
 }
 
