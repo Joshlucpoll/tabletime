@@ -41,9 +41,6 @@ class Auth {
     );
 
     UserCredential userCredential = await auth.signInWithCredential(credential);
-    if (userCredential.additionalUserInfo.isNewUser) {
-      await GetIt.I.get<Database>().addUser();
-    }
     return userCredential;
   }
 

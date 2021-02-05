@@ -3,10 +3,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get_it/get_it.dart';
 
 // Services
 import 'database.dart';
+import 'auth.dart';
 import 'notifications.dart';
 
 class LessonData {
@@ -61,6 +63,7 @@ class NotificationPref {
 
 class Timetable {
   final Database _database = GetIt.I.get<Database>();
+  final Auth _auth = GetIt.I.get<Auth>();
   final Notifications _notifications = GetIt.I.get<Notifications>();
 
   Stream<DocumentSnapshot> _timetableStream;
@@ -77,22 +80,25 @@ class Timetable {
   Map<String, WeekData> weeks = {};
 
   NotificationPref notificationPref;
-
-  Stream onTimeTableChange() {
-    if (_rawTimetableData != null) {
-      _onChangeController.add(true);
-    }
-    return _onChange;
-  }
-
-  Map<String, dynamic> get rawTimetable => _rawTimetableData;
+  bool loggedIn = false;
 
   Timetable() {
     _onChangeController = StreamController();
     _onChange = _onChangeController.stream.asBroadcastStream();
     _getNotificationPref();
 
-    _streamTimetable(true);
+    _auth.auth.authStateChanges().listen((User user) {
+      if (user != null) _streamTimetable(true);
+    });
+  }
+
+  Map<String, dynamic> get rawTimetable => _rawTimetableData;
+
+  Stream onTimeTableChange() {
+    if (_rawTimetableData != null) {
+      _onChangeController.add(true);
+    }
+    return _onChange;
   }
 
   Future<NotificationPref> _getNotificationPref() async {

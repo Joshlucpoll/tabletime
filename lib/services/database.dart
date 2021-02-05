@@ -90,8 +90,15 @@ class Database {
 
   Future<DocumentReference> getCurrentTimetable() async {
     try {
-      return await userRef.get().then((DocumentSnapshot docSnapshot) =>
-          docSnapshot.data()["current_timetable"]);
+      return await userRef.get().then((DocumentSnapshot docSnapshot) async {
+        if (docSnapshot.data() == null) {
+          // if user data doesn't exist create it
+          await addUser();
+          return getCurrentTimetable();
+        } else {
+          return docSnapshot.data()["current_timetable"];
+        }
+      });
     } catch (e) {
       rethrow;
     }
