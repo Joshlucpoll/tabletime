@@ -65,6 +65,7 @@ class Notifications {
       priority: Priority.high,
       when: dateTime.millisecondsSinceEpoch,
       color: lesson.colour,
+      styleInformation: BigTextStyleInformation(''),
     );
 
     String name = lesson.name;
