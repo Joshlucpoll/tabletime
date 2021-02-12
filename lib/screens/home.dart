@@ -399,6 +399,7 @@ class _HomeState extends State<Home> {
                             (int index) => Week(
                               week: weeksData[index.toString()],
                               weekNum: index,
+                              selectedWeek: selectedWeek,
                             ),
                           ),
                         ),

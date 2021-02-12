@@ -10,11 +10,13 @@ final shortDays = ["mon", "tue", "wed", "thu", "fri"];
 class Week extends StatefulWidget {
   final WeekData week;
   final int weekNum;
+  final int selectedWeek;
 
   Week({
     Key key,
     this.week,
     this.weekNum,
+    this.selectedWeek,
   }) : super(key: key);
 
   @override
@@ -32,7 +34,7 @@ class _WeekState extends State<Week> with SingleTickerProviderStateMixin {
     _tabController = TabController(
       vsync: this,
       length: days.length,
-      initialIndex: day,
+      initialIndex: widget.selectedWeek - 1 == widget.weekNum ? day : 0,
     );
   }
 
