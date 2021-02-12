@@ -118,7 +118,15 @@ class Notifications {
           weekData.week.forEach(
             (dayName, dayData) => dayData.day.forEach(
               (blockData) {
-                final shortDays = ["mon", "tue", "wed", "thu", "fri"];
+                final shortDays = [
+                  "mon",
+                  "tue",
+                  "wed",
+                  "thu",
+                  "fri",
+                  "sat",
+                  "sun"
+                ];
 
                 // Calculate number of weeks until next block
                 int diff = int.parse(weekNum) - currentWeek;

@@ -6,31 +6,48 @@ import './day.dart';
 import '../services/timetable.dart';
 
 final shortDays = ["mon", "tue", "wed", "thu", "fri"];
+final shortDaysWeekends = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
 
 class Week extends StatefulWidget {
   final WeekData week;
   final int weekNum;
   final int selectedWeek;
+  final bool weekends;
 
   Week({
     Key key,
     this.week,
     this.weekNum,
     this.selectedWeek,
+    this.weekends,
   }) : super(key: key);
 
   @override
   _WeekState createState() => _WeekState();
 }
 
-class _WeekState extends State<Week> with SingleTickerProviderStateMixin {
-  final List days = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"];
+class _WeekState extends State<Week> with TickerProviderStateMixin {
+  List weekdays = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"];
+  List days;
 
   TabController _tabController;
 
   @override
   void initState() {
     super.initState();
+    days = widget.weekends ? [...weekdays, "SATURDAY", "SUNDAY"] : weekdays;
+
+    _tabController = TabController(
+      vsync: this,
+      length: days.length,
+      initialIndex: widget.selectedWeek - 1 == widget.weekNum ? day : 0,
+    );
+  }
+
+  @override
+  void didUpdateWidget(covariant Week oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    days = widget.weekends ? [...weekdays, "SATURDAY", "SUNDAY"] : weekdays;
     _tabController = TabController(
       vsync: this,
       length: days.length,
@@ -49,7 +66,7 @@ class _WeekState extends State<Week> with SingleTickerProviderStateMixin {
     int dayNum = date.weekday;
 
     // If Saturday or Sunday, day will default to Monday
-    if (dayNum > 5) {
+    if (dayNum > 5 && !widget.weekends) {
       dayNum = 1;
     }
     return dayNum - 1;
@@ -68,6 +85,7 @@ class _WeekState extends State<Week> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    List timetableShortDays = widget.weekends ? shortDaysWeekends : shortDays;
     return Column(
       children: [
         Container(
@@ -92,11 +110,11 @@ class _WeekState extends State<Week> with SingleTickerProviderStateMixin {
           child: TabBarView(
             controller: _tabController,
             physics: const CustomPageViewScrollPhysics(),
-            children: shortDays
+            children: timetableShortDays
                 .map(
                   (day) => Day(
                     blocks: widget.week.week[day],
-                    dayNum: shortDays.indexOf(day),
+                    dayNum: timetableShortDays.indexOf(day),
                     weekNum: widget.weekNum,
                   ),
                 )

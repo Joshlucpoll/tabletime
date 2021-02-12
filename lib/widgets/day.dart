@@ -332,7 +332,15 @@ class Day extends StatelessWidget {
               inheritedState.periodStructure.asMap().entries.map<Widget>(
                 (period) {
                   if (inheritedState.editingLessons) {
-                    final shortDays = ["mon", "tue", "wed", "thu", "fri"];
+                    final shortDays = [
+                      "mon",
+                      "tue",
+                      "wed",
+                      "thu",
+                      "fri",
+                      "sat",
+                      "sun"
+                    ];
 
                     List editingBlocks =
                         inheritedState.weeksEditingState[weekNum.toString()]

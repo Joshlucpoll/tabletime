@@ -35,6 +35,7 @@ class _HomeState extends State<Home> {
   String timetableName;
   CurrentWeek currentWeek;
   int numberOfWeeks;
+  bool weekends;
   Map<String, LessonData> lessonsData;
   List<PeriodData> periodsData;
   Map<String, WeekData> weeksData;
@@ -111,6 +112,7 @@ class _HomeState extends State<Home> {
         timetableName = widget._timetable.timetableName;
         currentWeek = widget._timetable.currentWeek;
         numberOfWeeks = widget._timetable.numberOfWeeks;
+        weekends = widget._timetable.weekends;
         lessonsData = widget._timetable.lessons;
         periodsData = widget._timetable.periods;
         weeksData = widget._timetable.weeks;
@@ -125,7 +127,7 @@ class _HomeState extends State<Home> {
   }
 
   void addBlockToWeeks({Map<String, dynamic> block, int weekNum, int dayNum}) {
-    final shortDays = ["mon", "tue", "wed", "thu", "fri"];
+    final shortDays = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
 
     Map newWeeks = json.decode(json.encode(weeksEditingState));
 
@@ -135,7 +137,7 @@ class _HomeState extends State<Home> {
   }
 
   void removeBlockFromWeeks({int weekNum, int dayNum, int period}) {
-    final shortDays = ["mon", "tue", "wed", "thu", "fri"];
+    final shortDays = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
 
     Map newWeeks = json.decode(json.encode(weeksEditingState));
 
@@ -400,6 +402,7 @@ class _HomeState extends State<Home> {
                               week: weeksData[index.toString()],
                               weekNum: index,
                               selectedWeek: selectedWeek,
+                              weekends: weekends,
                             ),
                           ),
                         ),

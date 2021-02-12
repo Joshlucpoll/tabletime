@@ -75,6 +75,7 @@ class Timetable {
   String timetableName;
   int numberOfWeeks;
   CurrentWeek currentWeek;
+  bool weekends;
   Map<String, LessonData> lessons = {};
   List<PeriodData> periods = [];
   Map<String, WeekData> weeks = {};
@@ -157,6 +158,7 @@ class Timetable {
       date: DateTime.parse(timetableData["current_week"]["date"]),
       week: timetableData["current_week"]["week"],
     );
+    weekends = timetableData["weekends"];
 
     // Add lessons
     timetableData["lessons"].forEach(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
 import 'package:get_it/get_it.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:timetable/screens/loading.dart';
@@ -38,6 +39,7 @@ class _SettingsPageState extends State<SettingsPage> {
   TextEditingController _tabletimeNameController;
   int dropdownValue;
   NotificationPref notificationPref;
+  bool weekendDays;
 
   @override
   void initState() {
@@ -48,6 +50,7 @@ class _SettingsPageState extends State<SettingsPage> {
           _tabletimeNameController =
               TextEditingController(text: widget._timetable.timetableName);
           notificationPref = widget._timetable.notificationPref;
+          weekendDays = widget._timetable.weekends;
 
           setState(() {
             timetableData = true;
@@ -71,6 +74,7 @@ class _SettingsPageState extends State<SettingsPage> {
       setState(() {
         dropdownValue = widget._timetable.numberOfWeeks;
         notificationPref = widget._timetable.notificationPref;
+        weekendDays = widget._timetable.weekends;
       });
     }
   }
@@ -148,6 +152,23 @@ class _SettingsPageState extends State<SettingsPage> {
                     }).toList(),
                   ),
                   title: Text("Number of Weeks"),
+                ),
+                ListTile(
+                  onTap: () => {},
+                  leading: Icon(Icons.view_week),
+                  title: Text("Weekend Days"),
+                  trailing: Switch(
+                    onChanged: (opposite) {
+                      setState(() {
+                        weekendDays = opposite;
+                      });
+                      final newTimetableData = widget._timetable.rawTimetable;
+                      newTimetableData["weekends"] = opposite;
+                      widget._database
+                          .updateTimetableData(data: newTimetableData);
+                    },
+                    value: weekendDays,
+                  ),
                 ),
                 ListTile(
                   onTap: () => Navigator.push(

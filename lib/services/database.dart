@@ -27,6 +27,7 @@ class Database {
           "date": new DateTime.now().toIso8601String(),
         },
         "number_of_weeks": 1,
+        "weekends": false,
         "period_structure": [],
         "lessons": {},
       };
