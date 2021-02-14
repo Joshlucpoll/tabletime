@@ -1,4 +1,4 @@
-# Tabletime <img src="https://tabletime.app/img/tabletime-logo.png" width="30" height="30" />
+# Tabletime
 
 [![time tracker](https://wakatime.com/badge/github/Joshlucpoll/tabletime.svg)](https://wakatime.com/badge/github/Joshlucpoll/tabletime)
 
