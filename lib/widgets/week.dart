@@ -48,11 +48,15 @@ class _WeekState extends State<Week> with TickerProviderStateMixin {
   void didUpdateWidget(covariant Week oldWidget) {
     super.didUpdateWidget(oldWidget);
     days = widget.weekends ? [...weekdays, "SATURDAY", "SUNDAY"] : weekdays;
+
+    int initialIndex = widget.selectedWeek - 1 == widget.weekNum ? day : 0;
+
     _tabController = TabController(
       vsync: this,
       length: days.length,
-      initialIndex: widget.selectedWeek - 1 == widget.weekNum ? day : 0,
+      initialIndex: initialIndex,
     );
+    _tabController.animateTo(initialIndex, duration: Duration(microseconds: 1));
   }
 
   @override
