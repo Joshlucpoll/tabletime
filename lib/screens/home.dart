@@ -103,6 +103,17 @@ class _HomeState extends State<Home> {
         }
       },
     );
+
+    widget._timetable.getFirstAppLaunch().then((firstLaunch) {
+      if (firstLaunch) {
+        WidgetsBinding.instance.addPostFrameCallback((_) =>
+            ShowCaseWidget.of(_scaffoldKey.currentContext).startShowCase([
+              _currentWeekButton,
+              _editButton,
+              _body,
+            ]));
+      }
+    });
     super.initState();
   }
 
@@ -232,6 +243,25 @@ class _HomeState extends State<Home> {
       return Loading();
     } else {
       return ShowCaseWidget(
+        onFinish: () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Help Screen Finished"),
+              action: SnackBarAction(
+                label: "Repeat",
+                onPressed: () {
+                  WidgetsBinding.instance.addPostFrameCallback((_) =>
+                      ShowCaseWidget.of(_scaffoldKey.currentContext)
+                          .startShowCase([
+                        _currentWeekButton,
+                        _editButton,
+                        _body,
+                      ]));
+                },
+              ),
+            ),
+          );
+        },
         builder: Builder(
           builder: (context) => Scaffold(
             key: _scaffoldKey,
