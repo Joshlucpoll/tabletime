@@ -135,6 +135,17 @@ class Timetable {
         NotificationPref(enabled: enabled, beforeMins: beforeMins);
   }
 
+  Future<bool> getFirstAppLaunch() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool firstLaunch = prefs.getBool('first_app_launch') ?? true;
+
+    if (firstLaunch == true) {
+      prefs.setBool('first_app_launch', false);
+    }
+
+    return firstLaunch;
+  }
+
   void _streamTimetable(bool enable) async {
     if (enable) {
       _timetableStream = await _database.streamTimetableData();
