@@ -105,16 +105,6 @@ class Database {
     }
   }
 
-  Future<Map<dynamic, dynamic>> getTimetableData() {
-    try {
-      return getCurrentTimetable().then((DocumentReference docRef) => docRef
-          .get()
-          .then((DocumentSnapshot docSnapshot) => docSnapshot.data()));
-    } catch (e) {
-      rethrow;
-    }
-  }
-
   Future<Stream<DocumentSnapshot>> streamTimetableData() {
     try {
       return getCurrentTimetable()
@@ -168,22 +158,6 @@ class Database {
       DocumentReference timetableRef = await getCurrentTimetable();
 
       await timetableRef.update({"weeks": weeks});
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  Stream<DocumentSnapshot> finishedInitialSetup() {
-    try {
-      return userRef.snapshots();
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  Future<void> setup({bool enable}) async {
-    try {
-      userRef.update({"setup": enable});
     } catch (e) {
       rethrow;
     }
