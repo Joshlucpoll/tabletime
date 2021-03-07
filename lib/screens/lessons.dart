@@ -331,6 +331,9 @@ class _LessonGeneratorState extends State<LessonGenerator> {
                                 if (value.isEmpty) {
                                   return 'Please enter some text';
                                 }
+                                if (value.length > 30) {
+                                  return 'Too many characters (Max 30)';
+                                }
                                 return null;
                               },
                             ),
@@ -397,6 +400,12 @@ class _LessonGeneratorState extends State<LessonGenerator> {
                                       width: 0, style: BorderStyle.none),
                                 ),
                               ),
+                              validator: (value) {
+                                if (value.length > 20) {
+                                  return 'Too many characters (Max 20)';
+                                }
+                                return null;
+                              },
                             ),
                             TextFormField(
                               controller: _roomController,
@@ -408,6 +417,12 @@ class _LessonGeneratorState extends State<LessonGenerator> {
                                       width: 0, style: BorderStyle.none),
                                 ),
                               ),
+                              validator: (value) {
+                                if (value.length > 10) {
+                                  return 'Too many characters (Max 10)';
+                                }
+                                return null;
+                              },
                             ),
                             RaisedButton(
                               child: Text(lesson == null ? "Add" : "Save"),
