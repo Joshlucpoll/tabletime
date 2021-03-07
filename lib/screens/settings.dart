@@ -5,8 +5,8 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:timetable/screens/loading.dart';
 
 // widgets
-import '../widgets/setupWidgets/lessonGenerator.dart';
-import 'package:timetable/widgets/setupWidgets/periodStructure.dart';
+import 'package:timetable/screens/lessons.dart';
+import 'package:timetable/screens/periods.dart';
 
 // Services
 import '../services/database.dart';

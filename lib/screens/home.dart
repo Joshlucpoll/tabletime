@@ -8,7 +8,7 @@ import 'package:get_it/get_it.dart';
 // Screens
 import './settings.dart';
 import 'package:timetable/screens/loading.dart';
-import 'package:timetable/widgets/setupWidgets/lessonGenerator.dart';
+import 'package:timetable/screens/lessons.dart';
 
 // Services
 import '../services/database.dart';

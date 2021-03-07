@@ -8,7 +8,7 @@ import '../services/timetable.dart';
 
 // Widgets
 import './expandedSelection.dart';
-import 'package:timetable/widgets/setupWidgets/periodStructure.dart';
+import 'package:timetable/screens/periods.dart';
 
 class BlockCard extends StatefulWidget {
   final LessonData lesson;

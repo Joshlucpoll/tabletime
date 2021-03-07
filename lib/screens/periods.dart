@@ -6,8 +6,8 @@ import 'package:get_it/get_it.dart';
 import 'package:timetable/screens/loading.dart';
 
 // Services
-import '../../services/database.dart';
-import '../../services/timetable.dart';
+import 'package:timetable/services/database.dart';
+import 'package:timetable/services/timetable.dart';
 
 class Period extends StatelessWidget {
   Period({
