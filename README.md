@@ -18,6 +18,6 @@ This app was developed as part of my A-level Computer Science coursework. The pr
 
 ## Feature Requests or Queries
 
-For any feature requests or queries with the app, please use [this form](https://tabletime.app/contact) to contact me.
+For any feature requests or queries with the app, please use [this form](https://tabletime.app/contact) to contact me or feel free to open a [pull request](https://github.com/Joshlucpoll/tabletime/pulls).
 
 *Built with Flutter, still in development.*
