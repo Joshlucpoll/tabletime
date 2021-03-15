@@ -10,11 +10,11 @@ This app was developed as part of my A-level Computer Science coursework. The pr
 
 ## Features
 
-- Multi-week timetable
-- Weekend days
-- Cloud sync
-- Easy setup, with draggable lessons
-- Notifications with timing options
+- [ ] Multi-week timetable
+- [x] Weekend days
+- [x] Cloud sync
+- [x] Easy setup, with draggable lessons
+- [x] Notifications with timing options
 
 ## Feature Requests or Queries
 
