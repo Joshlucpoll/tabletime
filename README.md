@@ -16,6 +16,13 @@ This app was developed as part of my A-level Computer Science coursework. The pr
 - [x] Easy setup, with draggable lessons
 - [x] Notifications with timing options
 
+## Developing
+
+1. [Install Flutter](https://flutter.dev/docs/get-started/install)
+2. Clone repo: `git clone https://github.com/joshlucpoll/tabletime`
+3. Install packages: `flutter pub get`
+4. Run app: `flutter run`
+
 ## Feature Requests or Queries
 
 For any feature requests or queries with the app, please use [this form](https://tabletime.app/contact) to contact me or feel free to open a [pull request](https://github.com/Joshlucpoll/tabletime/pulls).
