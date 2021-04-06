@@ -176,6 +176,15 @@ class PeriodStructureState extends State<PeriodStructure> {
     List newList = List.from(rawTimetable["period_structure"])
       ..add({"start": start, "end": end});
 
+    // sorts list into chronological order with start times
+    newList.sort((a, b) {
+      int aTime = DateTime.parse(a["start"]).hour * 60 +
+          DateTime.parse(a["start"]).minute;
+      int bTime = DateTime.parse(b["start"]).hour * 60 +
+          DateTime.parse(b["start"]).minute;
+      return aTime - bTime;
+    });
+
     final newTimetable = rawTimetable;
     newTimetable["period_structure"] = newList;
 
