@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
+import 'package:flutter/services.dart';
 import 'package:showcaseview/showcaseview.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
@@ -193,6 +194,19 @@ class _HomeState extends State<Home> {
 
   void setUpNotifications() {
     widget._notifications.scheduleTimetableNotifications();
+  }
+
+  void onEventKey(RawKeyEvent event) async {
+    if (event.runtimeType.toString() == 'RawKeyDownEvent') {
+      if (event.isKeyPressed(LogicalKeyboardKey.arrowDown)) {
+        _pageController.nextPage(
+            curve: Curves.ease, duration: Duration(milliseconds: 500));
+      }
+      if (event.isKeyPressed(LogicalKeyboardKey.arrowUp)) {
+        _pageController.previousPage(
+            curve: Curves.ease, duration: Duration(milliseconds: 500));
+      }
+    }
   }
 
   PageRouteBuilder pageRouteBuilder({BuildContext context, Widget child}) {
@@ -405,156 +419,162 @@ class _HomeState extends State<Home> {
               weeksEditingState: weeksEditingState,
               addBlockToWeeks: addBlockToWeeks,
               removeBlockFromWeeks: removeBlockFromWeeks,
-              child: Stack(
-                children: [
-                  Center(
-                    child: showcase(
-                      key: _body,
-                      title: "Lessons View",
-                      description:
-                          "Swipe left/right to switch days\n or swipe up/down to switch weeks",
-                      child: SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.5,
-                        width: MediaQuery.of(context).size.width,
+              child: RawKeyboardListener(
+                focusNode: FocusNode(),
+                onKey: onEventKey,
+                autofocus: true,
+                child: Stack(
+                  children: [
+                    Center(
+                      child: showcase(
+                        key: _body,
+                        title: "Lessons View",
+                        description:
+                            "Swipe left/right to switch days\n or swipe up/down to switch weeks",
+                        child: SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.5,
+                          width: MediaQuery.of(context).size.width,
+                        ),
                       ),
                     ),
-                  ),
-                  Column(
-                    children: [
-                      Expanded(
-                        child: PageView(
-                          controller: _pageController,
-                          scrollDirection: Axis.vertical,
-                          physics: const CustomPageViewScrollPhysics(),
-                          children: new List<Widget>.generate(
-                            numberOfWeeks,
-                            (int index) => Week(
-                              week: weeksData[index.toString()],
-                              weekNum: index,
-                              selectedWeek: selectedWeek,
-                              weekends: weekends,
+                    Column(
+                      children: [
+                        Expanded(
+                          child: PageView(
+                            controller: _pageController,
+                            scrollDirection: Axis.vertical,
+                            physics: const CustomPageViewScrollPhysics(),
+                            children: new List<Widget>.generate(
+                              numberOfWeeks,
+                              (int index) => Week(
+                                week: weeksData[index.toString()],
+                                weekNum: index,
+                                selectedWeek: selectedWeek,
+                                weekends: weekends,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      Visibility(
-                        visible: editingLessons,
-                        child: Container(
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).primaryColor,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Theme.of(context)
-                                    .shadowColor
-                                    .withOpacity(0.5),
-                                spreadRadius: 1,
-                                blurRadius: 4,
-                                offset: Offset(0, -1),
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            children: [
-                              Container(
-                                padding: EdgeInsets.all(10),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      "Drag Lessons",
-                                      style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                    FlatButton(
-                                      color: Theme.of(context).canvasColor,
-                                      padding: EdgeInsets.all(0),
-                                      child: Text("Save"),
-                                      onPressed: () => toggleEditingWeeks(
-                                        editing: false,
-                                        save: true,
-                                      ),
-                                    )
-                                  ],
+                        Visibility(
+                          visible: editingLessons,
+                          child: Container(
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).primaryColor,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Theme.of(context)
+                                      .shadowColor
+                                      .withOpacity(0.5),
+                                  spreadRadius: 1,
+                                  blurRadius: 4,
+                                  offset: Offset(0, -1),
                                 ),
-                              ),
-                              Container(
-                                alignment: Alignment.centerLeft,
-                                child: SingleChildScrollView(
-                                  padding: EdgeInsets.symmetric(vertical: 10),
-                                  scrollDirection: Axis.horizontal,
+                              ],
+                            ),
+                            child: Column(
+                              children: [
+                                Container(
+                                  padding: EdgeInsets.all(10),
                                   child: Row(
-                                    children: new List.from(
-                                      lessonsData.values
-                                          .map<Widget>((lesson) =>
-                                              DraggablePill(lesson: lesson))
-                                          .toList(),
-                                    )..add(
-                                        Material(
-                                          color: Colors.transparent,
-                                          child: Container(
-                                            margin: EdgeInsets.symmetric(
-                                                horizontal: 5),
-                                            child: InkWell(
-                                              onTap: () => Navigator.push(
-                                                context,
-                                                pageRouteBuilder(
-                                                  context: context,
-                                                  child: LessonGenerator(),
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        "Drag Lessons",
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      FlatButton(
+                                        color: Theme.of(context).canvasColor,
+                                        padding: EdgeInsets.all(0),
+                                        child: Text("Save"),
+                                        onPressed: () => toggleEditingWeeks(
+                                          editing: false,
+                                          save: true,
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                                Container(
+                                  alignment: Alignment.centerLeft,
+                                  child: SingleChildScrollView(
+                                    padding: EdgeInsets.symmetric(vertical: 10),
+                                    scrollDirection: Axis.horizontal,
+                                    child: Row(
+                                      children: new List.from(
+                                        lessonsData.values
+                                            .map<Widget>((lesson) =>
+                                                DraggablePill(lesson: lesson))
+                                            .toList(),
+                                      )..add(
+                                          Material(
+                                            color: Colors.transparent,
+                                            child: Container(
+                                              margin: EdgeInsets.symmetric(
+                                                  horizontal: 5),
+                                              child: InkWell(
+                                                onTap: () => Navigator.push(
+                                                  context,
+                                                  pageRouteBuilder(
+                                                    context: context,
+                                                    child: LessonGenerator(),
+                                                  ),
                                                 ),
-                                              ),
-                                              borderRadius:
-                                                  BorderRadius.circular(20),
-                                              child: Container(
-                                                alignment: Alignment.center,
-                                                padding: EdgeInsets.all(7),
-                                                decoration: BoxDecoration(
-                                                  color: Theme.of(context)
-                                                      .canvasColor
-                                                      .withOpacity(0.7),
-                                                  borderRadius:
-                                                      BorderRadius.circular(20),
-                                                ),
-                                                child: Row(
-                                                  children: [
-                                                    Icon(
-                                                      lessonsData.isEmpty
-                                                          ? Icons.add
-                                                          : Icons.edit,
-                                                      size: 16,
-                                                    ),
-                                                    Container(
-                                                      margin:
-                                                          EdgeInsets.symmetric(
-                                                        horizontal: 5,
-                                                      ),
-                                                      child: Text(
+                                                borderRadius:
+                                                    BorderRadius.circular(20),
+                                                child: Container(
+                                                  alignment: Alignment.center,
+                                                  padding: EdgeInsets.all(7),
+                                                  decoration: BoxDecoration(
+                                                    color: Theme.of(context)
+                                                        .canvasColor
+                                                        .withOpacity(0.7),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            20),
+                                                  ),
+                                                  child: Row(
+                                                    children: [
+                                                      Icon(
                                                         lessonsData.isEmpty
-                                                            ? "Add Lessons"
-                                                            : "Edit Lessons",
+                                                            ? Icons.add
+                                                            : Icons.edit,
+                                                        size: 16,
                                                       ),
-                                                    ),
-                                                  ],
+                                                      Container(
+                                                        margin: EdgeInsets
+                                                            .symmetric(
+                                                          horizontal: 5,
+                                                        ),
+                                                        child: Text(
+                                                          lessonsData.isEmpty
+                                                              ? "Add Lessons"
+                                                              : "Edit Lessons",
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
                                                 ),
                                               ),
                                             ),
                                           ),
                                         ),
-                                      ),
+                                    ),
                                   ),
                                 ),
-                              ),
-                              SizedBox(height: 10),
-                            ],
+                                SizedBox(height: 10),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
