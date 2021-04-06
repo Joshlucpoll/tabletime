@@ -120,10 +120,78 @@ class _LessonGeneratorState extends State<LessonGenerator> {
     widget._database.updateTimetableData(data: newTimetable);
   }
 
-  void _removeLesson({String id}) {
+  bool _lessonInWeeksData(String id) {
+    for (WeekData weekData in weeksData.values) {
+      for (DayData dayData in weekData.week.values) {
+        for (BlockData blockData in dayData.day) {
+          if (id == blockData.lesson.id) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  }
+
+  Future<void> _removeLesson({String id}) async {
+    if (_lessonInWeeksData(id)) {
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title:
+              Text("Are you sure you want to delete " + lessonsData[id].name),
+          content: Text(lessonsData[id].name +
+              " is still in your timetable. Deleting this lessons will also remove every occurrence from your timetable."),
+          actions: [
+            FlatButton(
+              child: Text("Cancel"),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            FlatButton(
+              textColor: Colors.red,
+              child: Text("Continue"),
+              onPressed: () {
+                Map<String, dynamic> rawTimetable =
+                    widget._timetable.rawTimetable;
+
+                final newWeeks = rawTimetable["weeks"];
+
+                newWeeks.values.forEach(
+                  (week) => week.values.forEach(
+                    (day) {
+                      List blocksToRemove = [];
+                      day.forEach((block) {
+                        if (block["lesson"] == id) {
+                          blocksToRemove.add(block);
+                        }
+                      });
+                      blocksToRemove.forEach((block) => day.remove(block));
+                    },
+                  ),
+                );
+
+                final newTimetable = rawTimetable;
+                newTimetable["weeks"] = newWeeks;
+
+                widget._database.updateTimetableData(data: newTimetable);
+
+                _deleteLesson(id);
+                Navigator.of(context).pop();
+              },
+            )
+          ],
+        ),
+      );
+    } else {
+      _deleteLesson(id);
+    }
+  }
+
+  void _deleteLesson(String id) {
     Map<String, dynamic> rawTimetable = widget._timetable.rawTimetable;
 
     final newLessons = rawTimetable["lessons"];
+
     newLessons.remove(id);
 
     final newTimetable = rawTimetable;
