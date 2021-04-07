@@ -222,12 +222,14 @@ class Timetable {
 
     NotificationPref notiPrefs = await _getNotificationPref();
 
-    _notifications.scheduleTimetableNotifications(
-      currentWeekData: currentWeek,
-      numberOfWeeks: numberOfWeeks,
-      weeksData: weeks,
-      beforeMins: notiPrefs.beforeMins,
-    );
+    if (notiPrefs.enabled) {
+      _notifications.scheduleTimetableNotifications(
+        currentWeekData: currentWeek,
+        numberOfWeeks: numberOfWeeks,
+        weeksData: weeks,
+        beforeMins: notiPrefs.beforeMins,
+      );
+    }
 
     _onChangeController.add(true);
   }
