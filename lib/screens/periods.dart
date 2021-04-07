@@ -154,6 +154,11 @@ class PeriodStructureState extends State<PeriodStructure> {
     );
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   void getUpdatedTimetable() {
     if (mounted) {
       setState(() {
@@ -218,6 +223,77 @@ class PeriodStructureState extends State<PeriodStructure> {
     }
   }
 
+  bool _periodInWeeksData(int index) {
+    for (WeekData weekData in weeksData.values) {
+      for (DayData dayData in weekData.week.values) {
+        for (BlockData blockData in dayData.day) {
+          if (periodsData.indexOf(blockData.period) == index) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  }
+
+  Future<void> _removePeriod(int index) async {
+    if (_periodInWeeksData(index)) {
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: Text("Are you sure you want to delete Period " +
+              (index + 1).toString() +
+              "?"),
+          content: Text("Period " +
+              (index + 1).toString() +
+              " has lessons associated with it, deleting it will also remove those lessons from your timetable"),
+          actions: [
+            FlatButton(
+              child: Text("Cancel"),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            FlatButton(
+              textColor: Colors.red,
+              child: Text("Continue"),
+              onPressed: () {
+                Map<String, dynamic> rawTimetable =
+                    widget._timetable.rawTimetable;
+
+                final newWeeks = rawTimetable["weeks"];
+
+                newWeeks.values.forEach(
+                  (week) => week.values.forEach(
+                    (day) {
+                      List blocksToRemove = [];
+                      day.forEach((block) {
+                        if (block["period"] == index) {
+                          blocksToRemove.add(block);
+                        } else if (block["period"] > index) {
+                          block["period"] = block["period"] - 1;
+                        }
+                      });
+                      blocksToRemove.forEach((block) => day.remove(block));
+                    },
+                  ),
+                );
+
+                final newTimetable = rawTimetable;
+                newTimetable["weeks"] = newWeeks;
+
+                widget._database.updateTimetableData(data: newTimetable);
+
+                _deletePeriod(index);
+                Navigator.of(context).pop();
+              },
+            )
+          ],
+        ),
+      );
+    } else {
+      _deletePeriod(index);
+    }
+  }
+
   void _deletePeriod(int index) {
     Map<String, dynamic> rawTimetable = widget._timetable.rawTimetable;
 
@@ -252,6 +328,15 @@ class PeriodStructureState extends State<PeriodStructure> {
         "start": start == true ? selectedTime : newList[index]["start"],
         "end": start == false ? selectedTime : newList[index]["end"]
       };
+
+      // sorts list into chronological order with start times
+      newList.sort((a, b) {
+        int aTime = DateTime.parse(a["start"]).hour * 60 +
+            DateTime.parse(a["start"]).minute;
+        int bTime = DateTime.parse(b["start"]).hour * 60 +
+            DateTime.parse(b["start"]).minute;
+        return aTime - bTime;
+      });
 
       final newTimetable = rawTimetable;
       newTimetable["period_structure"] = newList;
@@ -302,7 +387,7 @@ class PeriodStructureState extends State<PeriodStructure> {
                                     period: period.value,
                                     index: period.key,
                                     changePeriod: _changePeriod,
-                                    deletePeriod: _deletePeriod),
+                                    deletePeriod: _removePeriod),
                               )
                               .toList(),
                         ),
