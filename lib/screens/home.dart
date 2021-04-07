@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:flutter/services.dart';
@@ -429,8 +430,9 @@ class _HomeState extends State<Home> {
                       child: showcase(
                         key: _body,
                         title: "Lessons View",
-                        description:
-                            "Swipe left/right to switch days\n or swipe up/down to switch weeks",
+                        description: kIsWeb
+                            ? "Press arrow keys left/right to switch days\n or press arrow keys up/down to switch weeks"
+                            : "Swipe left/right to switch days\n or swipe up/down to switch weeks",
                         child: SizedBox(
                           height: MediaQuery.of(context).size.height * 0.5,
                           width: MediaQuery.of(context).size.width,

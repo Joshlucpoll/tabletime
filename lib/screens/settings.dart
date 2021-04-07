@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:get_it/get_it.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:timetable/screens/loading.dart';
 
 // widgets
@@ -214,60 +215,62 @@ class _SettingsPageState extends State<SettingsPage> {
                   leading: Icon(Icons.local_fire_department),
                   title: Text("Reset Timetable"),
                 ),
-                ListTile(
-                  enabled: false,
-                  title: Text("Notifications"),
-                ),
-                ListTile(
-                  leading: Icon(Icons.notifications_active),
-                  title: Text("Notifications"),
-                  trailing: Switch(
-                    onChanged: (opposite) {
-                      setState(() {
-                        notificationPref = NotificationPref(
-                          beforeMins: notificationPref.beforeMins,
-                          enabled: opposite,
-                        );
-                        widget._timetable.setNotificationPref(
-                          beforeMins: notificationPref.beforeMins,
-                          enabled: opposite,
-                        );
-                      });
-                    },
-                    value: notificationPref.enabled,
+                if (!kIsWeb) ...[
+                  ListTile(
+                    enabled: false,
+                    title: Text("Notifications"),
                   ),
-                ),
-                ListTile(
-                  leading: Icon(Icons.timer),
-                  title: Text("Notification Timing"),
-                  trailing: Opacity(
-                      opacity: 0.6,
-                      child: Text(
-                          notificationPref.beforeMins.toString() + " minutes")),
-                ),
-                ListTile(
-                  title: Slider(
-                    label: notificationPref.beforeMins.toString() +
-                        " minutes before lesson",
-                    min: 0,
-                    max: 30,
-                    value: notificationPref.beforeMins.toDouble(),
-                    divisions: 60,
-                    onChanged: (double value) {
-                      setState(() {
-                        notificationPref = NotificationPref(
-                          beforeMins: value.round(),
-                          enabled: notificationPref.enabled,
-                        );
-                      });
-                    },
-                    onChangeEnd: (double value) =>
-                        widget._timetable.setNotificationPref(
-                      beforeMins: value.toInt(),
-                      enabled: notificationPref.enabled,
+                  ListTile(
+                    leading: Icon(Icons.notifications_active),
+                    title: Text("Notifications"),
+                    trailing: Switch(
+                      onChanged: (opposite) {
+                        setState(() {
+                          notificationPref = NotificationPref(
+                            beforeMins: notificationPref.beforeMins,
+                            enabled: opposite,
+                          );
+                          widget._timetable.setNotificationPref(
+                            beforeMins: notificationPref.beforeMins,
+                            enabled: opposite,
+                          );
+                        });
+                      },
+                      value: notificationPref.enabled,
                     ),
                   ),
-                ),
+                  ListTile(
+                    leading: Icon(Icons.timer),
+                    title: Text("Notification Timing"),
+                    trailing: Opacity(
+                        opacity: 0.6,
+                        child: Text(notificationPref.beforeMins.toString() +
+                            " minutes")),
+                  ),
+                  ListTile(
+                    title: Slider(
+                      label: notificationPref.beforeMins.toString() +
+                          " minutes before lesson",
+                      min: 0,
+                      max: 30,
+                      value: notificationPref.beforeMins.toDouble(),
+                      divisions: 60,
+                      onChanged: (double value) {
+                        setState(() {
+                          notificationPref = NotificationPref(
+                            beforeMins: value.round(),
+                            enabled: notificationPref.enabled,
+                          );
+                        });
+                      },
+                      onChangeEnd: (double value) =>
+                          widget._timetable.setNotificationPref(
+                        beforeMins: value.toInt(),
+                        enabled: notificationPref.enabled,
+                      ),
+                    ),
+                  ),
+                ],
                 ListTile(
                   enabled: false,
                   title: Text("More"),

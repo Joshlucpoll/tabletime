@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'timetable.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
@@ -22,31 +23,35 @@ class Notifications {
   }
 
   Future<void> _init() async {
-    tz.initializeTimeZones();
+    if (!kIsWeb) {
+      tz.initializeTimeZones();
 
-    timeZone = tz.getLocation(await FlutterNativeTimezone.getLocalTimezone());
-    tz.setLocalLocation(timeZone);
+      timeZone = tz.getLocation(await FlutterNativeTimezone.getLocalTimezone());
+      tz.setLocalLocation(timeZone);
 
-    this.flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+      this.flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
-    const AndroidInitializationSettings initializationSettingsAndroid =
-        AndroidInitializationSettings('ic_stat_name');
+      const AndroidInitializationSettings initializationSettingsAndroid =
+          AndroidInitializationSettings('ic_stat_name');
 
-    final InitializationSettings initializationSettings =
-        InitializationSettings(android: initializationSettingsAndroid);
+      final InitializationSettings initializationSettings =
+          InitializationSettings(android: initializationSettingsAndroid);
 
-    await this.flutterLocalNotificationsPlugin.initialize(
-      initializationSettings,
-      onSelectNotification: (String payload) async {
-        if (payload != null) {
-          print('notification payload: $payload');
-        }
-      },
-    );
+      await this.flutterLocalNotificationsPlugin.initialize(
+        initializationSettings,
+        onSelectNotification: (String payload) async {
+          if (payload != null) {
+            print('notification payload: $payload');
+          }
+        },
+      );
+    }
   }
 
   Future<void> cancelNotifications() async {
-    await flutterLocalNotificationsPlugin.cancelAll();
+    if (!kIsWeb) {
+      await flutterLocalNotificationsPlugin.cancelAll();
+    }
   }
 
   Future<void> _scheduleNotification({
@@ -55,39 +60,41 @@ class Notifications {
     LessonData lesson,
     int beforeMins,
   }) async {
-    // Platform settings
-    AndroidNotificationDetails androidPlatformChannelSpecifics =
-        AndroidNotificationDetails(
-      'lessons',
-      'Lessons',
-      'Get notified when a lesson is about to start',
-      importance: Importance.max,
-      priority: Priority.high,
-      when: dateTime.millisecondsSinceEpoch,
-      color: lesson.colour,
-      styleInformation: BigTextStyleInformation(''),
-    );
+    if (!kIsWeb) {
+      // Platform settings
+      AndroidNotificationDetails androidPlatformChannelSpecifics =
+          AndroidNotificationDetails(
+        'lessons',
+        'Lessons',
+        'Get notified when a lesson is about to start',
+        importance: Importance.max,
+        priority: Priority.high,
+        when: dateTime.millisecondsSinceEpoch,
+        color: lesson.colour,
+        styleInformation: BigTextStyleInformation(''),
+      );
 
-    String name = lesson.name;
-    String teacher = lesson.teacher == "" ? "" : " with ${lesson.teacher}";
-    String room = lesson.room == "" ? "" : "in room ${lesson.room} ";
-    String body =
-        "Your $name lesson" + teacher + " " + room + "is about to start";
+      String name = lesson.name;
+      String teacher = lesson.teacher == "" ? "" : " with ${lesson.teacher}";
+      String room = lesson.room == "" ? "" : "in room ${lesson.room} ";
+      String body =
+          "Your $name lesson" + teacher + " " + room + "is about to start";
 
-    tz.TZDateTime tzDateTime = tz.TZDateTime.from(dateTime, timeZone);
+      tz.TZDateTime tzDateTime = tz.TZDateTime.from(dateTime, timeZone);
 
-    await flutterLocalNotificationsPlugin.zonedSchedule(
-      id,
-      name,
-      body,
-      tzDateTime.subtract(Duration(minutes: beforeMins)),
-      NotificationDetails(
-        android: androidPlatformChannelSpecifics,
-      ),
-      androidAllowWhileIdle: true,
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.absoluteTime,
-    );
+      await flutterLocalNotificationsPlugin.zonedSchedule(
+        id,
+        name,
+        body,
+        tzDateTime.subtract(Duration(minutes: beforeMins)),
+        NotificationDetails(
+          android: androidPlatformChannelSpecifics,
+        ),
+        androidAllowWhileIdle: true,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
+      );
+    }
   }
 
   Future<void> scheduleTimetableNotifications({
