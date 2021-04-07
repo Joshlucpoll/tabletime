@@ -109,9 +109,9 @@ class _HomeState extends State<Home> {
       if (firstLaunch) {
         WidgetsBinding.instance.addPostFrameCallback((_) =>
             ShowCaseWidget.of(_scaffoldKey.currentContext).startShowCase([
+              _body,
               _currentWeekButton,
               _editButton,
-              _body,
             ]));
       }
     });
@@ -267,9 +267,9 @@ class _HomeState extends State<Home> {
                   WidgetsBinding.instance.addPostFrameCallback((_) =>
                       ShowCaseWidget.of(_scaffoldKey.currentContext)
                           .startShowCase([
+                        _body,
                         _currentWeekButton,
                         _editButton,
-                        _body,
                       ]));
                 },
               ),
@@ -395,9 +395,9 @@ class _HomeState extends State<Home> {
                                   _scaffoldKey.currentContext,
                                 ).startShowCase(
                                   [
+                                    _body,
                                     _currentWeekButton,
                                     _editButton,
-                                    _body,
                                   ],
                                 ),
                               ),
