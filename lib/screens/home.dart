@@ -32,7 +32,7 @@ class Home extends StatefulWidget {
   _HomeState createState() => _HomeState();
 }
 
-class _HomeState extends State<Home> {
+class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   bool timetableData = false;
   String timetableName;
   CurrentWeek currentWeek;
@@ -54,6 +54,8 @@ class _HomeState extends State<Home> {
   GlobalKey _currentWeekButton = GlobalKey();
   GlobalKey _editButton = GlobalKey();
   GlobalKey _body = GlobalKey();
+
+  AnimationController _editingPaneAnimationController;
 
   void initialisePageController({
     int numberOfWeeks,
@@ -116,6 +118,11 @@ class _HomeState extends State<Home> {
             ]));
       }
     });
+
+    _editingPaneAnimationController = AnimationController(
+      duration: Duration(milliseconds: 200),
+      vsync: this,
+    );
     super.initState();
   }
 
@@ -136,6 +143,7 @@ class _HomeState extends State<Home> {
   @override
   void dispose() {
     _pageController.dispose();
+    _editingPaneAnimationController.dispose();
     super.dispose();
   }
 
@@ -184,7 +192,11 @@ class _HomeState extends State<Home> {
       if (save) {
         await widget._database.updateWeeksData(weeks: weeksEditingState);
       }
+      _editingPaneAnimationController.reverse();
+    } else {
+      _editingPaneAnimationController.forward();
     }
+
     setState(() {
       editingLessons = editing;
       if (editing)
@@ -457,8 +469,15 @@ class _HomeState extends State<Home> {
                             ),
                           ),
                         ),
-                        Visibility(
-                          visible: editingLessons,
+                        SlideTransition(
+                          position: Tween<Offset>(
+                            begin: Offset(0.0, 1.0),
+                            end: Offset.zero,
+                          ).animate(
+                            CurvedAnimation(
+                                parent: _editingPaneAnimationController,
+                                curve: Curves.ease),
+                          ),
                           child: Container(
                             width: double.infinity,
                             decoration: BoxDecoration(
@@ -467,7 +486,7 @@ class _HomeState extends State<Home> {
                                 BoxShadow(
                                   color: Theme.of(context)
                                       .shadowColor
-                                      .withOpacity(0.5),
+                                      .withOpacity(0.1),
                                   spreadRadius: 1,
                                   blurRadius: 4,
                                   offset: Offset(0, -1),
