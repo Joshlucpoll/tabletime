@@ -224,7 +224,19 @@ class EditingBlock extends StatelessWidget {
             : const Color(0xff000000);
 
     return DragTarget<String>(
-      onWillAccept: (data) => lesson == null ? true : false,
+      onWillAccept: (data) {
+        if (lesson == null) {
+          backgroundColour = Theme.of(context).cardColor.withOpacity(0.5);
+          return true;
+        } else {
+          return false;
+        }
+      },
+      onLeave: (value) {
+        if (lesson == null) {
+          backgroundColour = Theme.of(context).cardColor;
+        }
+      },
       onAccept: (data) => InheritedWeeksModify.of(context).addBlockToWeeks(
         block: {"period": periodNum, "lesson": data},
         weekNum: weekNum,
