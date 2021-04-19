@@ -36,7 +36,7 @@ dependencies:
   get_it: ^5.0.3
 
   flutter_launcher_icons: "^0.8.0"
-  shared_preferences: ^0.5.12+4
+  streaming_shared_preferences: ^1.0.1
   flutter_local_notifications: ^3.0.3
   flutter_native_timezone: ^1.0.4
   showcaseview: ^0.1.6

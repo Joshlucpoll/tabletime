@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:streaming_shared_preferences/streaming_shared_preferences.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -103,12 +103,15 @@ class Timetable {
   }
 
   Future<NotificationPref> _getNotificationPref() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool enabled = prefs.getBool('notifications_enabled') ?? false;
-    int beforeMins = prefs.getInt('notifications_beforeMins') ?? 5;
+    StreamingSharedPreferences prefs =
+        await StreamingSharedPreferences.instance;
+    Preference<bool> enabled =
+        prefs.getBool('notifications_enabled', defaultValue: false);
+    Preference<int> beforeMins =
+        prefs.getInt('notifications_beforeMins', defaultValue: 5);
 
-    notificationPref =
-        NotificationPref(enabled: enabled, beforeMins: beforeMins);
+    notificationPref = NotificationPref(
+        enabled: enabled.getValue(), beforeMins: beforeMins.getValue());
     return notificationPref;
   }
 
@@ -127,7 +130,8 @@ class Timetable {
       await _notifications.cancelNotifications();
     }
 
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    StreamingSharedPreferences prefs =
+        await StreamingSharedPreferences.instance;
     prefs.setBool('notifications_enabled', enabled);
     prefs.setInt('notifications_beforeMins', beforeMins);
 
@@ -136,14 +140,16 @@ class Timetable {
   }
 
   Future<bool> getFirstAppLaunch() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool firstLaunch = prefs.getBool('first_app_launch') ?? true;
+    StreamingSharedPreferences prefs =
+        await StreamingSharedPreferences.instance;
+    Preference<bool> firstLaunch =
+        prefs.getBool('first_app_launch', defaultValue: true);
 
-    if (firstLaunch == true) {
+    if (firstLaunch.getValue() == true) {
       prefs.setBool('first_app_launch', false);
     }
 
-    return firstLaunch;
+    return firstLaunch.getValue();
   }
 
   void _streamTimetable(bool enable) async {

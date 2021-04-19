@@ -4,6 +4,7 @@ import 'package:get_it/get_it.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:timetable/screens/loading.dart';
+import 'package:streaming_shared_preferences/streaming_shared_preferences.dart';
 
 // widgets
 import 'package:timetable/screens/lessons.dart';
@@ -39,11 +40,13 @@ class _SettingsPageState extends State<SettingsPage> {
   bool timetableData = false;
   TextEditingController _tabletimeNameController;
   int dropdownValue;
+  int themePreference = 0;
   NotificationPref notificationPref;
   bool weekendDays;
 
   @override
   void initState() {
+    getThemePreference();
     widget._timetable.onTimeTableChange().listen(
       (update) {
         if (!timetableData) {
@@ -67,6 +70,23 @@ class _SettingsPageState extends State<SettingsPage> {
   void dispose() {
     _tabletimeNameController.dispose();
     super.dispose();
+  }
+
+  Future<void> getThemePreference() async {
+    StreamingSharedPreferences prefs =
+        await StreamingSharedPreferences.instance;
+    Preference<int> theme = prefs.getInt("theme_preference", defaultValue: 0);
+
+    setState(() {
+      themePreference = theme.getValue();
+    });
+    print(themePreference);
+  }
+
+  Future<void> setThemePreference(int theme) async {
+    StreamingSharedPreferences prefs =
+        await StreamingSharedPreferences.instance;
+    await prefs.setInt("theme_preference", theme);
   }
 
   void getUpdatedTimetable() {
@@ -285,6 +305,31 @@ class _SettingsPageState extends State<SettingsPage> {
                   },
                   leading: Icon(Icons.help),
                   title: Text("Help"),
+                ),
+                ListTile(
+                  leading: Icon(Icons.lightbulb_outline),
+                  trailing: DropdownButton<int>(
+                    value: themePreference,
+                    icon: Icon(Icons.arrow_downward),
+                    iconSize: 24,
+                    elevation: 16,
+                    underline: Container(height: 2),
+                    onChanged: (int newValue) {
+                      setState(() {
+                        themePreference = newValue;
+                      });
+                      setThemePreference(newValue);
+                    },
+                    items:
+                        <int>[0, 1, 2].map<DropdownMenuItem<int>>((int value) {
+                      List<String> text = ["System", "Light", "Dark"];
+                      return DropdownMenuItem<int>(
+                        value: value,
+                        child: Text(text[value]),
+                      );
+                    }).toList(),
+                  ),
+                  title: Text("App Theme"),
                 ),
                 ListTile(
                   onTap: () async {
