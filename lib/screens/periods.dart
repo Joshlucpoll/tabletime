@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:get_it/get_it.dart';
@@ -138,9 +140,14 @@ class PeriodStructureState extends State<PeriodStructure> {
   List<PeriodData> periodsData;
   Map<String, WeekData> weeksData;
 
+  final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
+  List<PeriodData> animationList;
+
   @override
   void initState() {
     super.initState();
+    animationList = [];
+
     widget._timetable.onTimeTableChange().listen(
       (update) {
         getUpdatedTimetable();
@@ -159,7 +166,7 @@ class PeriodStructureState extends State<PeriodStructure> {
     super.dispose();
   }
 
-  void getUpdatedTimetable() {
+  Future<void> getUpdatedTimetable() async {
     if (mounted) {
       setState(() {
         timetableName = widget._timetable.timetableName;
@@ -169,17 +176,57 @@ class PeriodStructureState extends State<PeriodStructure> {
         periodsData = widget._timetable.periods;
         weeksData = widget._timetable.weeks;
       });
+
+      // if (animationList.length != widget._timetable.periods.length) {
+      //   // Periods have been added
+      //   if (animationList.length < widget._timetable.periods.length) {
+      //     widget._timetable.periods.asMap().forEach((index, value) {
+      //       if (index == widget._timetable.periods.length - 1) {
+      //         print("got here");
+      //         _listKey.currentState.insertItem(index);
+      //       } else if (value != (animationList[index])) {
+      //         _listKey.currentState.insertItem(index);
+      //       }
+      //     });
+      //   }
+      //   // Periods have been removed
+      //   if (animationList.length > widget._timetable.periods.length) {
+      //     animationList.asMap().forEach((index, value) {
+      //       if (value != widget._timetable.periods[index]) {
+      //         PeriodData clonedPeriod = PeriodData(
+      //           start: animationList[index].start,
+      //           end: animationList[index].end,
+      //         );
+
+      //         _listKey.currentState.removeItem(
+      //           index,
+      //           (context, animation) => periodBuilder(
+      //             period: clonedPeriod,
+      //             index: index,
+      //             animation: animation,
+      //             changePeriod: _changePeriod,
+      //             deletePeriod: _deletePeriod,
+      //           ),
+      //         );
+      //       }
+      //     });
+      //   }
+      // }
+
+      // animationList = widget._timetable.periods;
     }
   }
 
-  void _addPeriod(DateTime startTime, DateTime endTime) {
+  Future<void> _addPeriod(DateTime startTime, DateTime endTime) async {
     String start = startTime.toIso8601String();
     String end = endTime.toIso8601String();
 
     Map<String, dynamic> rawTimetable = widget._timetable.rawTimetable;
 
+    Map newPeriodRaw = {"start": start, "end": end};
+
     List newList = List.from(rawTimetable["period_structure"])
-      ..add({"start": start, "end": end});
+      ..add(newPeriodRaw);
 
     // sorts list into chronological order with start times
     newList.sort((a, b) {
@@ -193,7 +240,11 @@ class PeriodStructureState extends State<PeriodStructure> {
     final newTimetable = rawTimetable;
     newTimetable["period_structure"] = newList;
 
-    widget._database.updateTimetableData(data: newTimetable);
+    int index = newList.indexOf(newPeriodRaw);
+
+    await widget._database.updateTimetableData(data: newTimetable);
+
+    _listKey.currentState.insertItem(index);
   }
 
   void _changeNewPeriod(
@@ -294,7 +345,7 @@ class PeriodStructureState extends State<PeriodStructure> {
     }
   }
 
-  void _deletePeriod(int index) {
+  Future<void> _deletePeriod(int index) async {
     Map<String, dynamic> rawTimetable = widget._timetable.rawTimetable;
 
     List newList = List.from(rawTimetable["period_structure"])..removeAt(index);
@@ -302,7 +353,20 @@ class PeriodStructureState extends State<PeriodStructure> {
     final newTimetable = rawTimetable;
     newTimetable["period_structure"] = newList;
 
-    widget._database.updateTimetableData(data: newTimetable);
+    _listKey.currentState.removeItem(
+      index,
+      (context, animation) => periodBuilder(
+        animation: animation,
+        index: index,
+        period: periodsData[index],
+        changePeriod: _changePeriod,
+        deletePeriod: _deletePeriod,
+      ),
+    );
+
+    await Future.delayed(Duration(milliseconds: 500), () {});
+
+    await widget._database.updateTimetableData(data: newTimetable);
   }
 
   void _changePeriod(int index, bool start, BuildContext context) async {
@@ -345,6 +409,29 @@ class PeriodStructureState extends State<PeriodStructure> {
     }
   }
 
+  Widget periodBuilder({
+    PeriodData period,
+    int index,
+    Animation animation,
+    Function changePeriod,
+    Function deletePeriod,
+  }) {
+    return SlideTransition(
+      position: animation.drive(CurveTween(curve: Curves.ease)).drive(
+            Tween<Offset>(
+              begin: Offset(1.0, 0.0),
+              end: Offset.zero,
+            ),
+          ),
+      child: Period(
+        period: periodsData[index],
+        index: index,
+        changePeriod: _changePeriod,
+        deletePeriod: _removePeriod,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return timetableData == false
@@ -376,20 +463,20 @@ class PeriodStructureState extends State<PeriodStructure> {
                             ],
                           ),
                         )
-                      : ListView(
+                      : AnimatedList(
+                          key: _listKey,
                           padding: EdgeInsets.only(top: 20.0, bottom: 80.0),
                           scrollDirection: Axis.vertical,
-                          children: periodsData
-                              .asMap()
-                              .entries
-                              .map<Widget>(
-                                (period) => Period(
-                                    period: period.value,
-                                    index: period.key,
-                                    changePeriod: _changePeriod,
-                                    deletePeriod: _removePeriod),
-                              )
-                              .toList(),
+                          initialItemCount: periodsData.length,
+                          itemBuilder: (context, index, animation) {
+                            return periodBuilder(
+                              period: periodsData[index],
+                              index: index,
+                              animation: animation,
+                              changePeriod: _changePeriod,
+                              deletePeriod: _deletePeriod,
+                            );
+                          },
                         ),
                 ),
               ),

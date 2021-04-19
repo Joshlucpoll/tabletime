@@ -118,7 +118,7 @@ class Database {
     try {
       DocumentReference timetableRef = await getCurrentTimetable();
 
-      timetableRef.set(data);
+      await timetableRef.set(data);
     } catch (e) {
       rethrow;
     }
