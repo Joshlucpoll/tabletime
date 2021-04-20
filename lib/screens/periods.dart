@@ -176,44 +176,6 @@ class PeriodStructureState extends State<PeriodStructure> {
         periodsData = widget._timetable.periods;
         weeksData = widget._timetable.weeks;
       });
-
-      // if (animationList.length != widget._timetable.periods.length) {
-      //   // Periods have been added
-      //   if (animationList.length < widget._timetable.periods.length) {
-      //     widget._timetable.periods.asMap().forEach((index, value) {
-      //       if (index == widget._timetable.periods.length - 1) {
-      //         print("got here");
-      //         _listKey.currentState.insertItem(index);
-      //       } else if (value != (animationList[index])) {
-      //         _listKey.currentState.insertItem(index);
-      //       }
-      //     });
-      //   }
-      //   // Periods have been removed
-      //   if (animationList.length > widget._timetable.periods.length) {
-      //     animationList.asMap().forEach((index, value) {
-      //       if (value != widget._timetable.periods[index]) {
-      //         PeriodData clonedPeriod = PeriodData(
-      //           start: animationList[index].start,
-      //           end: animationList[index].end,
-      //         );
-
-      //         _listKey.currentState.removeItem(
-      //           index,
-      //           (context, animation) => periodBuilder(
-      //             period: clonedPeriod,
-      //             index: index,
-      //             animation: animation,
-      //             changePeriod: _changePeriod,
-      //             deletePeriod: _deletePeriod,
-      //           ),
-      //         );
-      //       }
-      //     });
-      //   }
-      // }
-
-      // animationList = widget._timetable.periods;
     }
   }
 

@@ -80,7 +80,6 @@ class _SettingsPageState extends State<SettingsPage> {
     setState(() {
       themePreference = theme.getValue();
     });
-    print(themePreference);
   }
 
   Future<void> setThemePreference(int theme) async {
