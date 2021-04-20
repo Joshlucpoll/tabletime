@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:keyboard_shortcuts/keyboard_shortcuts.dart';
 
 import './customScrollPhysics.dart';
 import './day.dart';
@@ -77,25 +78,22 @@ class _WeekState extends State<Week> with TickerProviderStateMixin {
     return dayNum - 1;
   }
 
-  void onEventKey(RawKeyEvent event) async {
-    if (event.runtimeType.toString() == 'RawKeyDownEvent') {
-      if (event.isKeyPressed(LogicalKeyboardKey.arrowRight)) {
-        if (_tabController.index < _tabController.length) {
-          _tabController.animateTo(
-            _tabController.index + 1,
-            curve: Curves.ease,
-            duration: Duration(milliseconds: 500),
-          );
-        }
+  void shortcutChangeDay({bool next}) {
+    if (next) {
+      if (_tabController.index < _tabController.length) {
+        _tabController.animateTo(
+          _tabController.index + 1,
+          curve: Curves.ease,
+          duration: Duration(milliseconds: 500),
+        );
       }
-      if (event.isKeyPressed(LogicalKeyboardKey.arrowLeft)) {
-        if (_tabController.index > 0) {
-          _tabController.animateTo(
-            _tabController.index - 1,
-            curve: Curves.ease,
-            duration: Duration(milliseconds: 500),
-          );
-        }
+    } else {
+      if (_tabController.index > 0) {
+        _tabController.animateTo(
+          _tabController.index - 1,
+          curve: Curves.ease,
+          duration: Duration(milliseconds: 500),
+        );
       }
     }
   }
@@ -114,46 +112,49 @@ class _WeekState extends State<Week> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     List timetableShortDays = widget.weekends ? shortDaysWeekends : shortDays;
-    return RawKeyboardListener(
-      focusNode: FocusNode(),
-      onKey: onEventKey,
-      autofocus: true,
-      child: Column(
-        children: [
-          Container(
-            width: MediaQuery.of(context).size.width,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(color: Theme.of(context).primaryColor),
-            padding: EdgeInsets.only(top: 10),
-            child: TabBar(
-              controller: _tabController,
-              indicator: BoxDecoration(
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(5),
-                    topRight: Radius.circular(5),
-                  ),
-                  color: Theme.of(context).scaffoldBackgroundColor),
-              isScrollable: true,
-              tabs: days.map((name) => tab(name)).toList(),
-            ),
-          ),
-          SizedBox(height: 5),
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              physics: const CustomPageViewScrollPhysics(),
-              children: timetableShortDays
-                  .map(
-                    (day) => Day(
-                      blocks: widget.week.week[day],
-                      dayNum: timetableShortDays.indexOf(day),
-                      weekNum: widget.weekNum,
+    return KeyBoardShortcuts(
+      keysToPress: {LogicalKeyboardKey.arrowRight},
+      onKeysPressed: () => shortcutChangeDay(next: true),
+      child: KeyBoardShortcuts(
+        keysToPress: {LogicalKeyboardKey.arrowLeft},
+        onKeysPressed: () => shortcutChangeDay(next: false),
+        child: Column(
+          children: [
+            Container(
+              width: MediaQuery.of(context).size.width,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(color: Theme.of(context).primaryColor),
+              padding: EdgeInsets.only(top: 10),
+              child: TabBar(
+                controller: _tabController,
+                indicator: BoxDecoration(
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(5),
+                      topRight: Radius.circular(5),
                     ),
-                  )
-                  .toList(),
+                    color: Theme.of(context).scaffoldBackgroundColor),
+                isScrollable: true,
+                tabs: days.map((name) => tab(name)).toList(),
+              ),
             ),
-          ),
-        ],
+            SizedBox(height: 5),
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                physics: const CustomPageViewScrollPhysics(),
+                children: timetableShortDays
+                    .map(
+                      (day) => Day(
+                        blocks: widget.week.week[day],
+                        dayNum: timetableShortDays.indexOf(day),
+                        weekNum: widget.weekNum,
+                      ),
+                    )
+                    .toList(),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
