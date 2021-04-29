@@ -15,6 +15,9 @@ class AppTheme {
         buttonColor: Colors.blue,
         textTheme: ButtonTextTheme.primary,
       ),
+      snackBarTheme: SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+      ),
       visualDensity: VisualDensity.adaptivePlatformDensity,
     );
   }
@@ -23,6 +26,9 @@ class AppTheme {
     return ThemeData(
       brightness: Brightness.dark,
       fontFamily: "Poppins",
+      snackBarTheme: SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+      ),
       visualDensity: VisualDensity.adaptivePlatformDensity,
       floatingActionButtonTheme:
           FloatingActionButtonThemeData(backgroundColor: Colors.white),

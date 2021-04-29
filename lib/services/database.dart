@@ -10,8 +10,20 @@ class Database {
 
   DocumentReference get userRef => firestore.collection("users").doc(uid);
 
+  Future<List<QueryDocumentSnapshot>> getTimetables() async {
+    try {
+      return firestore
+          .collection("users")
+          .doc(uid)
+          .collection("timetables")
+          .get()
+          .then((QuerySnapshot querySnapshot) => querySnapshot.docs);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   Future<void> addUser() async {
-    await userRef.set({"setup": true});
     await addTimetable();
   }
 
@@ -55,9 +67,31 @@ class Database {
 
       await timetableRef.set(data);
 
-      userRef.update({"current_timetable": timetableRef});
+      await userRef.update({"current_timetable": timetableRef});
 
       return "Success";
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> deleteTimetable({String id}) async {
+    try {
+      CollectionReference timetablesRef = userRef.collection("timetables");
+      DocumentReference timetableRef = timetablesRef.doc(id);
+
+      await timetableRef.delete();
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> switchTimetable({String id}) async {
+    try {
+      CollectionReference timetablesRef = userRef.collection("timetables");
+      DocumentReference timetableRef = timetablesRef.doc(id);
+
+      await userRef.update({"current_timetable": timetableRef});
     } catch (e) {
       rethrow;
     }

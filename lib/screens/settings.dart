@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:get_it/get_it.dart';
+import 'package:timetable/screens/timetables.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:timetable/screens/loading.dart';
@@ -114,40 +115,37 @@ class _SettingsPageState extends State<SettingsPage> {
                   title: Text("Timetable"),
                 ),
                 ListTile(
-                  onTap: () {
-                    showDialog(
-                      context: context,
-                      builder: (_) => new AlertDialog(
-                        title: Text("Name Timetable"),
-                        content: TextFormField(
-                          controller: _tabletimeNameController,
+                  onTap: () => Navigator.push(
+                    context,
+                    PageRouteBuilder(
+                      pageBuilder: (context, animation, secondaryAnimation) =>
+                          Timetables(),
+                      transitionsBuilder: (
+                        context,
+                        animation,
+                        secondaryAnimation,
+                        child,
+                      ) =>
+                          SlideTransition(
+                        position: animation.drive(
+                          Tween(
+                            begin: Offset(1.0, 0.0),
+                            end: Offset.zero,
+                          ).chain(
+                            CurveTween(
+                              curve: Curves.ease,
+                            ),
+                          ),
                         ),
-                        actions: [
-                          FlatButton(
-                            child: Text("Cancel"),
-                            onPressed: () => Navigator.of(context).pop(),
-                          ),
-                          FlatButton(
-                            child: Text("Ok"),
-                            onPressed: () {
-                              final newTimetableData =
-                                  widget._timetable.rawTimetable;
-                              newTimetableData["timetable_name"] =
-                                  _tabletimeNameController.text;
-                              widget._database
-                                  .updateTimetableData(data: newTimetableData);
-                              Navigator.of(context).pop();
-                            },
-                          ),
-                        ],
+                        child: Timetables(),
                       ),
-                    );
-                  },
-                  leading: Icon(Icons.edit),
-                  title: Text("Timetable Name"),
+                    ),
+                  ),
+                  leading: Icon(Icons.table_view),
+                  title: Text("Timetables"),
                 ),
                 ListTile(
-                  leading: Icon(Icons.format_list_numbered),
+                  leading: Icon(Icons.tag),
                   trailing: DropdownButton<int>(
                     value: dropdownValue,
                     icon: Icon(Icons.arrow_downward),
@@ -174,8 +172,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   title: Text("Number of Weeks"),
                 ),
                 ListTile(
-                  onTap: () => {},
-                  leading: Icon(Icons.view_week),
+                  leading: Icon(Icons.weekend),
                   title: Text("Weekend Days"),
                   trailing: Switch(
                     onChanged: (opposite) {
@@ -205,7 +202,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     widget.pageRouteBuilder(
                         context: context, child: PeriodStructure()),
                   ),
-                  leading: Icon(Icons.calendar_today),
+                  leading: Icon(Icons.grid_on),
                   title: Text("Edit Periods"),
                 ),
                 ListTile(
@@ -339,7 +336,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       throw 'Could not launch $url';
                     }
                   },
-                  leading: Icon(Icons.toll),
+                  leading: Icon(Icons.support),
                   title: Text("Support me"),
                 ),
                 ListTile(
@@ -359,7 +356,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     widget._auth.signOut();
                     Navigator.of(context).pop();
                   },
-                  leading: Icon(Icons.exit_to_app),
+                  leading: Icon(Icons.logout),
                   title: Text("Sign out"),
                 ),
               ],
