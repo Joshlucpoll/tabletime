@@ -9,8 +9,16 @@ import './timetable.dart';
 final GetIt getIt = GetIt.instance;
 
 void setupGetIt() {
-  getIt.registerSingleton<Auth>(Auth());
-  getIt.registerSingleton<Database>(Database());
-  getIt.registerSingleton<Notifications>(Notifications());
-  getIt.registerSingleton<Timetable>(Timetable());
+  if (!getIt.isRegistered<Auth>()) {
+    getIt.registerSingleton<Auth>(Auth());
+  }
+  if (!getIt.isRegistered<Database>()) {
+    getIt.registerSingleton<Database>(Database());
+  }
+  if (!getIt.isRegistered<Notifications>()) {
+    getIt.registerSingleton<Notifications>(Notifications());
+  }
+  if (!getIt.isRegistered<Timetable>()) {
+    getIt.registerSingleton<Timetable>(Timetable());
+  }
 }

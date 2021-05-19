@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import './auth.dart';
 import 'package:get_it/get_it.dart';
+import 'package:uuid/uuid.dart';
 
 class Database {
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -8,7 +9,8 @@ class Database {
 
   String get uid => _auth.uid;
 
-  DocumentReference get userRef => firestore.collection("users").doc(uid);
+  DocumentReference<Map<String, dynamic>> get userRef =>
+      firestore.collection("users").doc(uid);
 
   Future<List<QueryDocumentSnapshot>> getTimetables() async {
     try {
@@ -33,7 +35,7 @@ class Database {
       DocumentReference timetableRef = timetablesRef.doc();
 
       final data = {
-        "timetable_name": "My Timetable",
+        "timetable_name": "My Timetable" + Uuid().v1().substring(0, 3),
         "current_week": {
           "week": 1,
           "date": new DateTime.now().toIso8601String(),
@@ -123,9 +125,11 @@ class Database {
     }
   }
 
-  Future<DocumentReference> getCurrentTimetable() async {
+  Future<DocumentReference<Map<String, dynamic>>> getCurrentTimetable() async {
     try {
-      return await userRef.get().then((DocumentSnapshot docSnapshot) async {
+      return await userRef
+          .get()
+          .then((DocumentSnapshot<Map<String, dynamic>> docSnapshot) async {
         if (docSnapshot.data() == null) {
           // if user data doesn't exist create it
           await addUser();

@@ -152,13 +152,13 @@ class _SettingsPageState extends State<SettingsPage> {
                     iconSize: 24,
                     elevation: 16,
                     underline: Container(height: 2),
-                    onChanged: (int newValue) {
+                    onChanged: (int newValue) async {
                       setState(() {
                         dropdownValue = newValue;
                       });
                       final newTimetableData = widget._timetable.rawTimetable;
                       newTimetableData["number_of_weeks"] = newValue;
-                      widget._database
+                      await widget._database
                           .updateTimetableData(data: newTimetableData);
                     },
                     items: <int>[1, 2, 3, 4, 5]

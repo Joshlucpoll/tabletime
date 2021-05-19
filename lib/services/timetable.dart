@@ -66,7 +66,7 @@ class Timetable {
   final Auth _auth = GetIt.I.get<Auth>();
   final Notifications _notifications = GetIt.I.get<Notifications>();
 
-  Stream<DocumentSnapshot> _timetableStream;
+  Stream<DocumentSnapshot<Map<String, dynamic>>> _timetableStream;
   StreamController _onChangeController;
   Stream _onChange;
 
