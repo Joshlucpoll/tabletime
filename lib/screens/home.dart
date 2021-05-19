@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
@@ -42,6 +44,8 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   Map<String, LessonData> lessonsData;
   List<PeriodData> periodsData;
   Map<String, WeekData> weeksData;
+
+  StreamSubscription timetableChangeSubscription;
 
   Map weeksEditingState;
   PageController _pageController;
@@ -93,7 +97,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
 
   @override
   void initState() {
-    widget._timetable.onTimeTableChange().listen(
+    timetableChangeSubscription = widget._timetable.onTimeTableChange().listen(
       (update) {
         getUpdatedTimetable();
 
@@ -145,6 +149,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   void dispose() {
     _pageController?.dispose();
     _editingPaneAnimationController.dispose();
+    timetableChangeSubscription.cancel();
     super.dispose();
   }
 
