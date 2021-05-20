@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:flutter_restart/flutter_restart.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'dart:js' as js;
 
 // Services
 import '../services/database.dart';
@@ -60,7 +62,11 @@ class _TimetablesState extends State<Timetables> {
     return WillPopScope(
       onWillPop: () async {
         if (changed) {
-          await FlutterRestart.restartApp();
+          if (kIsWeb) {
+            js.context.callMethod("reload");
+          } else {
+            await FlutterRestart.restartApp();
+          }
           return false;
         } else {
           return true;
@@ -95,11 +101,15 @@ class _TimetablesState extends State<Timetables> {
                       changed = true;
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text("Restart for actions to take effect"),
+                          content: Text("Reload for actions to take effect"),
                           action: SnackBarAction(
-                            label: "Restart",
+                            label: "Reload",
                             onPressed: () async {
-                              await FlutterRestart.restartApp();
+                              if (kIsWeb) {
+                                js.context.callMethod("reload");
+                              } else {
+                                await FlutterRestart.restartApp();
+                              }
                             },
                           ),
                         ),
