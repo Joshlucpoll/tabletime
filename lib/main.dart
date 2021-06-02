@@ -107,66 +107,22 @@ class _AppState extends State<App> {
   }
 }
 
-class RestartWidget extends StatefulWidget {
-  final Widget child;
-
-  RestartWidget({this.child});
-
-  @override
-  _RestartWidgetState createState() => _RestartWidgetState();
-
-  static void restartApp(BuildContext context) {
-    print(context);
-    context.findAncestorStateOfType<_RestartWidgetState>().restartApp();
-    print("got here");
-    // print(state)
-    // state.restartApp();
-  }
-
-  static _RestartWidgetState of(BuildContext context) {
-    assert(context != null);
-
-    return (context.getElementForInheritedWidgetOfExactType().widget
-        as _RestartWidgetState);
-  }
-}
-
-class _RestartWidgetState extends State<RestartWidget> {
-  Key key = UniqueKey();
-
-  void restartApp() {
-    setState(() {
-      key = UniqueKey();
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return KeyedSubtree(
-      key: key,
-      child: widget.child,
-    );
-  }
-}
-
 class Root extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return RestartWidget(
-      child: StreamBuilder(
-        stream: GetIt.I.get<Auth>().user,
-        builder: (BuildContext context, AsyncSnapshot<User> snapshot) {
-          if (snapshot.connectionState == ConnectionState.active) {
-            if (snapshot.data?.uid == null) {
-              return Login();
-            } else {
-              return Home();
-            }
+    return StreamBuilder(
+      stream: GetIt.I.get<Auth>().user,
+      builder: (BuildContext context, AsyncSnapshot<User> snapshot) {
+        if (snapshot.connectionState == ConnectionState.active) {
+          if (snapshot.data?.uid == null) {
+            return Login();
           } else {
-            return Loading();
+            return Home();
           }
-        },
-      ),
+        } else {
+          return Loading();
+        }
+      },
     );
   }
 }

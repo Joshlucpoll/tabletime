@@ -1,12 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:flutter_restart/flutter_restart.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
-import 'dart:js' as js;
 
 // Services
 import '../services/database.dart';
+import 'package:timetable/services/reload/reload.dart';
 import 'package:timetable/services/timetable.dart';
 
 class Timetables extends StatefulWidget {
@@ -62,11 +60,7 @@ class _TimetablesState extends State<Timetables> {
     return WillPopScope(
       onWillPop: () async {
         if (changed) {
-          if (kIsWeb) {
-            js.context.callMethod("reload");
-          } else {
-            await FlutterRestart.restartApp();
-          }
+          await reload(context);
           return false;
         } else {
           return true;
@@ -105,11 +99,7 @@ class _TimetablesState extends State<Timetables> {
                           action: SnackBarAction(
                             label: "Reload",
                             onPressed: () async {
-                              if (kIsWeb) {
-                                js.context.callMethod("reload");
-                              } else {
-                                await FlutterRestart.restartApp();
-                              }
+                              await reload(context);
                             },
                           ),
                         ),
