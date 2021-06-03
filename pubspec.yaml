@@ -47,7 +47,7 @@ dependencies:
   uuid: ^3.0.4
 
 flutter_icons:
-  image_path: "assets/images/tabletime_logo.png"
+  image_path: "assets/images/tabletime_logo_white.png"
   android: true
   ios: true
 
