@@ -30,13 +30,13 @@ class Login extends StatelessWidget {
                     onPrimary: Colors.white,
                     padding: EdgeInsets.all(0),
                   ),
-                  onPressed: () => _auth.signInWithGoogle().catchError(
-                        (e) => ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(e.message),
-                          ),
-                        ),
+                  onPressed: () => _auth.signInWithGoogle().catchError((e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(e.message),
                       ),
+                    );
+                  }),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
