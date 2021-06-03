@@ -302,9 +302,12 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
               backgroundColor: Theme.of(context).scaffoldBackgroundColor,
               title: Row(
                 children: <Widget>[
-                  Image(
-                    image: AssetImage("assets/images/tabletime_logo.png"),
-                    height: 25.0,
+                  Tooltip(
+                    message: timetableName,
+                    child: Image(
+                      image: AssetImage("assets/images/tabletime_logo.png"),
+                      height: 25.0,
+                    ),
                   ),
                   showcase(
                     key: _currentWeekButton,
