@@ -53,6 +53,20 @@ class _TimetablesState extends State<Timetables> {
     await getTimetables();
   }
 
+  void displayReloadWarning(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("Reload for actions to take effect"),
+        action: SnackBarAction(
+          label: "Reload",
+          onPressed: () async {
+            await reload(context);
+          },
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -73,6 +87,7 @@ class _TimetablesState extends State<Timetables> {
           onPressed: () async {
             await widget._database.addTimetable();
             changed = true;
+            displayReloadWarning(context);
             await getTimetables();
           },
         ),
@@ -92,17 +107,7 @@ class _TimetablesState extends State<Timetables> {
                         selectedIndex = value;
                       });
                       changed = true;
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text("Reload for actions to take effect"),
-                          action: SnackBarAction(
-                            label: "Reload",
-                            onPressed: () async {
-                              await reload(context);
-                            },
-                          ),
-                        ),
-                      );
+                      displayReloadWarning(context);
                       await widget._database
                           .switchTimetable(id: timetable.value.id);
                     },
@@ -188,10 +193,11 @@ class _TimetablesState extends State<Timetables> {
                                   onPressed: () async {
                                     await deleteTimetable(
                                         id: timetable.value.id);
+                                    changed = true;
+                                    displayReloadWarning(context);
                                     await widget._database
                                         .switchTimetable(id: timetables[0].id);
                                     await getTimetables();
-                                    // check if timetable in last one and don't allow deletion
                                     Navigator.of(context).pop();
                                   },
                                 ),
