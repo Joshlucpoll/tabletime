@@ -47,7 +47,7 @@ class Period extends StatelessWidget {
         padding: EdgeInsets.all(10),
         child: ListTile(
           trailing: InkWell(
-            onTap: () => deletePeriod(index),
+            onTap: () async => await deletePeriod(index),
             child: Icon(Icons.delete),
           ),
           title: Container(
@@ -61,7 +61,7 @@ class Period extends StatelessWidget {
             children: <Widget>[
               InkWell(
                 borderRadius: BorderRadius.circular(5),
-                onTap: () => changePeriod(index, true, context),
+                onTap: () async => await changePeriod(index, true, context),
                 child: Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(5),
@@ -140,14 +140,9 @@ class PeriodStructureState extends State<PeriodStructure> {
   List<PeriodData> periodsData;
   Map<String, WeekData> weeksData;
 
-  final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
-  List<PeriodData> animationList;
-
   @override
   void initState() {
     super.initState();
-    animationList = [];
-
     widget._timetable.onTimeTableChange().listen(
       (update) {
         getUpdatedTimetable();
@@ -166,7 +161,7 @@ class PeriodStructureState extends State<PeriodStructure> {
     super.dispose();
   }
 
-  Future<void> getUpdatedTimetable() async {
+  void getUpdatedTimetable() {
     if (mounted) {
       setState(() {
         timetableName = widget._timetable.timetableName;
@@ -202,11 +197,7 @@ class PeriodStructureState extends State<PeriodStructure> {
     final newTimetable = rawTimetable;
     newTimetable["period_structure"] = newList;
 
-    int index = newList.indexOf(newPeriodRaw);
-
     await widget._database.updateTimetableData(data: newTimetable);
-
-    _listKey.currentState.insertItem(index);
   }
 
   void _changeNewPeriod(
@@ -268,7 +259,7 @@ class PeriodStructureState extends State<PeriodStructure> {
             FlatButton(
               textColor: Colors.red,
               child: Text("Continue"),
-              onPressed: () {
+              onPressed: () async {
                 Map<String, dynamic> rawTimetable =
                     widget._timetable.rawTimetable;
 
@@ -293,9 +284,9 @@ class PeriodStructureState extends State<PeriodStructure> {
                 final newTimetable = rawTimetable;
                 newTimetable["weeks"] = newWeeks;
 
-                widget._database.updateTimetableData(data: newTimetable);
+                await widget._database.updateTimetableData(data: newTimetable);
 
-                _deletePeriod(index);
+                await _deletePeriod(index);
                 Navigator.of(context).pop();
               },
             )
@@ -303,7 +294,7 @@ class PeriodStructureState extends State<PeriodStructure> {
         ),
       );
     } else {
-      _deletePeriod(index);
+      await _deletePeriod(index);
     }
   }
 
@@ -314,19 +305,6 @@ class PeriodStructureState extends State<PeriodStructure> {
 
     final newTimetable = rawTimetable;
     newTimetable["period_structure"] = newList;
-
-    _listKey.currentState.removeItem(
-      index,
-      (context, animation) => periodBuilder(
-        animation: animation,
-        index: index,
-        period: periodsData[index],
-        changePeriod: _changePeriod,
-        deletePeriod: _deletePeriod,
-      ),
-    );
-
-    await Future.delayed(Duration(milliseconds: 500), () {});
 
     await widget._database.updateTimetableData(data: newTimetable);
   }
@@ -371,29 +349,6 @@ class PeriodStructureState extends State<PeriodStructure> {
     }
   }
 
-  Widget periodBuilder({
-    PeriodData period,
-    int index,
-    Animation animation,
-    Function changePeriod,
-    Function deletePeriod,
-  }) {
-    return SlideTransition(
-      position: animation.drive(CurveTween(curve: Curves.ease)).drive(
-            Tween<Offset>(
-              begin: Offset(1.0, 0.0),
-              end: Offset.zero,
-            ),
-          ),
-      child: Period(
-        period: periodsData[index],
-        index: index,
-        changePeriod: _changePeriod,
-        deletePeriod: _removePeriod,
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return timetableData == false
@@ -425,20 +380,20 @@ class PeriodStructureState extends State<PeriodStructure> {
                             ],
                           ),
                         )
-                      : AnimatedList(
-                          key: _listKey,
+                      : ListView(
                           padding: EdgeInsets.only(top: 20.0, bottom: 80.0),
                           scrollDirection: Axis.vertical,
-                          initialItemCount: periodsData.length,
-                          itemBuilder: (context, index, animation) {
-                            return periodBuilder(
-                              period: periodsData[index],
-                              index: index,
-                              animation: animation,
-                              changePeriod: _changePeriod,
-                              deletePeriod: _deletePeriod,
-                            );
-                          },
+                          children: periodsData
+                              .asMap()
+                              .entries
+                              .map<Widget>(
+                                (period) => Period(
+                                    period: period.value,
+                                    index: period.key,
+                                    changePeriod: _changePeriod,
+                                    deletePeriod: _removePeriod),
+                              )
+                              .toList(),
                         ),
                 ),
               ),
@@ -573,8 +528,9 @@ class PeriodStructureState extends State<PeriodStructure> {
                           SizedBox(height: 10),
                           RaisedButton(
                             child: Text("Add"),
-                            onPressed: () {
-                              _addPeriod(currentStartTime, currentEndTime);
+                            onPressed: () async {
+                              await _addPeriod(
+                                  currentStartTime, currentEndTime);
                               Navigator.pop(context);
                             },
                           ),
