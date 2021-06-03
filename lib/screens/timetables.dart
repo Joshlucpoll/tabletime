@@ -5,11 +5,9 @@ import 'package:get_it/get_it.dart';
 // Services
 import '../services/database.dart';
 import 'package:timetable/services/reload/reload.dart';
-import 'package:timetable/services/timetable.dart';
 
 class Timetables extends StatefulWidget {
   final Database _database = GetIt.I.get<Database>();
-  final Timetable _timetable = GetIt.I.get<Timetable>();
 
   @override
   _TimetablesState createState() => _TimetablesState();
@@ -124,11 +122,23 @@ class _TimetablesState extends State<Timetables> {
                               controller: _tabletimeNameController,
                             ),
                             actions: [
-                              FlatButton(
+                              TextButton(
+                                style: TextButton.styleFrom(
+                                  primary: Theme.of(context)
+                                      .textTheme
+                                      .bodyText1
+                                      .color,
+                                ),
                                 child: Text("Cancel"),
                                 onPressed: () => Navigator.of(context).pop(),
                               ),
-                              FlatButton(
+                              TextButton(
+                                style: TextButton.styleFrom(
+                                  primary: Theme.of(context)
+                                      .textTheme
+                                      .bodyText1
+                                      .color,
+                                ),
                                 child: Text("Ok"),
                                 onPressed: () async {
                                   await widget._database.editTimetableName(
@@ -151,12 +161,20 @@ class _TimetablesState extends State<Timetables> {
                             content: Text(
                                 "Are you sure you want to completely delete this timetable? This action is irreversible."),
                             actions: [
-                              FlatButton(
+                              TextButton(
+                                style: TextButton.styleFrom(
+                                  primary: Theme.of(context)
+                                      .textTheme
+                                      .bodyText1
+                                      .color,
+                                ),
                                 child: Text("Cancel"),
                                 onPressed: () => Navigator.of(context).pop(),
                               ),
-                              FlatButton(
-                                textColor: Colors.red,
+                              TextButton(
+                                style: TextButton.styleFrom(
+                                  primary: Colors.red,
+                                ),
                                 child: Text("Continue"),
                                 onPressed: () async {
                                   await deleteTimetable(id: timetable.value.id);

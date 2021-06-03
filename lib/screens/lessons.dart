@@ -143,12 +143,17 @@ class _LessonGeneratorState extends State<LessonGenerator> {
           content: Text(lessonsData[id].name +
               " is still in your timetable. Deleting this lessons will also remove every occurrence from your timetable."),
           actions: [
-            FlatButton(
+            TextButton(
+              style: TextButton.styleFrom(
+                primary: Theme.of(context).textTheme.bodyText1.color,
+              ),
               child: Text("Cancel"),
               onPressed: () => Navigator.of(context).pop(),
             ),
-            FlatButton(
-              textColor: Colors.red,
+            TextButton(
+              style: TextButton.styleFrom(
+                primary: Colors.red,
+              ),
               child: Text("Continue"),
               onPressed: () {
                 Map<String, dynamic> rawTimetable =
@@ -492,7 +497,7 @@ class _LessonGeneratorState extends State<LessonGenerator> {
                                 return null;
                               },
                             ),
-                            RaisedButton(
+                            ElevatedButton(
                               child: Text(lesson == null ? "Add" : "Save"),
                               onPressed: () {
                                 if (_formKey.currentState.validate()) {

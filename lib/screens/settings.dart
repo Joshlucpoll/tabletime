@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:convert';
 import 'package:get_it/get_it.dart';
 import 'package:timetable/screens/timetables.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -213,12 +212,18 @@ class _SettingsPageState extends State<SettingsPage> {
                       content: Text(
                           "Are you sure you want to reset your timetable? This does not delete your lessons nor periods, just which lessons happen at which period"),
                       actions: [
-                        FlatButton(
+                        TextButton(
+                          style: TextButton.styleFrom(
+                            primary:
+                                Theme.of(context).textTheme.bodyText1.color,
+                          ),
                           child: Text("Cancel"),
                           onPressed: () => Navigator.of(context).pop(),
                         ),
-                        FlatButton(
-                          textColor: Colors.red,
+                        TextButton(
+                          style: TextButton.styleFrom(
+                            primary: Colors.red,
+                          ),
                           child: Text("Reset"),
                           onPressed: () {
                             widget._database.resetWeeksData();

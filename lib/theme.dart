@@ -10,11 +10,11 @@ class AppTheme {
       brightness: Brightness.light,
       fontFamily: "Poppins",
       primaryColor: Colors.grey[300],
-      accentColor: Colors.black,
-      buttonTheme: ButtonThemeData(
-        buttonColor: Colors.blue,
-        textTheme: ButtonTextTheme.primary,
-      ),
+      // accentColor: Colors.black,
+      // buttonTheme: ButtonThemeData(
+      // buttonColor: Colors.blue,
+      // textTheme: ButtonTextTheme.primary,
+      // ),
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
       ),
@@ -30,8 +30,8 @@ class AppTheme {
         behavior: SnackBarBehavior.floating,
       ),
       visualDensity: VisualDensity.adaptivePlatformDensity,
-      floatingActionButtonTheme:
-          FloatingActionButtonThemeData(backgroundColor: Colors.white),
+      // floatingActionButtonTheme:
+      //     FloatingActionButtonThemeData(backgroundColor: Colors.white),
     );
   }
 }

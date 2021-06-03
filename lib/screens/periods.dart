@@ -1,5 +1,3 @@
-import 'dart:io';
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:get_it/get_it.dart';
@@ -252,12 +250,17 @@ class PeriodStructureState extends State<PeriodStructure> {
               (index + 1).toString() +
               " has lessons associated with it, deleting it will also remove those lessons from your timetable"),
           actions: [
-            FlatButton(
+            TextButton(
+              style: TextButton.styleFrom(
+                primary: Theme.of(context).textTheme.bodyText1.color,
+              ),
               child: Text("Cancel"),
               onPressed: () => Navigator.of(context).pop(),
             ),
-            FlatButton(
-              textColor: Colors.red,
+            TextButton(
+              style: TextButton.styleFrom(
+                primary: Colors.red,
+              ),
               child: Text("Continue"),
               onPressed: () async {
                 Map<String, dynamic> rawTimetable =
@@ -526,7 +529,7 @@ class PeriodStructureState extends State<PeriodStructure> {
                             ),
                           ),
                           SizedBox(height: 10),
-                          RaisedButton(
+                          ElevatedButton(
                             child: Text("Add"),
                             onPressed: () async {
                               await _addPeriod(

@@ -348,9 +348,13 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                               ),
                             ),
                           )
-                        : FlatButton(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(5.0),
+                        : TextButton(
+                            style: TextButton.styleFrom(
+                              primary:
+                                  Theme.of(context).textTheme.bodyText1.color,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(5.0),
+                              ),
                             ),
                             onPressed: () => changeCurrentWeek(
                               context: context,
@@ -393,13 +397,21 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                 content: Text(
                                     "You are about to discard unsaved changes."),
                                 actions: [
-                                  FlatButton(
+                                  TextButton(
+                                    style: TextButton.styleFrom(
+                                      primary: Theme.of(context)
+                                          .textTheme
+                                          .bodyText1
+                                          .color,
+                                    ),
                                     child: Text("Cancel"),
                                     onPressed: () =>
                                         Navigator.of(context).pop(),
                                   ),
-                                  FlatButton(
-                                    textColor: Colors.red,
+                                  TextButton(
+                                    style: TextButton.styleFrom(
+                                      primary: Colors.red,
+                                    ),
                                     child: Text("Continue"),
                                     onPressed: () {
                                       toggleEditingWeeks(
@@ -553,10 +565,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                               fontWeight: FontWeight.w600,
                                             ),
                                           ),
-                                          FlatButton(
-                                            color:
-                                                Theme.of(context).canvasColor,
-                                            padding: EdgeInsets.all(0),
+                                          ElevatedButton(
                                             child: Text("Save"),
                                             onPressed: () => toggleEditingWeeks(
                                               editing: false,
@@ -725,7 +734,7 @@ class _DraggablePillState extends State<DraggablePill> {
       alignment: Alignment(position.dx, position.dy),
       child: Draggable<String>(
         maxSimultaneousDrags: 1,
-        dragAnchor: DragAnchor.child,
+        dragAnchorStrategy: childDragAnchorStrategy,
         affinity: Axis.vertical,
         data: widget.lesson.id,
         child: lessonPill(false),

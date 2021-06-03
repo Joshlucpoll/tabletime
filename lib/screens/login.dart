@@ -24,8 +24,12 @@ class Login extends StatelessWidget {
                   image: AssetImage("assets/images/tabletime_logo.png"),
                   width: MediaQuery.of(context).size.shortestSide * 0.3,
                 ),
-                RaisedButton(
-                  padding: EdgeInsets.all(0),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    primary: Color(0xFF3469C1),
+                    onPrimary: Colors.white,
+                    padding: EdgeInsets.all(0),
+                  ),
                   onPressed: () => _auth.signInWithGoogle().catchError(
                         (e) => ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
@@ -33,8 +37,6 @@ class Login extends StatelessWidget {
                           ),
                         ),
                       ),
-                  color: Color(0xFF3469C1),
-                  textColor: Colors.white,
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
