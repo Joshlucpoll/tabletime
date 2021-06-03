@@ -131,14 +131,10 @@ class _TimetablesState extends State<Timetables> {
                               FlatButton(
                                 child: Text("Ok"),
                                 onPressed: () async {
-                                  final newTimetableData =
-                                      widget._timetable.rawTimetable;
-
-                                  newTimetableData["timetable_name"] =
-                                      _tabletimeNameController.text;
-
-                                  await widget._database.updateTimetableData(
-                                      data: newTimetableData);
+                                  await widget._database.editTimetableName(
+                                    name: _tabletimeNameController.text,
+                                    timetableID: timetable.value.id,
+                                  );
 
                                   await getTimetables();
                                   Navigator.of(context).pop();

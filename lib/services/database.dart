@@ -34,8 +34,10 @@ class Database {
       CollectionReference timetablesRef = userRef.collection("timetables");
       DocumentReference timetableRef = timetablesRef.doc();
 
+      List<QueryDocumentSnapshot> timetables = await getTimetables();
+
       final data = {
-        "timetable_name": "My Timetable" + Uuid().v1().substring(0, 3),
+        "timetable_name": "My Timetable " + (timetables.length + 1).toString(),
         "current_week": {
           "week": 1,
           "date": new DateTime.now().toIso8601String(),
@@ -83,6 +85,17 @@ class Database {
       DocumentReference timetableRef = timetablesRef.doc(id);
 
       await timetableRef.delete();
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> editTimetableName({String name, String timetableID}) async {
+    try {
+      CollectionReference timetablesRef = userRef.collection("timetables");
+      DocumentReference timetableRef = timetablesRef.doc(timetableID);
+
+      await timetableRef.update({"timetable_name": name});
     } catch (e) {
       rethrow;
     }
