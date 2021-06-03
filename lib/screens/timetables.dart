@@ -180,8 +180,16 @@ class _TimetablesState extends State<Timetables> {
                       const PopupMenuItem(
                         value: 1,
                         child: ListTile(
-                          leading: Icon(Icons.delete),
-                          title: Text("Delete"),
+                          leading: Icon(
+                            Icons.delete,
+                            color: Colors.red,
+                          ),
+                          title: Text(
+                            "Delete",
+                            style: TextStyle(
+                              color: Colors.red,
+                            ),
+                          ),
                         ),
                       ),
                     ],
