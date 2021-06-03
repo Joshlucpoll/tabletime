@@ -87,7 +87,7 @@ class _TimetablesState extends State<Timetables> {
                   leading: Radio(
                     value: timetable.key,
                     groupValue: selectedIndex,
-                    onChanged: (value) {
+                    onChanged: (value) async {
                       setState(() {
                         selectedIndex = value;
                       });
@@ -103,7 +103,8 @@ class _TimetablesState extends State<Timetables> {
                           ),
                         ),
                       );
-                      widget._database.switchTimetable(id: timetable.value.id);
+                      await widget._database
+                          .switchTimetable(id: timetable.value.id);
                     },
                   ),
                   title: Text(
@@ -155,37 +156,49 @@ class _TimetablesState extends State<Timetables> {
                           ),
                         );
                       } else if (result == 1) {
-                        showDialog(
-                          context: context,
-                          builder: (_) => new AlertDialog(
-                            title: Text("Delete Timetable"),
-                            content: Text(
-                                "Are you sure you want to completely delete this timetable? This action is irreversible."),
-                            actions: [
-                              TextButton(
-                                style: TextButton.styleFrom(
-                                  primary: Theme.of(context)
-                                      .textTheme
-                                      .bodyText1
-                                      .color,
+                        if (timetables.length <= 1) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text("Cannot delete only timetable"),
+                            ),
+                          );
+                        } else {
+                          showDialog(
+                            context: context,
+                            builder: (_) => new AlertDialog(
+                              title: Text("Delete Timetable"),
+                              content: Text(
+                                  "Are you sure you want to completely delete this timetable? This action is irreversible."),
+                              actions: [
+                                TextButton(
+                                  style: TextButton.styleFrom(
+                                    primary: Theme.of(context)
+                                        .textTheme
+                                        .bodyText1
+                                        .color,
+                                  ),
+                                  child: Text("Cancel"),
+                                  onPressed: () => Navigator.of(context).pop(),
                                 ),
-                                child: Text("Cancel"),
-                                onPressed: () => Navigator.of(context).pop(),
-                              ),
-                              TextButton(
-                                style: TextButton.styleFrom(
-                                  primary: Colors.red,
+                                TextButton(
+                                  style: TextButton.styleFrom(
+                                    primary: Colors.red,
+                                  ),
+                                  child: Text("Continue"),
+                                  onPressed: () async {
+                                    await deleteTimetable(
+                                        id: timetable.value.id);
+                                    await widget._database
+                                        .switchTimetable(id: timetables[0].id);
+                                    await getTimetables();
+                                    // check if timetable in last one and don't allow deletion
+                                    Navigator.of(context).pop();
+                                  },
                                 ),
-                                child: Text("Continue"),
-                                onPressed: () async {
-                                  await deleteTimetable(id: timetable.value.id);
-                                  await getTimetables();
-                                  Navigator.of(context).pop();
-                                },
-                              ),
-                            ],
-                          ),
-                        );
+                              ],
+                            ),
+                          );
+                        }
                       }
                     },
                     itemBuilder: (BuildContext context) => <PopupMenuEntry>[
