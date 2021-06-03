@@ -72,6 +72,7 @@ class _TimetablesState extends State<Timetables> {
           child: Icon(Icons.add),
           onPressed: () async {
             await widget._database.addTimetable();
+            changed = true;
             await getTimetables();
           },
         ),
