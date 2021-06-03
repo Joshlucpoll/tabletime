@@ -62,39 +62,6 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
 
   AnimationController _editingPaneAnimationController;
 
-  void initialisePageController({
-    int numberOfWeeks,
-    CurrentWeek currentWeekData,
-  }) {
-    int difference =
-        (DateTime.now().difference(currentWeekData.date).inDays / 7).truncate();
-
-    int currentWeek = (currentWeekData.week + difference) % numberOfWeeks;
-
-    currentWeek = currentWeek == 0 ? currentWeekData.week : currentWeek;
-
-    if (this.mounted) {
-      setState(() => selectedWeek = currentWeek);
-    }
-
-    _pageController = PageController(initialPage: currentWeek - 1);
-    if (this.mounted) {
-      setState(() {
-        pageIndex = (currentWeek - 1).roundToDouble();
-      });
-    }
-
-    _pageController.addListener(() {
-      if (_pageController.hasClients) {
-        if (this.mounted) {
-          setState(() {
-            pageIndex = _pageController.page;
-          });
-        }
-      }
-    });
-  }
-
   @override
   void initState() {
     timetableChangeSubscription = widget._timetable.onTimeTableChange().listen(
@@ -129,6 +96,39 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
       vsync: this,
     );
     super.initState();
+  }
+
+  void initialisePageController({
+    int numberOfWeeks,
+    CurrentWeek currentWeekData,
+  }) {
+    int difference =
+        (DateTime.now().difference(currentWeekData.date).inDays / 7).truncate();
+
+    int currentWeek = (currentWeekData.week + difference) % numberOfWeeks;
+
+    currentWeek = currentWeek == 0 ? currentWeekData.week : currentWeek;
+
+    if (this.mounted) {
+      setState(() => selectedWeek = currentWeek);
+    }
+
+    _pageController = PageController(initialPage: currentWeek - 1);
+    if (this.mounted) {
+      setState(() {
+        pageIndex = (currentWeek - 1).roundToDouble();
+      });
+    }
+
+    _pageController.addListener(() {
+      if (_pageController.hasClients) {
+        if (this.mounted) {
+          setState(() {
+            pageIndex = _pageController.page;
+          });
+        }
+      }
+    });
   }
 
   void getUpdatedTimetable() {
@@ -180,6 +180,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   }
 
   void changeCurrentWeek({BuildContext context, int week}) async {
+    int oldSelectedWeek = selectedWeek;
     String retVal = await widget._database.setCurrentWeek(currentWeek: week);
     String outputText =
         retVal == "Success" ? "Current week is now " + week.toString() : retVal;
@@ -187,6 +188,28 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(outputText),
+        action: SnackBarAction(
+          label: "Undo",
+          onPressed: () async {
+            String retVal = await widget._database
+                .setCurrentWeek(currentWeek: oldSelectedWeek);
+            String outputText = retVal == "Success"
+                ? "Current week is now " + oldSelectedWeek.toString()
+                : retVal;
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(outputText),
+              ),
+            );
+
+            if (retVal == "Success") {
+              setState(
+                () => selectedWeek = oldSelectedWeek,
+              );
+            }
+          },
+        ),
       ),
     );
 
