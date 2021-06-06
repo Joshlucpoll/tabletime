@@ -70,7 +70,7 @@ class Database {
 
       await timetableRef.set(data);
 
-      await userRef.update({"current_timetable": timetableRef});
+      await userRef.set({"current_timetable": timetableRef});
 
       return "Success";
     } catch (e) {
@@ -139,7 +139,8 @@ class Database {
 
   Future<DocumentReference<Map<String, dynamic>>> getCurrentTimetable() async {
     try {
-      return await userRef
+      DocumentReference<Map<String, dynamic>> usrRef = userRef;
+      return await usrRef
           .get()
           .then((DocumentSnapshot<Map<String, dynamic>> docSnapshot) async {
         if (docSnapshot.data() == null) {
