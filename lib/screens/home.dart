@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -577,9 +578,20 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                     ),
                                     Container(
                                       alignment: Alignment.centerLeft,
+                                      foregroundDecoration: BoxDecoration(
+                                        gradient: LinearGradient(
+                                          stops: [0.6, 1.0],
+                                          colors: [
+                                            Theme.of(context)
+                                                .primaryColor
+                                                .withAlpha(0),
+                                            Theme.of(context).primaryColor
+                                          ],
+                                        ),
+                                      ),
                                       child: SingleChildScrollView(
                                         padding:
-                                            EdgeInsets.symmetric(vertical: 10),
+                                            EdgeInsets.symmetric(vertical: 20),
                                         scrollDirection: Axis.horizontal,
                                         child: Row(
                                           children: new List.from(
@@ -594,8 +606,14 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                               Material(
                                                 color: Colors.transparent,
                                                 child: Container(
-                                                  margin: EdgeInsets.symmetric(
-                                                      horizontal: 5),
+                                                  margin: EdgeInsets.only(
+                                                    left: 5,
+                                                    right:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .width *
+                                                            0.3,
+                                                  ),
                                                   child: InkWell(
                                                     onTap: () => Navigator.push(
                                                       context,
@@ -694,7 +712,7 @@ class _DraggablePillState extends State<DraggablePill> {
           color: Colors.transparent,
           child: Container(
             alignment: Alignment.center,
-            padding: EdgeInsets.all(7),
+            padding: EdgeInsets.all(10),
             margin: EdgeInsets.symmetric(horizontal: 5),
             decoration: BoxDecoration(
               color: backgroundColour,
@@ -713,7 +731,7 @@ class _DraggablePillState extends State<DraggablePill> {
       color: Colors.transparent,
       child: Container(
         alignment: Alignment.center,
-        padding: EdgeInsets.all(4),
+        padding: EdgeInsets.all(7),
         margin: EdgeInsets.symmetric(horizontal: 6),
         decoration: BoxDecoration(
           border: Border.all(
