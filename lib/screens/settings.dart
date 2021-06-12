@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:timetable/screens/timetables.dart';
+import 'package:timetable/widgets/expandedSelection.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:timetable/screens/loading.dart';
@@ -43,7 +44,8 @@ class _SettingsPageState extends State<SettingsPage> {
   int dropdownValue;
   int themePreference = 0;
   NotificationPref notificationPref;
-  bool weekendDays;
+  WeekendEnabled weekendEnabled;
+  bool weekendDaysOpen = false;
 
   @override
   void initState() {
@@ -57,7 +59,7 @@ class _SettingsPageState extends State<SettingsPage> {
           _tabletimeNameController =
               TextEditingController(text: widget._timetable.timetableName);
           notificationPref = widget._timetable.notificationPref;
-          weekendDays = widget._timetable.weekends;
+          weekendEnabled = widget._timetable.weekendEnabled;
 
           setState(() {
             timetableData = true;
@@ -81,7 +83,7 @@ class _SettingsPageState extends State<SettingsPage> {
       setState(() {
         dropdownValue = widget._timetable.numberOfWeeks;
         notificationPref = widget._timetable.notificationPref;
-        weekendDays = widget._timetable.weekends;
+        weekendEnabled = widget._timetable.weekendEnabled;
       });
     }
   }
@@ -157,22 +159,86 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                   title: Text("Number of Weeks"),
                 ),
-                ListTile(
-                  leading: Icon(Icons.weekend),
-                  title: Text("Weekend Days"),
-                  trailing: Switch(
-                    onChanged: (opposite) {
-                      setState(() {
-                        weekendDays = opposite;
-                      });
-                      final newTimetableData = widget._timetable.rawTimetable;
-                      newTimetableData["weekends"] = opposite;
-                      widget._database
-                          .updateTimetableData(data: newTimetableData);
-                    },
-                    value: weekendDays,
-                  ),
+
+                Column(
+                  children: [
+                    ListTile(
+                      leading: Icon(Icons.weekend),
+                      title: Text("Weekend Days"),
+                      trailing: Icon(
+                        weekendDaysOpen ? Icons.expand_less : Icons.expand_more,
+                      ),
+                      onTap: () =>
+                          setState(() => weekendDaysOpen = !weekendDaysOpen),
+                    ),
+                    ExpandedSection(
+                      expand: weekendDaysOpen,
+                      child: Column(
+                        children: [
+                          ListTile(
+                            leading: Checkbox(
+                              value: weekendEnabled.saturday,
+                              onChanged: (bool selected) async {
+                                setState(() {
+                                  weekendEnabled = WeekendEnabled(
+                                    saturday: selected,
+                                    sunday: weekendEnabled.sunday,
+                                  );
+                                });
+                                final newTimetableData =
+                                    widget._timetable.rawTimetable;
+                                newTimetableData["weekend_enabled"] = {
+                                  "saturday": selected,
+                                  "sunday": weekendEnabled.sunday,
+                                };
+                                await widget._database.updateTimetableData(
+                                    data: newTimetableData);
+                              },
+                            ),
+                            title: Text("Saturday"),
+                          ),
+                          ListTile(
+                            leading: Checkbox(
+                                value: weekendEnabled.sunday,
+                                onChanged: (bool selected) async {
+                                  setState(() {
+                                    weekendEnabled = WeekendEnabled(
+                                      saturday: weekendEnabled.saturday,
+                                      sunday: selected,
+                                    );
+                                  });
+                                  final newTimetableData =
+                                      widget._timetable.rawTimetable;
+                                  newTimetableData["weekend_enabled"] = {
+                                    "saturday": weekendEnabled.saturday,
+                                    "sunday": selected,
+                                  };
+                                  await widget._database.updateTimetableData(
+                                      data: newTimetableData);
+                                }),
+                            title: Text("Sunday"),
+                          )
+                        ],
+                      ),
+                    )
+                  ],
                 ),
+                // ListTile(
+                //   leading: Icon(Icons.weekend),
+                //   title: Text("Weekend Days"),
+                //   trailing: Switch(
+                //     onChanged: (opposite) {
+                //       setState(() {
+                //         weekendEnabled = opposite;
+                //       });
+                //       final newTimetableData = widget._timetable.rawTimetable;
+                //       newTimetableData["weekends"] = opposite;
+                //       widget._database
+                //           .updateTimetableData(data: newTimetableData);
+                //     },
+                //     value: weekendEnabled,
+                //   ),
+                // ),
                 ListTile(
                   onTap: () => Navigator.push(
                     context,

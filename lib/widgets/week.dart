@@ -7,21 +7,20 @@ import './day.dart';
 
 import '../services/timetable.dart';
 
-final shortDays = ["mon", "tue", "wed", "thu", "fri"];
-final shortDaysWeekends = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
+final shortDays = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
 
 class Week extends StatefulWidget {
   final WeekData week;
   final int weekNum;
   final int selectedWeek;
-  final bool weekends;
+  final WeekendEnabled weekendEnabled;
 
   Week({
     Key key,
     this.week,
     this.weekNum,
     this.selectedWeek,
-    this.weekends,
+    this.weekendEnabled,
   }) : super(key: key);
 
   @override
@@ -29,7 +28,6 @@ class Week extends StatefulWidget {
 }
 
 class _WeekState extends State<Week> with TickerProviderStateMixin {
-  List weekdays = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"];
   List days;
 
   TabController _tabController;
@@ -37,7 +35,14 @@ class _WeekState extends State<Week> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    days = widget.weekends ? [...weekdays, "SATURDAY", "SUNDAY"] : weekdays;
+    days = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"];
+    ;
+    if (widget.weekendEnabled.saturday) {
+      days.add("SATURDAY");
+    }
+    if (widget.weekendEnabled.sunday) {
+      days.add("SUNDAY");
+    }
 
     _tabController = TabController(
       vsync: this,
@@ -49,7 +54,14 @@ class _WeekState extends State<Week> with TickerProviderStateMixin {
   @override
   void didUpdateWidget(covariant Week oldWidget) {
     super.didUpdateWidget(oldWidget);
-    days = widget.weekends ? [...weekdays, "SATURDAY", "SUNDAY"] : weekdays;
+    days = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"];
+    ;
+    if (widget.weekendEnabled.saturday) {
+      days.add("SATURDAY");
+    }
+    if (widget.weekendEnabled.sunday) {
+      days.add("SUNDAY");
+    }
 
     int currentIndex = _tabController.index;
     if (currentIndex >= days.length) {
@@ -74,9 +86,17 @@ class _WeekState extends State<Week> with TickerProviderStateMixin {
     DateTime date = DateTime.now();
     int dayNum = date.weekday;
 
-    // If Saturday or Sunday, day will default to Monday
-    if (dayNum > 5 && !widget.weekends) {
-      dayNum = 1;
+    WeekendEnabled x = widget.weekendEnabled;
+    if (dayNum > 5) {
+      if (!x.saturday && x.sunday) {
+        dayNum = 7;
+      } else if (!x.saturday && !x.sunday) {
+        dayNum = 1;
+      } else if (!x.sunday) {
+        if (dayNum == 7) {
+          dayNum = 1;
+        }
+      }
     }
     return dayNum - 1;
   }
@@ -114,7 +134,6 @@ class _WeekState extends State<Week> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    List timetableShortDays = widget.weekends ? shortDaysWeekends : shortDays;
     return KeyBoardShortcuts(
       keysToPress: {LogicalKeyboardKey.arrowRight},
       onKeysPressed: () => shortcutChangeDay(next: true),
@@ -145,11 +164,20 @@ class _WeekState extends State<Week> with TickerProviderStateMixin {
               child: TabBarView(
                 controller: _tabController,
                 physics: const CustomPageViewScrollPhysics(),
-                children: timetableShortDays
+                children: shortDays
+                    .where((day) {
+                      if (day == "sat" && !widget.weekendEnabled.saturday) {
+                        return false;
+                      }
+                      if (day == "sun" && !widget.weekendEnabled.sunday) {
+                        return false;
+                      }
+                      return true;
+                    })
                     .map(
                       (day) => Day(
                         blocks: widget.week.week[day],
-                        dayNum: timetableShortDays.indexOf(day),
+                        dayNum: shortDays.indexOf(day),
                         weekNum: widget.weekNum,
                       ),
                     )

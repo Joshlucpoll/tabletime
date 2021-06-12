@@ -61,6 +61,13 @@ class NotificationPref {
   NotificationPref({this.enabled, this.beforeMins});
 }
 
+class WeekendEnabled {
+  final bool saturday;
+  final bool sunday;
+
+  WeekendEnabled({this.saturday, this.sunday});
+}
+
 class Timetable {
   final Database _database = GetIt.I.get<Database>();
   final Auth _auth = GetIt.I.get<Auth>();
@@ -75,7 +82,7 @@ class Timetable {
   String timetableName;
   int numberOfWeeks;
   CurrentWeek currentWeek;
-  bool weekends;
+  WeekendEnabled weekendEnabled;
   Map<String, LessonData> lessons = {};
   List<PeriodData> periods = [];
   Map<String, WeekData> weeks = {};
@@ -169,13 +176,25 @@ class Timetable {
     weeks.clear();
 
     // Atomic properties
-    timetableName = timetableData["timetable_name"];
-    numberOfWeeks = timetableData["number_of_weeks"];
+    timetableName = timetableData["timetable_name"] ?? "My Timetable";
+    numberOfWeeks = timetableData["number_of_weeks"] ?? 1;
     currentWeek = CurrentWeek(
-      date: DateTime.parse(timetableData["current_week"]["date"]),
-      week: timetableData["current_week"]["week"],
+      date: DateTime.parse(timetableData["current_week"]["date"]) ??
+          () {
+            DateTime now = DateTime.now();
+            DateTime lastMonday = now.subtract(Duration(days: now.weekday - 1));
+
+            return new DateTime(
+                    lastMonday.year, lastMonday.month, lastMonday.day)
+                .toIso8601String();
+          },
+      week: timetableData["current_week"]["week"] ?? 1,
     );
-    weekends = timetableData["weekends"];
+    weekendEnabled = WeekendEnabled(
+          saturday: timetableData["weekend_enabled"]["saturday"],
+          sunday: timetableData["weekend_enabled"]["sunday"],
+        ) ??
+        WeekendEnabled(saturday: false, sunday: false);
 
     // Add lessons
     timetableData["lessons"].forEach(

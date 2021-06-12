@@ -41,7 +41,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   String timetableName;
   CurrentWeek currentWeek;
   int numberOfWeeks;
-  bool weekends;
+  WeekendEnabled weekendEnabled;
   Map<String, LessonData> lessonsData;
   List<PeriodData> periodsData;
   Map<String, WeekData> weeksData;
@@ -138,7 +138,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
         timetableName = widget._timetable.timetableName;
         currentWeek = widget._timetable.currentWeek;
         numberOfWeeks = widget._timetable.numberOfWeeks;
-        weekends = widget._timetable.weekends;
+        weekendEnabled = widget._timetable.weekendEnabled;
         lessonsData = widget._timetable.lessons;
         periodsData = widget._timetable.periods;
         weeksData = widget._timetable.weeks;
@@ -517,7 +517,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                   week: weeksData[index.toString()],
                                   weekNum: index,
                                   selectedWeek: selectedWeek,
-                                  weekends: weekends,
+                                  weekendEnabled: weekendEnabled,
                                 ),
                               ),
                             ),
