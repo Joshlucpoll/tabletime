@@ -4,7 +4,8 @@ import 'package:timetable/screens/timetables.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:timetable/screens/loading.dart';
-import 'package:streaming_shared_preferences/streaming_shared_preferences.dart';
+import 'package:stacked_themes/stacked_themes.dart';
+import '../theme.dart';
 
 // widgets
 import 'package:timetable/screens/lessons.dart';
@@ -46,7 +47,9 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   void initState() {
-    getThemePreference();
+    setState(() {
+      themePreference = getThemeManager(context).selectedThemeIndex;
+    });
     widget._timetable.onTimeTableChange().listen(
       (update) {
         if (!timetableData) {
@@ -70,22 +73,6 @@ class _SettingsPageState extends State<SettingsPage> {
   void dispose() {
     _tabletimeNameController.dispose();
     super.dispose();
-  }
-
-  Future<void> getThemePreference() async {
-    StreamingSharedPreferences prefs =
-        await StreamingSharedPreferences.instance;
-    Preference<int> theme = prefs.getInt("theme_preference", defaultValue: 0);
-
-    setState(() {
-      themePreference = theme.getValue();
-    });
-  }
-
-  Future<void> setThemePreference(int theme) async {
-    StreamingSharedPreferences prefs =
-        await StreamingSharedPreferences.instance;
-    await prefs.setInt("theme_preference", theme);
   }
 
   void getUpdatedTimetable() {
@@ -319,11 +306,12 @@ class _SettingsPageState extends State<SettingsPage> {
                       setState(() {
                         themePreference = newValue;
                       });
-                      setThemePreference(newValue);
+                      AppTheme(context: context)
+                          .changeTheme(themeIndex: newValue);
                     },
-                    items:
-                        <int>[0, 1, 2].map<DropdownMenuItem<int>>((int value) {
-                      List<String> text = ["System", "Light", "Dark"];
+                    items: <int>[0, 1, 2, 3]
+                        .map<DropdownMenuItem<int>>((int value) {
+                      List<String> text = ["System", "Light", "Dark", "Dark+"];
                       return DropdownMenuItem<int>(
                         value: value,
                         child: Text(text[value]),

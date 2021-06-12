@@ -40,6 +40,7 @@ dependencies:
   flutter_local_notifications: ^5.0.0+4
   flutter_native_timezone: ^1.0.10
   flutter_restart: ^0.0.3
+  stacked_themes: ^0.3.3
   showcaseview: ^1.0.0
   keyboard_shortcuts: ^0.1.0
   flutter_colorpicker: ^0.4.0
