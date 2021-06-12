@@ -43,8 +43,8 @@ class Database {
         },
         "number_of_weeks": 1,
         "weekend_enabled": {
-          "saturday": true,
-          "sunday": true,
+          "saturday": false,
+          "sunday": false,
         },
         "period_structure": [],
         "lessons": {},
@@ -168,21 +168,11 @@ class Database {
     }
   }
 
-  Future<void> updateTimetableData({Map<String, dynamic> data}) async {
+  Future<void> setTimetableData({Map<String, dynamic> data}) async {
     try {
       DocumentReference timetableRef = await getCurrentTimetable();
 
       await timetableRef.set(data);
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  Future<void> updateWeeksData({Map weeks}) async {
-    try {
-      DocumentReference timetableRef = await getCurrentTimetable();
-
-      await timetableRef.update({"weeks": weeks});
     } catch (e) {
       rethrow;
     }

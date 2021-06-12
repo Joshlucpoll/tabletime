@@ -36,7 +36,7 @@ class _WeekState extends State<Week> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     days = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"];
-    ;
+
     if (widget.weekendEnabled.saturday) {
       days.add("SATURDAY");
     }
@@ -55,7 +55,7 @@ class _WeekState extends State<Week> with TickerProviderStateMixin {
   void didUpdateWidget(covariant Week oldWidget) {
     super.didUpdateWidget(oldWidget);
     days = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"];
-    ;
+
     if (widget.weekendEnabled.saturday) {
       days.add("SATURDAY");
     }

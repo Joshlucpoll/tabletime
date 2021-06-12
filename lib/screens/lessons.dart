@@ -8,11 +8,9 @@ import 'package:get_it/get_it.dart';
 import 'package:timetable/screens/loading.dart';
 
 // Services
-import 'package:timetable/services/database.dart';
 import 'package:timetable/services/timetable.dart';
 
 class LessonGenerator extends StatefulWidget {
-  final Database _database = GetIt.I.get<Database>();
   final Timetable _timetable = GetIt.I.get<Timetable>();
 
   @override
@@ -65,11 +63,17 @@ class _LessonGeneratorState extends State<LessonGenerator> {
     }
   }
 
-  void _addLesson({String name, Color colour, String teacher, String room}) {
+  Future<void> _addLesson({
+    String name,
+    Color colour,
+    String teacher,
+    String room,
+  }) async {
     setState(() {
       currentColour =
           Colors.primaries[Random().nextInt(Colors.primaries.length)];
     });
+
     final data = {
       "name": name,
       "colour": {
@@ -86,18 +90,21 @@ class _LessonGeneratorState extends State<LessonGenerator> {
     final newLessons = rawTimetable["lessons"];
     newLessons[Uuid().v1()] = data;
 
-    final newTimetable = rawTimetable;
-    newTimetable["lessons"] = newLessons;
-
-    widget._database.updateTimetableData(data: newTimetable);
+    await widget._timetable.updateTimetable(key: "lessons", data: newLessons);
   }
 
-  void _editLesson(
-      {String id, String name, Color colour, String teacher, String room}) {
+  Future<void> _editLesson({
+    String id,
+    String name,
+    Color colour,
+    String teacher,
+    String room,
+  }) async {
     setState(() {
       currentColour =
           Colors.primaries[Random().nextInt(Colors.primaries.length)];
     });
+
     final data = {
       "name": name,
       "colour": {
@@ -114,10 +121,7 @@ class _LessonGeneratorState extends State<LessonGenerator> {
     final newLessons = rawTimetable["lessons"];
     newLessons[id] = data;
 
-    final newTimetable = rawTimetable;
-    newTimetable["lessons"] = newLessons;
-
-    widget._database.updateTimetableData(data: newTimetable);
+    await widget._timetable.updateTimetable(key: "lessons", data: newLessons);
   }
 
   bool _lessonInWeeksData(String id) {
@@ -155,7 +159,7 @@ class _LessonGeneratorState extends State<LessonGenerator> {
                 primary: Colors.red,
               ),
               child: Text("Continue"),
-              onPressed: () {
+              onPressed: () async {
                 Map<String, dynamic> rawTimetable =
                     widget._timetable.rawTimetable;
 
@@ -175,12 +179,10 @@ class _LessonGeneratorState extends State<LessonGenerator> {
                   ),
                 );
 
-                final newTimetable = rawTimetable;
-                newTimetable["weeks"] = newWeeks;
+                await widget._timetable
+                    .updateTimetable(key: "weeks", data: newWeeks);
 
-                widget._database.updateTimetableData(data: newTimetable);
-
-                _deleteLesson(id);
+                await _deleteLesson(id);
                 Navigator.of(context).pop();
               },
             )
@@ -188,21 +190,17 @@ class _LessonGeneratorState extends State<LessonGenerator> {
         ),
       );
     } else {
-      _deleteLesson(id);
+      await _deleteLesson(id);
     }
   }
 
-  void _deleteLesson(String id) {
+  Future<void> _deleteLesson(String id) async {
     Map<String, dynamic> rawTimetable = widget._timetable.rawTimetable;
-
     final newLessons = rawTimetable["lessons"];
 
     newLessons.remove(id);
 
-    final newTimetable = rawTimetable;
-    newTimetable["lessons"] = newLessons;
-
-    widget._database.updateTimetableData(data: newTimetable);
+    await widget._timetable.updateTimetable(key: "lessons", data: newLessons);
   }
 
   @override
@@ -319,7 +317,7 @@ class _LessonGeneratorState extends State<LessonGenerator> {
                       Icons.delete,
                       color: textColor,
                     ),
-                    onPressed: () => _removeLesson(id: lesson.id),
+                    onPressed: () async => await _removeLesson(id: lesson.id),
                   ),
                 ],
               )
@@ -499,17 +497,17 @@ class _LessonGeneratorState extends State<LessonGenerator> {
                             ),
                             ElevatedButton(
                               child: Text(lesson == null ? "Add" : "Save"),
-                              onPressed: () {
+                              onPressed: () async {
                                 if (_formKey.currentState.validate()) {
                                   if (lesson == null) {
-                                    _addLesson(
+                                    await _addLesson(
                                       name: _nameController.text,
                                       colour: currentColour,
                                       teacher: _teacherController.text,
                                       room: _roomController.text,
                                     );
                                   } else {
-                                    _editLesson(
+                                    await _editLesson(
                                       id: lesson.id,
                                       name: _nameController.text,
                                       colour: currentColour,

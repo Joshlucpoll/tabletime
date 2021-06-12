@@ -159,7 +159,45 @@ class Timetable {
     return firstLaunch.getValue();
   }
 
-  void _streamTimetable(bool enable) async {
+  Future<List<QueryDocumentSnapshot<Object>>> getTimetables() async {
+    return _database.getTimetables();
+  }
+
+  Future<DocumentReference<Map<String, dynamic>>> getCurrentTimetable() async {
+    return _database.getCurrentTimetable();
+  }
+
+  Future<void> addTimetable() async {
+    return _database.addTimetable();
+  }
+
+  Future<void> deleteTimetable({String id}) async {
+    return _database.deleteTimetable(id: id);
+  }
+
+  Future<void> switchTimetable({String id}) async {
+    return _database.switchTimetable(id: id);
+  }
+
+  Future<void> editTimetableName({String name, String timetableID}) async {
+    return _database.editTimetableName(name: name, timetableID: timetableID);
+  }
+
+  Future<void> updateTimetable({String key, dynamic data}) async {
+    final newTimetableData = rawTimetable;
+    newTimetableData[key] = data;
+    await _database.setTimetableData(data: newTimetableData);
+  }
+
+  Future<String> setCurrentWeek({int currentWeek}) async {
+    return _database.setCurrentWeek(currentWeek: currentWeek);
+  }
+
+  Future<void> resetTimetableDate() async {
+    await _database.resetWeeksData();
+  }
+
+  Future<void> _streamTimetable(bool enable) async {
     if (enable) {
       _timetableStream = await _database.streamTimetableData();
       _timetableStream.listen((DocumentSnapshot timetableSnapshot) {
@@ -169,7 +207,7 @@ class Timetable {
     }
   }
 
-  void _updateTimetable(timetableData) async {
+  Future<void> _updateTimetable(timetableData) async {
     // Clear all data structures
     lessons.clear();
     periods.clear();

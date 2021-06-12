@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 // Services
-import '../services/database.dart';
+import '../services/timetable.dart';
 import 'package:timetable/services/reload/reload.dart';
 
 class Timetables extends StatefulWidget {
-  final Database _database = GetIt.I.get<Database>();
+  final Timetable _timetable = GetIt.I.get<Timetable>();
 
   @override
   _TimetablesState createState() => _TimetablesState();
@@ -21,7 +21,7 @@ class _TimetablesState extends State<Timetables> {
 
   Future<void> getTimetables() async {
     List<QueryDocumentSnapshot<Map<String, dynamic>>> timetablesData =
-        await widget._database.getTimetables();
+        await widget._timetable.getTimetables();
 
     timetablesData.sort((a, b) {
       String aName = a.data()["timetable_name"];
@@ -30,7 +30,7 @@ class _TimetablesState extends State<Timetables> {
     });
 
     DocumentReference currentTimetable =
-        await widget._database.getCurrentTimetable();
+        await widget._timetable.getCurrentTimetable();
 
     int index =
         timetablesData.map((e) => e.id).toList().indexOf(currentTimetable.id);
@@ -49,7 +49,7 @@ class _TimetablesState extends State<Timetables> {
   }
 
   Future<void> deleteTimetable({String id}) async {
-    await widget._database.deleteTimetable(id: id);
+    await widget._timetable.deleteTimetable(id: id);
     await getTimetables();
   }
 
@@ -85,7 +85,7 @@ class _TimetablesState extends State<Timetables> {
         floatingActionButton: FloatingActionButton(
           child: Icon(Icons.add),
           onPressed: () async {
-            await widget._database.addTimetable();
+            await widget._timetable.addTimetable();
             changed = true;
             displayReloadWarning(context);
             await getTimetables();
@@ -108,7 +108,7 @@ class _TimetablesState extends State<Timetables> {
                       });
                       changed = true;
                       displayReloadWarning(context);
-                      await widget._database
+                      await widget._timetable
                           .switchTimetable(id: timetable.value.id);
                     },
                   ),
@@ -148,7 +148,7 @@ class _TimetablesState extends State<Timetables> {
                                 ),
                                 child: Text("Ok"),
                                 onPressed: () async {
-                                  await widget._database.editTimetableName(
+                                  await widget._timetable.editTimetableName(
                                     name: _tabletimeNameController.text,
                                     timetableID: timetable.value.id,
                                   );
@@ -195,7 +195,7 @@ class _TimetablesState extends State<Timetables> {
                                         id: timetable.value.id);
                                     changed = true;
                                     displayReloadWarning(context);
-                                    await widget._database
+                                    await widget._timetable
                                         .switchTimetable(id: timetables[0].id);
                                     await getTimetables();
                                     Navigator.of(context).pop();

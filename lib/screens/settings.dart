@@ -13,12 +13,10 @@ import 'package:timetable/screens/lessons.dart';
 import 'package:timetable/screens/periods.dart';
 
 // Services
-import '../services/database.dart';
 import '../services/auth.dart';
 import '../services/timetable.dart';
 
 class SettingsPage extends StatefulWidget {
-  final Database _database = GetIt.I.get<Database>();
   final Auth _auth = GetIt.I.get<Auth>();
   final Timetable _timetable = GetIt.I.get<Timetable>();
 
@@ -144,10 +142,11 @@ class _SettingsPageState extends State<SettingsPage> {
                       setState(() {
                         dropdownValue = newValue;
                       });
-                      final newTimetableData = widget._timetable.rawTimetable;
-                      newTimetableData["number_of_weeks"] = newValue;
-                      await widget._database
-                          .updateTimetableData(data: newTimetableData);
+
+                      await widget._timetable.updateTimetable(
+                        key: "number_of_weeks",
+                        data: newValue,
+                      );
                     },
                     items: <int>[1, 2, 3, 4, 5]
                         .map<DropdownMenuItem<int>>((int value) {
@@ -159,7 +158,6 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                   title: Text("Number of Weeks"),
                 ),
-
                 Column(
                   children: [
                     ListTile(
@@ -185,14 +183,14 @@ class _SettingsPageState extends State<SettingsPage> {
                                     sunday: weekendEnabled.sunday,
                                   );
                                 });
-                                final newTimetableData =
-                                    widget._timetable.rawTimetable;
-                                newTimetableData["weekend_enabled"] = {
-                                  "saturday": selected,
-                                  "sunday": weekendEnabled.sunday,
-                                };
-                                await widget._database.updateTimetableData(
-                                    data: newTimetableData);
+
+                                await widget._timetable.updateTimetable(
+                                  key: "weekend_enabled",
+                                  data: {
+                                    "saturday": selected,
+                                    "sunday": weekendEnabled.sunday,
+                                  },
+                                );
                               },
                             ),
                             title: Text("Saturday"),
@@ -207,14 +205,14 @@ class _SettingsPageState extends State<SettingsPage> {
                                       sunday: selected,
                                     );
                                   });
-                                  final newTimetableData =
-                                      widget._timetable.rawTimetable;
-                                  newTimetableData["weekend_enabled"] = {
-                                    "saturday": weekendEnabled.saturday,
-                                    "sunday": selected,
-                                  };
-                                  await widget._database.updateTimetableData(
-                                      data: newTimetableData);
+
+                                  await widget._timetable.updateTimetable(
+                                    key: "weekend_enabled",
+                                    data: {
+                                      "saturday": weekendEnabled.saturday,
+                                      "sunday": selected,
+                                    },
+                                  );
                                 }),
                             title: Text("Sunday"),
                           )
@@ -223,22 +221,6 @@ class _SettingsPageState extends State<SettingsPage> {
                     )
                   ],
                 ),
-                // ListTile(
-                //   leading: Icon(Icons.weekend),
-                //   title: Text("Weekend Days"),
-                //   trailing: Switch(
-                //     onChanged: (opposite) {
-                //       setState(() {
-                //         weekendEnabled = opposite;
-                //       });
-                //       final newTimetableData = widget._timetable.rawTimetable;
-                //       newTimetableData["weekends"] = opposite;
-                //       widget._database
-                //           .updateTimetableData(data: newTimetableData);
-                //     },
-                //     value: weekendEnabled,
-                //   ),
-                // ),
                 ListTile(
                   onTap: () => Navigator.push(
                     context,
@@ -278,8 +260,8 @@ class _SettingsPageState extends State<SettingsPage> {
                             primary: Colors.red,
                           ),
                           child: Text("Reset"),
-                          onPressed: () {
-                            widget._database.resetWeeksData();
+                          onPressed: () async {
+                            await widget._timetable.resetTimetableDate();
                             Navigator.of(context).pop();
                           },
                         ),

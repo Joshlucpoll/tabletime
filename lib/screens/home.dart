@@ -17,7 +17,6 @@ import 'package:timetable/screens/loading.dart';
 import 'package:timetable/screens/lessons.dart';
 
 // Services
-import '../services/database.dart';
 import '../services/timetable.dart';
 import '../services/notifications.dart';
 
@@ -26,7 +25,6 @@ import '../widgets/week.dart';
 import '../widgets/customScrollPhysics.dart';
 
 class Home extends StatefulWidget {
-  final Database _database = GetIt.I.get<Database>();
   final Timetable _timetable = GetIt.I.get<Timetable>();
   final Notifications _notifications = GetIt.I.get<Notifications>();
 
@@ -182,7 +180,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
 
   void changeCurrentWeek({BuildContext context, int week}) async {
     int oldSelectedWeek = selectedWeek;
-    String retVal = await widget._database.setCurrentWeek(currentWeek: week);
+    String retVal = await widget._timetable.setCurrentWeek(currentWeek: week);
     String outputText =
         retVal == "Success" ? "Current week is now " + week.toString() : retVal;
 
@@ -192,7 +190,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
         action: SnackBarAction(
           label: "Undo",
           onPressed: () async {
-            String retVal = await widget._database
+            String retVal = await widget._timetable
                 .setCurrentWeek(currentWeek: oldSelectedWeek);
             String outputText = retVal == "Success"
                 ? "Current week is now " + oldSelectedWeek.toString()
@@ -217,10 +215,13 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
     if (retVal == "Success") setState(() => selectedWeek = week);
   }
 
-  void toggleEditingWeeks({bool editing, bool save}) async {
+  Future<void> toggleEditingWeeks({bool editing, bool save}) async {
     if (!editing) {
       if (save) {
-        await widget._database.updateWeeksData(weeks: weeksEditingState);
+        await widget._timetable.updateTimetable(
+          key: "weeks",
+          data: weeksEditingState,
+        );
       }
       _editingPaneAnimationController.reverse();
     } else {
@@ -387,7 +388,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                       IconButton(
                         icon: Icon(Icons.close),
                         splashRadius: 20,
-                        onPressed: () {
+                        onPressed: () async {
                           if (weeksEditingState.toString() !=
                               widget._timetable.rawTimetable["weeks"]
                                   .toString()) {
@@ -414,8 +415,8 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                       primary: Colors.red,
                                     ),
                                     child: Text("Continue"),
-                                    onPressed: () {
-                                      toggleEditingWeeks(
+                                    onPressed: () async {
+                                      await toggleEditingWeeks(
                                           editing: false, save: false);
                                       Navigator.of(context).pop();
                                     },
@@ -424,7 +425,8 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                               ),
                             );
                           } else {
-                            toggleEditingWeeks(editing: false, save: false);
+                            await toggleEditingWeeks(
+                                editing: false, save: false);
                           }
                         },
                       ),
@@ -435,8 +437,8 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                         title: "Edit Button",
                         description: "Tap to edit timetable",
                         child: IconButton(
-                          onPressed: () =>
-                              toggleEditingWeeks(editing: true, save: true),
+                          onPressed: () async => await toggleEditingWeeks(
+                              editing: true, save: true),
                           icon: Icon(Icons.edit),
                           splashRadius: 20,
                         ),
@@ -568,7 +570,8 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                           ),
                                           ElevatedButton(
                                             child: Text("Save"),
-                                            onPressed: () => toggleEditingWeeks(
+                                            onPressed: () async =>
+                                                await toggleEditingWeeks(
                                               editing: false,
                                               save: true,
                                             ),

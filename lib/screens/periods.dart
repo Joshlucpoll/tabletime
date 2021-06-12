@@ -6,7 +6,6 @@ import 'package:get_it/get_it.dart';
 import 'package:timetable/screens/loading.dart';
 
 // Services
-import 'package:timetable/services/database.dart';
 import 'package:timetable/services/timetable.dart';
 
 class Period extends StatelessWidget {
@@ -119,7 +118,6 @@ class Period extends StatelessWidget {
 }
 
 class PeriodStructure extends StatefulWidget {
-  final Database _database = GetIt.I.get<Database>();
   final Timetable _timetable = GetIt.I.get<Timetable>();
 
   @override
@@ -192,10 +190,8 @@ class PeriodStructureState extends State<PeriodStructure> {
       return aTime - bTime;
     });
 
-    final newTimetable = rawTimetable;
-    newTimetable["period_structure"] = newList;
-
-    await widget._database.updateTimetableData(data: newTimetable);
+    await widget._timetable
+        .updateTimetable(key: "period_structure", data: newList);
   }
 
   void _changeNewPeriod(
@@ -284,12 +280,12 @@ class PeriodStructureState extends State<PeriodStructure> {
                   ),
                 );
 
-                final newTimetable = rawTimetable;
-                newTimetable["weeks"] = newWeeks;
-
-                await widget._database.updateTimetableData(data: newTimetable);
-
+                await widget._timetable.updateTimetable(
+                  key: "weeks",
+                  data: newWeeks,
+                );
                 await _deletePeriod(index);
+
                 Navigator.of(context).pop();
               },
             )
@@ -303,13 +299,10 @@ class PeriodStructureState extends State<PeriodStructure> {
 
   Future<void> _deletePeriod(int index) async {
     Map<String, dynamic> rawTimetable = widget._timetable.rawTimetable;
-
     List newList = List.from(rawTimetable["period_structure"])..removeAt(index);
 
-    final newTimetable = rawTimetable;
-    newTimetable["period_structure"] = newList;
-
-    await widget._database.updateTimetableData(data: newTimetable);
+    await widget._timetable
+        .updateTimetable(key: "period_structure", data: newList);
   }
 
   void _changePeriod(int index, bool start, BuildContext context) async {
@@ -345,10 +338,8 @@ class PeriodStructureState extends State<PeriodStructure> {
         return aTime - bTime;
       });
 
-      final newTimetable = rawTimetable;
-      newTimetable["period_structure"] = newList;
-
-      widget._database.updateTimetableData(data: newTimetable);
+      await widget._timetable
+          .updateTimetable(key: "period_structure", data: newList);
     }
   }
 
