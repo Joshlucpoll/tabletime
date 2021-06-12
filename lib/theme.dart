@@ -80,9 +80,11 @@ class AppTheme {
   ThemeData darkPlusTheme() {
     return ThemeData(
       brightness: Brightness.dark,
-      primaryColor: Color(0xFF040404),
+      primaryColor: Color(0xFF101010),
       scaffoldBackgroundColor: Colors.black,
-      canvasColor: Color(0xFF070707),
+      canvasColor: Color(0xFF101010),
+      dialogBackgroundColor: Color(0xFF101010),
+      cardColor: Color(0xFF101010),
       fontFamily: "Poppins",
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
