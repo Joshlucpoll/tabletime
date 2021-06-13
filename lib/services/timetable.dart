@@ -217,8 +217,9 @@ class Timetable {
     timetableName = timetableData["timetable_name"] ?? "My Timetable";
     numberOfWeeks = timetableData["number_of_weeks"] ?? 1;
 
-    dynamic tempCurrentWeek = timetableData["current_week"] ?? {
-      "date": () {
+    dynamic tempCurrentWeek = timetableData["current_week"] ??
+        {
+          "date": () {
             DateTime now = DateTime.now();
             DateTime lastMonday = now.subtract(Duration(days: now.weekday - 1));
 
@@ -226,8 +227,8 @@ class Timetable {
                     lastMonday.year, lastMonday.month, lastMonday.day)
                 .toIso8601String();
           },
-      "week": 1,
-    }
+          "week": 1,
+        };
     currentWeek = CurrentWeek(
       date: DateTime.parse(tempCurrentWeek["date"]),
       week: tempCurrentWeek["week"] ?? 1,
