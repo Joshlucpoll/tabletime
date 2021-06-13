@@ -8,6 +8,8 @@ import 'package:get_it/get_it.dart';
 
 // Services
 import 'database.dart';
+import 'firebaseDatabase.dart';
+import 'localDatabase.dart';
 import 'auth.dart';
 import 'notifications.dart';
 
@@ -68,12 +70,26 @@ class WeekendEnabled {
   WeekendEnabled({this.saturday, this.sunday});
 }
 
+class TimetableObject {
+  final String id;
+  final Map<String, dynamic> data;
+
+  TimetableObject({this.id, this.data});
+}
+
+class GetTimetablesObject {
+  final List<TimetableObject> timetables;
+  final int indexOfCurrentTimetable;
+
+  GetTimetablesObject({this.timetables, this.indexOfCurrentTimetable});
+}
+
 class Timetable {
-  final Database _database = GetIt.I.get<Database>();
+  final Database _database = FirebaseDatabase();
   final Auth _auth = GetIt.I.get<Auth>();
   final Notifications _notifications = GetIt.I.get<Notifications>();
 
-  Stream<DocumentSnapshot<Map<String, dynamic>>> _timetableStream;
+  Stream<Map<String, dynamic>> _timetableStream;
   StreamController _onChangeController;
   Stream _onChange;
 
@@ -159,12 +175,8 @@ class Timetable {
     return firstLaunch.getValue();
   }
 
-  Future<List<QueryDocumentSnapshot<Object>>> getTimetables() async {
+  Future<GetTimetablesObject> getTimetables() async {
     return _database.getTimetables();
-  }
-
-  Future<DocumentReference<Map<String, dynamic>>> getCurrentTimetable() async {
-    return _database.getCurrentTimetable();
   }
 
   Future<void> addTimetable() async {
@@ -200,14 +212,14 @@ class Timetable {
   Future<void> _streamTimetable(bool enable) async {
     if (enable) {
       _timetableStream = await _database.streamTimetableData();
-      _timetableStream.listen((DocumentSnapshot timetableSnapshot) {
-        _rawTimetableData = json.decode(json.encode(timetableSnapshot.data()));
-        _updateTimetable(timetableSnapshot.data());
+      _timetableStream.listen((data) {
+        _rawTimetableData = data;
+        _updateTimetable(data);
       });
     }
   }
 
-  Future<void> _updateTimetable(timetableData) async {
+  Future<void> _updateTimetable(Map<String, dynamic> timetableData) async {
     // Clear all data structures
     lessons.clear();
     periods.clear();

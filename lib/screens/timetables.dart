@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -15,29 +14,17 @@ class Timetables extends StatefulWidget {
 
 class _TimetablesState extends State<Timetables> {
   TextEditingController _tabletimeNameController;
-  List<QueryDocumentSnapshot<Map<String, dynamic>>> timetables = [];
+  List<TimetableObject> timetables = [];
   int selectedIndex = -1;
   bool changed = false;
 
   Future<void> getTimetables() async {
-    List<QueryDocumentSnapshot<Map<String, dynamic>>> timetablesData =
+    GetTimetablesObject getTimetablesObject =
         await widget._timetable.getTimetables();
 
-    timetablesData.sort((a, b) {
-      String aName = a.data()["timetable_name"];
-      String bName = b.data()["timetable_name"];
-      return aName.compareTo(bName);
-    });
-
-    DocumentReference currentTimetable =
-        await widget._timetable.getCurrentTimetable();
-
-    int index =
-        timetablesData.map((e) => e.id).toList().indexOf(currentTimetable.id);
-
     setState(() {
-      timetables = timetablesData;
-      selectedIndex = index;
+      timetables = getTimetablesObject.timetables;
+      selectedIndex = getTimetablesObject.indexOfCurrentTimetable;
     });
   }
 
@@ -96,9 +83,7 @@ class _TimetablesState extends State<Timetables> {
               .asMap()
               .entries
               .map<Widget>(
-                (MapEntry<int, QueryDocumentSnapshot<Map<String, dynamic>>>
-                        timetable) =>
-                    ListTile(
+                (MapEntry<int, TimetableObject> timetable) => ListTile(
                   leading: Radio(
                     value: timetable.key,
                     groupValue: selectedIndex,
@@ -113,13 +98,13 @@ class _TimetablesState extends State<Timetables> {
                     },
                   ),
                   title: Text(
-                    timetable.value.data()["timetable_name"],
+                    timetable.value.data["timetable_name"],
                   ),
                   trailing: PopupMenuButton(
                     onSelected: (result) async {
                       if (result == 0) {
                         _tabletimeNameController.text =
-                            timetable.value.data()["timetable_name"];
+                            timetable.value.data["timetable_name"];
 
                         showDialog(
                           context: context,

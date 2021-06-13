@@ -1,7 +1,8 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:timetable/services/timetable.dart';
 
-abstract class Database {
+import 'database.dart';
+
+class LocalDatabase extends Database {
   Future<GetTimetablesObject> getTimetables();
 
   Future<void> addUser();
@@ -16,7 +17,9 @@ abstract class Database {
 
   Future<String> setCurrentWeek({int currentWeek});
 
-  Future<Stream<Map<String, dynamic>>> streamTimetableData();
+  Future<DocumentReference<Map<String, dynamic>>> getCurrentTimetable();
+
+  Future<Stream<DocumentSnapshot>> streamTimetableData();
 
   Future<void> setTimetableData({Map<String, dynamic> data});
 
