@@ -216,9 +216,9 @@ class Timetable {
     // Atomic properties
     timetableName = timetableData["timetable_name"] ?? "My Timetable";
     numberOfWeeks = timetableData["number_of_weeks"] ?? 1;
-    currentWeek = CurrentWeek(
-      date: DateTime.parse(timetableData["current_week"]["date"]) ??
-          () {
+
+    dynamic tempCurrentWeek = timetableData["current_week"] ?? {
+      "date": () {
             DateTime now = DateTime.now();
             DateTime lastMonday = now.subtract(Duration(days: now.weekday - 1));
 
@@ -226,13 +226,23 @@ class Timetable {
                     lastMonday.year, lastMonday.month, lastMonday.day)
                 .toIso8601String();
           },
-      week: timetableData["current_week"]["week"] ?? 1,
+      "week": 1,
+    }
+    currentWeek = CurrentWeek(
+      date: DateTime.parse(tempCurrentWeek["date"]),
+      week: tempCurrentWeek["week"] ?? 1,
     );
+
+    dynamic tempWeekendEnabled = timetableData["weekend_enabled"] ??
+        {
+          "saturday": false,
+          "sunday": false,
+        };
+
     weekendEnabled = WeekendEnabled(
-          saturday: timetableData["weekend_enabled"]["saturday"],
-          sunday: timetableData["weekend_enabled"]["sunday"],
-        ) ??
-        WeekendEnabled(saturday: false, sunday: false);
+      saturday: tempWeekendEnabled["saturday"] ?? false,
+      sunday: tempWeekendEnabled["sunday"] ?? false,
+    );
 
     // Add lessons
     timetableData["lessons"].forEach(
