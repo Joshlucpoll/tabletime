@@ -1,12 +1,13 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:timetable/services/timetable.dart';
 
 abstract class Database {
+  Future<void> initialiseDatabase();
+
   Future<GetTimetablesObject> getTimetables();
 
   Future<void> addUser();
 
-  Future<void> addTimetable();
+  Future<void> addTimetable(bool newUser);
 
   Future<void> deleteTimetable({String id});
 
@@ -17,6 +18,8 @@ abstract class Database {
   Future<String> setCurrentWeek({int currentWeek});
 
   Future<Stream<Map<String, dynamic>>> streamTimetableData();
+
+  requestNewDateFromSteam();
 
   Future<void> setTimetableData({Map<String, dynamic> data});
 

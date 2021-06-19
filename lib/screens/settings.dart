@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:timetable/screens/timetables.dart';
+import 'package:timetable/services/reload/reload.dart';
 import 'package:timetable/widgets/expandedSelection.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -37,6 +38,7 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
+  bool localAccount = false;
   bool timetableData = false;
   TextEditingController _tabletimeNameController;
   int dropdownValue;
@@ -48,6 +50,7 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   void initState() {
     setState(() {
+      localAccount = widget._auth.localAccount;
       themePreference = getThemeManager(context).selectedThemeIndex;
     });
     widget._timetable.onTimeTableChange().listen(
@@ -82,6 +85,7 @@ class _SettingsPageState extends State<SettingsPage> {
         dropdownValue = widget._timetable.numberOfWeeks;
         notificationPref = widget._timetable.notificationPref;
         weekendEnabled = widget._timetable.weekendEnabled;
+        localAccount = widget._auth.localAccount;
       });
     }
   }
@@ -389,17 +393,118 @@ class _SettingsPageState extends State<SettingsPage> {
                       throw 'Could not launch $url';
                     }
                   },
-                  leading: Icon(Icons.language),
+                  leading: Icon(Icons.launch),
                   title: Text("https://tabletime.app"),
                 ),
-                ListTile(
-                  onTap: () {
-                    widget._auth.signOut();
-                    Navigator.of(context).pop();
-                  },
-                  leading: Icon(Icons.logout),
-                  title: Text("Sign out"),
+                Visibility(
+                  visible: !localAccount,
+                  child: ListTile(
+                    onTap: () {
+                      widget._auth.signOut();
+                      Navigator.of(context).pop();
+                    },
+                    leading: Icon(Icons.logout),
+                    title: Text("Sign out"),
+                  ),
                 ),
+                Visibility(
+                  visible: localAccount,
+                  child: ListTile(
+                    onTap: () => showModalBottomSheet(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.vertical(
+                          top: Radius.circular(20.0),
+                        ),
+                      ),
+                      context: context,
+                      builder: (BuildContext context) => Container(
+                        padding: EdgeInsets.only(
+                          left: 24,
+                          right: 24,
+                          bottom: 24,
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              margin: EdgeInsets.only(top: 10, bottom: 9),
+                              width: 30,
+                              height: 5,
+                              decoration: BoxDecoration(
+                                  shape: BoxShape.rectangle,
+                                  borderRadius: BorderRadius.circular(5),
+                                  color: Theme.of(context).splashColor),
+                            ),
+                            Text(
+                              "Link Google account?",
+                              style: Theme.of(context).textTheme.headline6,
+                            ),
+                            Padding(padding: EdgeInsets.all(20)),
+                            Text(
+                              "You are about to link your Google account with Tabletime. This will migrate all of your timetables to the cloud and allow you to use the web app.",
+                            ),
+                            Padding(padding: EdgeInsets.all(20)),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                OutlinedButton(
+                                  style: TextButton.styleFrom(
+                                    primary: Theme.of(context)
+                                        .textTheme
+                                        .bodyText1
+                                        .color,
+                                  ),
+                                  child: Text("Go back"),
+                                  onPressed: () => Navigator.of(context).pop(),
+                                ),
+                                ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    primary: Color(0xFF3469C1),
+                                    onPrimary: Colors.white,
+                                    padding: EdgeInsets.all(0),
+                                  ),
+                                  onPressed: () async {
+                                    await widget._timetable
+                                        .linkGoogleAccount(context);
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          "Success, Google account linked!",
+                                        ),
+                                      ),
+                                    );
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Container(
+                                        padding: EdgeInsets.all(10),
+                                        margin: EdgeInsets.only(right: 10),
+                                        color: Colors.white,
+                                        child: Image(
+                                          image: AssetImage(
+                                              "assets/images/google_logo.png"),
+                                          height: 18,
+                                        ),
+                                      ),
+                                      Container(
+                                        padding: EdgeInsets.only(right: 10),
+                                        child: Text("Sign in with Google"),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    leading: Icon(Icons.cloud_upload),
+                    title: Text("Link Google Account"),
+                  ),
+                )
               ],
             ),
           );

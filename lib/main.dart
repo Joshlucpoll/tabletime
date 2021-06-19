@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get_it/get_it.dart';
 import 'package:stacked_themes/stacked_themes.dart';
 
@@ -52,16 +51,19 @@ class Root extends StatelessWidget {
       AppTheme(context: context).updateSystemUI(themeIndex: themeIndex);
     });
     return StreamBuilder(
-      stream: GetIt.I.get<Auth>().user,
-      builder: (BuildContext context, AsyncSnapshot<User> snapshot) {
-        if (snapshot.connectionState == ConnectionState.active) {
-          if (snapshot.data?.uid == null) {
-            return Login();
-          } else {
+      stream: GetIt.I.get<Auth>().authCred,
+      initialData: AuthCred(user: null, local: false),
+      builder: (BuildContext context, AsyncSnapshot<AuthCred> snapshot) {
+        AuthCred authCred = snapshot.data;
+
+        if (authCred.user == null) {
+          if (authCred.local) {
             return Home();
+          } else {
+            return Login();
           }
         } else {
-          return Loading();
+          return Home();
         }
       },
     );

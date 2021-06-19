@@ -13,6 +13,8 @@ class FirebaseDatabase extends Database {
   DocumentReference<Map<String, dynamic>> get userRef =>
       firestore.collection("users").doc(uid);
 
+  Future<void> initialiseDatabase() async {}
+
   Future<GetTimetablesObject> getTimetables() async {
     try {
       List<QueryDocumentSnapshot<Map<String, dynamic>>> timetablesData =
@@ -53,15 +55,23 @@ class FirebaseDatabase extends Database {
   }
 
   Future<void> addUser() async {
-    await addTimetable();
+    await addTimetable(true);
   }
 
-  Future<void> addTimetable() async {
+  Future<void> addTimetable(bool newUser) async {
     try {
       CollectionReference timetablesRef = userRef.collection("timetables");
       DocumentReference timetableRef = timetablesRef.doc();
 
-      GetTimetablesObject timetables = await getTimetables();
+      GetTimetablesObject timetables;
+      if (newUser) {
+        timetables = GetTimetablesObject(
+          indexOfCurrentTimetable: null,
+          timetables: [],
+        );
+      } else {
+        timetables = await getTimetables();
+      }
 
       final data = {
         "timetable_name":
@@ -199,6 +209,10 @@ class FirebaseDatabase extends Database {
     }
   }
 
+  Future<void> requestNewDateFromSteam() async {
+    return;
+  }
+
   Future<void> setTimetableData({Map<String, dynamic> data}) async {
     try {
       DocumentReference timetableRef = await _getCurrentTimetable();
@@ -233,6 +247,38 @@ class FirebaseDatabase extends Database {
       DocumentReference timetableRef = await _getCurrentTimetable();
 
       await timetableRef.update({"weeks": weeks});
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> migrateLocalDatabase(Map<String, dynamic> userData) async {
+    try {
+      CollectionReference timetablesRef = userRef.collection("timetables");
+
+      String currentTimetable = userData["current_timetable"];
+
+      Map<String, dynamic> timetables = userData["timetables"];
+
+      await Future.forEach(timetables.entries, (
+        MapEntry<String, dynamic> timetable,
+      ) async {
+        String id = timetable.key;
+        Map<String, dynamic> data = timetable.value;
+
+        DocumentReference timetableRef = timetablesRef.doc();
+        String timetableName = data["timetable_name"];
+
+        data["timetable_name"] = timetableName + " (Migrated)";
+
+        await timetableRef.set(data);
+
+        if (id == currentTimetable) {
+          await userRef.set({"current_timetable": timetableRef});
+        }
+      });
+
+      return "Success";
     } catch (e) {
       rethrow;
     }

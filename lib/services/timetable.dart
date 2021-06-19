@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:streaming_shared_preferences/streaming_shared_preferences.dart';
 import 'dart:async';
-import 'dart:convert';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get_it/get_it.dart';
+import 'package:timetable/services/reload/reload.dart';
 
 // Services
 import 'database.dart';
@@ -85,7 +83,7 @@ class GetTimetablesObject {
 }
 
 class Timetable {
-  final Database _database = FirebaseDatabase();
+  Database _database;
   final Auth _auth = GetIt.I.get<Auth>();
   final Notifications _notifications = GetIt.I.get<Notifications>();
 
@@ -104,15 +102,23 @@ class Timetable {
   Map<String, WeekData> weeks = {};
 
   NotificationPref notificationPref;
-  bool loggedIn = false;
+  bool migrating = false;
 
   Timetable() {
     _onChangeController = StreamController();
     _onChange = _onChangeController.stream.asBroadcastStream();
     _getNotificationPref();
 
-    _auth.auth.authStateChanges().listen((User user) {
-      if (user != null) _streamTimetable(true);
+    _auth.authCred.listen((AuthCred authCred) async {
+      if (authCred.user != null && !migrating) {
+        _database = FirebaseDatabase();
+        await _database.initialiseDatabase();
+        _streamTimetable(true);
+      } else if (authCred.local) {
+        _database = LocalDatabase();
+        await _database.initialiseDatabase();
+        _streamTimetable(true);
+      }
     });
   }
 
@@ -180,7 +186,7 @@ class Timetable {
   }
 
   Future<void> addTimetable() async {
-    return _database.addTimetable();
+    return _database.addTimetable(false);
   }
 
   Future<void> deleteTimetable({String id}) async {
@@ -216,6 +222,12 @@ class Timetable {
         _rawTimetableData = data;
         _updateTimetable(data);
       });
+
+      if (_rawTimetableData == null) {
+        Map<String, dynamic> lastTimetableData = await _timetableStream.last;
+        _rawTimetableData = lastTimetableData;
+        _updateTimetable(lastTimetableData);
+      }
     }
   }
 
@@ -318,5 +330,33 @@ class Timetable {
     }
 
     _onChangeController.add(true);
+  }
+
+  Future<void> linkGoogleAccount(BuildContext context) async {
+    migrating = true;
+    await _auth.signInWithGoogle().catchError((e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.message),
+        ),
+      );
+    });
+
+    if (_auth.uid != null) {
+      LocalDatabase localDB = LocalDatabase();
+      Map<String, dynamic> userData = await localDB.readDatabase();
+
+      FirebaseDatabase firebaseDB = FirebaseDatabase();
+
+      await firebaseDB.migrateLocalDatabase(userData);
+      await localDB.deleteDatabase();
+      _auth.localAccount = false;
+
+      _database = firebaseDB;
+      _streamTimetable(true);
+      _onChangeController.add(true);
+    }
+
+    migrating = false;
   }
 }
