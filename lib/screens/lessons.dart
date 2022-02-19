@@ -26,6 +26,8 @@ class _LessonGeneratorState extends State<LessonGenerator> {
   final _teacherController = TextEditingController();
   final _roomController = TextEditingController();
 
+  bool saveButtonEnabled = true;
+
   bool timetableData = false;
   String timetableName;
   CurrentWeek currentWeek;
@@ -497,8 +499,11 @@ class _LessonGeneratorState extends State<LessonGenerator> {
                             ),
                             ElevatedButton(
                               child: Text(lesson == null ? "Add" : "Save"),
-                              onPressed: () async {
+                              onPressed: saveButtonEnabled ? () async {
                                 if (_formKey.currentState.validate()) {
+                                  setState(() {
+                                    saveButtonEnabled = false;
+                                  })
                                   if (lesson == null) {
                                     await _addLesson(
                                       name: _nameController.text,
@@ -520,7 +525,7 @@ class _LessonGeneratorState extends State<LessonGenerator> {
                                   _teacherController.text = "";
                                   _roomController.text = "";
                                 }
-                              },
+                              } : null,
                             )
                           ],
                         ),
